@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { FaLaptopCode } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
+import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
 
-import { verifyOTP, createOTP, changePasswordRecovery } from "../hooks/recovery_hook";
+// import { verifyOTP, createOTP, changePasswordRecovery } from "../hooks/recovery_hook";
 
 const AccountRecoveryPage = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const AccountRecoveryPage = () => {
         if (data && success === false) {
           toast.error(data.message || "Create OTP failed");
         } else {
-          toast.success(data.data  || "Code verified successfully!");
+          toast.success(data.data || "Code verified successfully!");
           setStep(3);
         }
       } else {
@@ -118,11 +119,11 @@ const AccountRecoveryPage = () => {
       if (data && success === false) {
         toast.error(data.message || "Falled to reset password.");
       } else {
-        toast.success(data.data  || "Password reset successfully!");  
+        toast.success(data.data || "Password reset successfully!");
         navigate('/login');
       }
     } catch (error) {
-       if (error.response && error.response.data) {
+      if (error.response && error.response.data) {
         toast.error(error.response.data.message || "Failed to reset password. Please try again.");
       } else {
         toast.error("Failed to reset password. Please try again.");
@@ -156,7 +157,7 @@ const AccountRecoveryPage = () => {
       if (data && success === false) {
         toast.error(data.message || "Create OTP failed");
       } else {
-        toast.success(data.data  || "Verification code sent again!");
+        toast.success(data.data || "Verification code sent again!");
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -203,18 +204,21 @@ const AccountRecoveryPage = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center space-x-2">
-                <FaLaptopCode className="h-8 w-8 text-indigo-600" />
-                <span className="text-xl font-bold text-gray-900">E-INC Request</span>
+                <img
+                  src={WasteWiseLogo}
+                  alt="WasteWise Logo"
+                  className="h-24 w-auto object-fit"
+                />
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button
+              {/* <button
                 className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-indigo-600"
                 onClick={() => { navigate('/role_selection') }}
               >
                 Register
-              </button>
-              <button className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+              </button> */}
+              <button className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
                 Sign In
               </button>
             </div>

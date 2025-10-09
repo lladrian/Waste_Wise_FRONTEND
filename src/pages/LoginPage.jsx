@@ -213,7 +213,7 @@ const LoginPage = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setShowForgotPassword(true)}
+                      onClick={() => navigate('/account_recovery')}
                       className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
                     >
                       Forgot password?
@@ -257,7 +257,7 @@ const LoginPage = () => {
                     )}
                   </button>
 
-                  <div className="text-center text-sm text-gray-600">
+                  {/* <div className="text-center text-sm text-gray-600">
                     New to WasteWise?{" "}
                     <button
                       type="button"
@@ -266,7 +266,7 @@ const LoginPage = () => {
                     >
                       Create your account
                     </button>
-                  </div>
+                  </div> */}
                 </form>
               </div>
             </div>
