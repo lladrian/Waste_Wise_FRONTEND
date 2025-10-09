@@ -37,8 +37,7 @@ const LoginPage = () => {
 
       toast.success("Welcome to WasteWise!");
       // Navigate to dashboard after successful login
-      // navigate('/dashboard');
-
+      navigate('/dashboard');
     } catch (error) {
       toast.error("Login failed. Please check your credentials.");
     } finally {

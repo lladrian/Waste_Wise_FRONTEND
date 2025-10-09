@@ -85,7 +85,7 @@ const AdminLayout = ({ children }) => {
     // Enhanced custom titles for WasteWise admin pages
     const customTitles = {
       // Dashboard
-      'dashboard': 'Waste Wise Management Dashboard',
+      'dashboard': 'Waste Wise Dashboard',
       
       // Management section
       'management': 'Waste Management',
@@ -279,7 +279,7 @@ const AdminLayout = ({ children }) => {
         {/* User Profile & Logout - Compact */}
         <div className="p-2 border-t border-blue-200/40 space-y-2 flex-shrink-0">
           {/* Admin Quick Stats - Only show when sidebar is open */}
-          {sidebarOpen && (
+          {/* {sidebarOpen && (
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2 border border-blue-200/40">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs font-medium text-gray-600">Pending</span>
@@ -290,7 +290,7 @@ const AdminLayout = ({ children }) => {
                 <span className="text-xs font-bold text-blue-600 truncate">{adminId}</span>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Admin & Logout */}
           <div className="space-y-1">
