@@ -4,6 +4,8 @@ import LoginPage from './pages/LoginPage';
 import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AdminLayout from './layouts/admin_layout';
 
+import AdminUserManagementPage from './pages/managements/AdminUserManagementPage';
+
  
 // import RegisterPage from './pages/RegisterPage';
 // import RoleSelectionPage from './pages/RoleSelectionPage';
@@ -19,10 +21,14 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<AdminUserManagementPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
         <Route path="/admin/dashboard" element={<AdminLayout />} />
+        <Route path="/admin/management/users" element={<AdminUserManagementPage />} />
+
+
+       
 {/*
         <Route path="/register/:role_selected" element={<RegisterPage />} /> 
         <Route path="/role_selection" element={<RoleSelectionPage />} /> 
