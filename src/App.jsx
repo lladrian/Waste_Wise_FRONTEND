@@ -18,7 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<AdminLayout />} />
+        <Route path="/admin/dashboard" element={<AdminLayout />} />
 {/*
         <Route path="/register/:role_selected" element={<RegisterPage />} /> 
         <Route path="/role_selection" element={<RoleSelectionPage />} /> 
