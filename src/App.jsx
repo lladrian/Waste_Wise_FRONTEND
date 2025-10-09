@@ -1,19 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+
+import LoginPage from './pages/LoginPage';
+// import AdminLayout from './layouts/admin_layout';
+// import RegisterPage from './pages/RegisterPage';
+// import RoleSelectionPage from './pages/RoleSelectionPage';
+// import AccountRecoveryPage from './pages/AccountRecoveryPage';
+
+
+
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-    
-      <p className="read-the-docs">
-        TEST
-      </p>
-    </>
-  )
+    <Router>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+{/*
+        <Route path="/register/:role_selected" element={<RegisterPage />} /> 
+        <Route path="/role_selection" element={<RoleSelectionPage />} /> 
+        <Route path="/account_recovery" element={<AccountRecoveryPage />} />  */}
+      </Routes>
+    </Router>
+  ); 
+
 }
 
-export default App
+export default App;
