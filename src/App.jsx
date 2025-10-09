@@ -21,7 +21,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<AdminUserManagementPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
         <Route path="/admin/dashboard" element={<AdminLayout />} />
