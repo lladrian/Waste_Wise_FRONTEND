@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
 
-// import { verifyOTP, createOTP, changePasswordRecovery } from "../hooks/recovery_hook";
+import { verifyOTP, createOTP, changePasswordRecovery } from "../hooks/recovery_hook";
 
 const AccountRecoveryPage = () => {
   const navigate = useNavigate();

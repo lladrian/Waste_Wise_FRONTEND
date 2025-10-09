@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
 
+import { loginUser } from "../hooks/login_hook";
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const initialFormData = {
@@ -26,20 +28,28 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
+
       const input_data = {
         password: formData.password,
         email: formData.email,
       };
 
-      // Simulate API call
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      toast.success("Welcome to WasteWise!");
-      // Navigate to dashboard after successful login
-      navigate('/admin/dashboard');
+      const { data, success } = await loginUser(input_data);
+      
+      if (data && success === false) {
+        toast.error(data.message || "Login failed");
+      } else {
+        setFormData(initialFormData)
+        toast.success("Welcome to WasteWise!");
+        navigate('/admin/dashboard');
+      }
     } catch (error) {
-      toast.error("Login failed. Please check your credentials.");
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message || "Login failed. Please check your credentials.");
+      } else {
+        toast.error("Login failed. Please check your credentials.");
+      }
     } finally {
       setLoading(false);
     }
