@@ -41,6 +41,12 @@ const LoginPage = () => {
         toast.error(data.message || "Login failed");
       } else {
         setFormData(initialFormData)
+
+        if(data.data.is_disabled === true) {
+          navigate(`/disabled/${data.data._id}`);
+          return;
+        }
+
         toast.success("Welcome to WasteWise!");
         navigate('/admin/dashboard');
       }

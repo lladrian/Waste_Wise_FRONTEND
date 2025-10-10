@@ -47,13 +47,13 @@ const AdminLayout = ({ children }) => {
       icon: FiFolder, 
       label: "Waste Management",
       subItems: [
-        { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
         { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
-        { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
-        { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
-        { path: "/admin/management/schedule", icon: FiClock, label: "Schedule Management" },
-        { path: "/admin/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
-        { path: "/admin/management/reports", icon: FiBarChart2, label: "Waste Reports" },
+        // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
+        // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
+        // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
+        // { path: "/admin/management/schedule", icon: FiClock, label: "Schedule Management" },
+        // { path: "/admin/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
+        // { path: "/admin/management/reports", icon: FiBarChart2, label: "Waste Reports" },
       ]
     },
     

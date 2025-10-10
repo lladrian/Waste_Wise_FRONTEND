@@ -12,15 +12,12 @@ import {
     FiXCircle
 } from 'react-icons/fi';
 
-// import { deleteCourse, getSpecificCourse, getAllCourse, getAllDataCourseManagement, createCourse, updateCourse } from "../../hooks/course_management_hook";
+import { getAllUser, deleteUser, updateUser, createUser } from "../../hooks/user_management_hook";
+
 import { toast } from "react-toastify";
-
-
-
 
 const UserManagementLayout = () => {
     const [users, setUsers] = useState([]);
-    const [departments, setDepartment] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -37,8 +34,6 @@ const UserManagementLayout = () => {
     });
 
 
-
-
     useEffect(() => {
         fetchData();
     }, []);
@@ -46,12 +41,11 @@ const UserManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllDataCourseManagement();
+            const { data, success } = await getAllUser();
 
             if (success === true) {
-                setUsers(data.courses.data)
-                setDepartment(data.departments.data)
-                setFilteredUsers(data.courses.data)
+                setUsers(data.data)
+                setFilteredUsers(data.data)
             }
 
         } catch (err) {
@@ -72,10 +66,10 @@ const UserManagementLayout = () => {
             filtered = filtered.filter(user =>
                 user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.last_name.department_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.department_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.role.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
@@ -95,7 +89,7 @@ const UserManagementLayout = () => {
 
         const input_data = {
             email: formData.email,
-            password: formData.password,
+            password: formData.password || "",
             first_name: formData.first_name,
             middle_name: formData.middle_name,
             last_name: formData.last_name,
@@ -105,18 +99,11 @@ const UserManagementLayout = () => {
         };
 
         if (editingUsers) {
-            const { data, success } = await updateCourse(editingUsers._id, input_data);
-
-            if (success === true) {
-                toast.success(data.data);
-                fetchData();
-            }
-        } else {
             try {
-                const { data, success } = await createCourse(input_data);
+                const { data, success } = await updateUser(editingUsers._id, input_data);
 
                 if (data && success === false) {
-                    toast.error(data.message || "Failed to create course");
+                    toast.error(data.message || "Failed to create user");
                 }
 
                 if (success === true) {
@@ -125,9 +112,29 @@ const UserManagementLayout = () => {
                 }
             } catch (error) {
                 if (error.response && error.response.data) {
-                    toast.error(error.response.data.message || error.message || "Failed to create course");
+                    toast.error(error.response.data.message || error.message || "Failed to update user");
                 } else {
-                    toast.error("Failed to create course");
+                    toast.error("Failed to update user");
+                }
+            }
+
+        } else {
+            try {
+                const { data, success } = await createUser(input_data);
+
+                if (data && success === false) {
+                    toast.error(data.message || "Failed to create user");
+                }
+
+                if (success === true) {
+                    toast.success(data.data);
+                    fetchData();
+                }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    toast.error(error.response.data.message || error.message || "Failed to create user");
+                } else {
+                    toast.error("Failed to create user");
                 }
             }
         }
@@ -140,7 +147,6 @@ const UserManagementLayout = () => {
         setEditingUser(user);
         setFormData({
             email: user.email,
-            // password: user.password,
             first_name: user.first_name,
             middle_name: user.middle_name,
             last_name: user.last_name,
@@ -155,10 +161,9 @@ const UserManagementLayout = () => {
 
 
     const handleDelete = async (id) => {
-        console.log(id)
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
-                const { data, success } = await deleteCourse(id);
+                const { data, success } = await deleteUser(id);
 
                 if (success === true) {
                     toast.success(data.data);
@@ -185,6 +190,19 @@ const UserManagementLayout = () => {
         });
 
         setEditingUser(null);
+    };
+
+
+    const formatRole = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+
+        return roleMap[role] || role; // Return formatted role or original if not found
     };
 
     return (
@@ -232,7 +250,7 @@ const UserManagementLayout = () => {
                                         Role
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Department
+                                        Gender
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
@@ -243,13 +261,13 @@ const UserManagementLayout = () => {
                                 {filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.course_name}</span>
+                                            <span className="text-sm text-gray-900">{user.first_name} {user.middle_name} {user.last_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.course_abbreviation}</span>
+                                            <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.department.department_name}</span>
+                                            <span className="text-sm text-gray-900">{user.gender}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
@@ -279,7 +297,7 @@ const UserManagementLayout = () => {
                     {filteredUsers.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No course found</p>
+                            <p className="text-gray-500 text-lg">No user found</p>
                             <p className="text-gray-400 text-sm mt-1">
                                 {searchTerm
                                     ? 'Try adjusting your search or filters'
@@ -293,9 +311,9 @@ const UserManagementLayout = () => {
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
-                            <div className="flex justify-between items-center mb-4">
+                            <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
                                     {editingUsers ? 'Edit User' : 'Add New User'}
                                 </h2>
@@ -304,74 +322,167 @@ const UserManagementLayout = () => {
                                         setShowModal(false);
                                         resetForm();
                                     }}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
                                 >
-
                                     <FiXCircle className="w-6 h-6" />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Course Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="course_name"
-                                        value={formData.course_name}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        placeholder="Enter user"
-                                    />
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* 2-Column Grid for Form Fields */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* First Name */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            First Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="first_name"
+                                            value={formData.first_name}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            placeholder="Enter First Name"
+                                        />
+                                    </div>
+
+                                    {/* Middle Name */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Middle Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="middle_name"
+                                            value={formData.middle_name}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            placeholder="Enter Middle Name"
+                                        />
+                                    </div>
+
+                                    {/* Last Name */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Last Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="last_name"
+                                            value={formData.last_name}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            placeholder="Enter Last Name"
+                                        />
+                                    </div>
+
+                                    {/* Contact Number */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Contact Number
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="contact_number"
+                                            value={formData.contact_number}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            placeholder="Enter Contact Number"
+                                        />
+                                    </div>
+
+                                    {/* Email Address - Full Width */}
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Email Address
+                                        </label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            placeholder="Enter Email Address"
+                                        />
+                                    </div>
+
+
+                                    {/* Only show password field when NOT editing (creating new user) */}
+                                    {!editingUsers && (
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Password
+                                            </label>
+                                            <input
+                                                type="password"
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleInputChange}
+                                                required={!editingUsers} // Only required for new users
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                placeholder="Enter Password"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className={editingUsers ? "md:col-span-1" : "md:col-span-2"}>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Gender
+                                        </label>
+                                        <select
+                                            name="gender"
+                                            value={formData.gender}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Role
+                                        </label>
+                                        <select
+                                            name="role"
+                                            value={formData.role}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Role</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="enro_staff">ENRO Staff</option>
+                                            <option value="barangay_official">Barangay Official</option>
+                                            <option value="garbage_collector">Garbage Collector</option>
+                                            <option value="resident">Resident</option>
+                                        </select>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Course Abbreviation
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="course_abbreviation"
-                                        value={formData.course_abbreviation}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        placeholder="Enter course"
-                                    />
-                                </div>
-
-                                <select
-                                    name="department"
-                                    value={formData.department}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                >
-                                    <option value="">Select Department</option>
-                                    {departments.map(dept => (
-                                        <option key={dept._id} value={dept._id}>
-                                            {dept.department_name}
-                                        </option>
-                                    ))}
-                                </select>
-
-
-                                <div className="flex justify-end space-x-3 pt-4">
+                                {/* Action Buttons */}
+                                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                                     <button
                                         type="button"
                                         onClick={() => {
                                             setShowModal(false);
                                             resetForm();
                                         }}
-                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                                        className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
                                     >
                                         {editingUsers ? 'Update User' : 'Add User'}
                                     </button>
@@ -381,6 +492,7 @@ const UserManagementLayout = () => {
                     </div>
                 </div>
             )}
+
         </>
     );
 };
