@@ -526,7 +526,7 @@ const UserManagementLayout = () => {
                                             <option value="enro_staff">ENRO Staff</option>
                                             <option value="barangay_official">Barangay Official</option>
                                             <option value="garbage_collector">Garbage Collector</option>
-                                            <option value="resident">Resident</option>
+                                            {editingUsers && <option value="resident">Resident</option>}
                                         </select>
                                     </div>
                                 </div>
