@@ -47,3 +47,14 @@ export const updateUser = async (id, data) => {
   }
 };
 
+
+export const updateUserPassword = async (id, data) => {
+  try {
+    const res = await API.updateUserPassword(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
