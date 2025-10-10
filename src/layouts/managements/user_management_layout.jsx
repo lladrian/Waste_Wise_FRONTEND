@@ -6,13 +6,14 @@ import {
     FiSearch,
     FiFilter,
     FiBook,
+    FiLock,
     FiUser,
     FiClock,
     FiCheckCircle,
     FiXCircle
 } from 'react-icons/fi';
 
-import { getAllUser, deleteUser, updateUser, createUser } from "../../hooks/user_management_hook";
+import { getAllUser, deleteUser, updateUser, createUser, updateUserPassword } from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
 
@@ -21,10 +22,13 @@ const UserManagementLayout = () => {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingUsers, setEditingUser] = useState(null);
+    const [editingUserPassword, setEditingUserPassword] = useState(null);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
+        update_password: '',
         first_name: '',
         middle_name: '',
         last_name: '',
@@ -89,7 +93,7 @@ const UserManagementLayout = () => {
 
         const input_data = {
             email: formData.email,
-            password: formData.password || "",
+            password: formData.password,
             first_name: formData.first_name,
             middle_name: formData.middle_name,
             last_name: formData.last_name,
@@ -98,7 +102,30 @@ const UserManagementLayout = () => {
             role: formData.role
         };
 
-        if (editingUsers) {
+        if (editingUserPassword) {
+            try {
+                const input_data2 = {
+                    password: formData.update_password,
+                };
+
+                const { data, success } = await updateUserPassword(editingUserPassword._id, input_data2);
+
+                if (data && success === false) {
+                    toast.error(data.message || "Failed to update user password");
+                }
+
+                if (success === true) {
+                    toast.success(data.data);
+                    fetchData();
+                }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    toast.error(error.response.data.message || error.message || "Failed to update user password");
+                } else {
+                    toast.error("Failed to update user password");
+                }
+            }
+        } else if (editingUsers) {
             try {
                 const { data, success } = await updateUser(editingUsers._id, input_data);
 
@@ -117,7 +144,6 @@ const UserManagementLayout = () => {
                     toast.error("Failed to update user");
                 }
             }
-
         } else {
             try {
                 const { data, success } = await createUser(input_data);
@@ -141,6 +167,7 @@ const UserManagementLayout = () => {
 
         resetForm();
         setShowModal(false);
+        setShowModalPassword(false);
     };
 
     const handleEdit = (user) => {
@@ -155,9 +182,24 @@ const UserManagementLayout = () => {
             role: user.role
         });
 
-
         setShowModal(true);
     };
+
+    const handleEditPassword = (user) => {
+        setEditingUserPassword(user)
+        setFormData({
+            email: user.email,
+            first_name: user.first_name,
+            middle_name: user.middle_name,
+            last_name: user.last_name,
+            gender: user.gender,
+            contact_number: user.contact_number,
+            role: user.role
+        });
+
+        setShowModalPassword(true);
+    };
+
 
 
     const handleDelete = async (id) => {
@@ -219,6 +261,7 @@ const UserManagementLayout = () => {
                     </button>
                 </div>
 
+
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -253,6 +296,12 @@ const UserManagementLayout = () => {
                                         Gender
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Contact Number
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Email Address
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
                                 </tr>
@@ -267,7 +316,13 @@ const UserManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.gender}</span>
+                                            <span className="text-sm text-gray-900">{user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1).toLowerCase() : ''}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.contact_number}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.email}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
@@ -277,6 +332,13 @@ const UserManagementLayout = () => {
                                                     title="Edit"
                                                 >
                                                     <FiEdit className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleEditPassword(user)}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    title="Change Password"
+                                                >
+                                                    <FiLock className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(user._id)}
@@ -493,6 +555,116 @@ const UserManagementLayout = () => {
                 </div>
             )}
 
+
+            {showModalPassword && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    Change Password
+                                </h2>
+                                <button
+                                    onClick={() => {
+                                        setShowModalPassword(false);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* User Information Section */}
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Name:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.first_name} {formData?.middle_name} {formData?.last_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Role:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                           {formatRole(formData?.role)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Gender:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.gender}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Contact:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.contact_number || 'Not provided'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                    <span className="text-gray-500">Email Address:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.email || 'Not provided'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Password Fields */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            New Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="update_password"
+                                            value={formData.update_password || ''}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                            placeholder="Enter New Password"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Password Requirements */}
+                                {/* <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                    <h4 className="text-sm font-medium text-blue-800 mb-2">Password Requirements:</h4>
+                                    <ul className="text-xs text-blue-700 space-y-1">
+                                        <li>• At least 6 characters long</li>
+                                        <li>• Include uppercase and lowercase letters</li>
+                                        <li>• Include numbers and special characters</li>
+                                    </ul>
+                                </div> */}
+
+                                {/* Action Buttons */}
+                                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowModalPassword(false);
+                                            resetForm();
+                                        }}
+                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        Update Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
