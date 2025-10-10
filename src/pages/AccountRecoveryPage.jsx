@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { FaLaptopCode } from "react-icons/fa";
+import { FaRecycle, FaWater } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
-import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
+import WasteWiseLogo from '../assets/wastewise_logo.png';
 
 import { verifyOTP, createOTP, changePasswordRecovery } from "../hooks/recovery_hook";
 
@@ -190,35 +190,37 @@ const AccountRecoveryPage = () => {
       case 2:
         return `Enter the 6-digit code sent to ${formData.email}`;
       case 3:
-        return "Create a new password for your account.";
+        return "Create a new password for your WasteWise account.";
       default:
         return "";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-100 flex flex-col">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-100">
+      <nav className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center space-x-2">
-                <img
-                  src={WasteWiseLogo}
-                  alt="WasteWise Logo"
-                  className="h-24 w-auto object-fit"
-                />
+              <div className="flex-shrink-0 flex items-center space-x-3">
+                <div className="relative">
+                  <img
+                    src={WasteWiseLogo}
+                    alt="WasteWise Logo"
+                    className="h-8 w-auto object-contain"
+                  />
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  WasteWise
+                </span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* <button
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-indigo-600"
-                onClick={() => { navigate('/role_selection') }}
+              <button 
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer"
+                onClick={() => navigate('/login')}
               >
-                Register
-              </button> */}
-              <button className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
                 Sign In
               </button>
             </div>
@@ -227,26 +229,41 @@ const AccountRecoveryPage = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
         <div className="w-full max-w-md">
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-white/20">
-            <div className="p-8 md:p-10">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+            {/* Header with Gradient */}
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-6 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl backdrop-blur-sm flex items-center justify-center">
+                  <FaRecycle className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Account Recovery</h2>
+              <p className="text-blue-100 text-sm">
+                Secure access to your WasteWise account
+              </p>
+            </div>
+
+            <div className="p-8">
               {/* Progress Steps */}
               <div className="flex justify-center mb-8">
                 {[1, 2, 3].map((stepNumber) => (
                   <div key={stepNumber} className="flex items-center">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= stepNumber
-                        ? "bg-indigo-600 text-white"
-                        : "bg-gray-300 text-gray-600"
-                        }`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all duration-300 ${
+                        step >= stepNumber
+                          ? "bg-blue-500 border-blue-500 text-white shadow-lg"
+                          : "bg-white border-blue-200 text-blue-300"
+                      }`}
                     >
                       {stepNumber}
                     </div>
                     {stepNumber < 3 && (
                       <div
-                        className={`w-12 h-1 mx-2 ${step > stepNumber ? "bg-indigo-600" : "bg-gray-300"
-                          }`}
+                        className={`w-12 h-1 mx-2 transition-all duration-300 ${
+                          step > stepNumber ? "bg-blue-500" : "bg-blue-100"
+                        }`}
                       />
                     )}
                   </div>
@@ -264,27 +281,35 @@ const AccountRecoveryPage = () => {
                 className="space-y-6"
               >
                 <div className="text-center">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
                     {getStepTitle()}
                   </h3>
-                  <p className="text-gray-600">{getStepDescription()}</p>
+                  <p className="text-gray-600 text-sm">{getStepDescription()}</p>
                 </div>
 
                 {/* Step 1: Email Input */}
                 {step === 1 && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Email address
+                      Email Address
                     </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                      placeholder="you@example.com"
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
+                        placeholder="admin@wastewise.com"
+                        required
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -294,22 +319,29 @@ const AccountRecoveryPage = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Verification Code
                     </label>
-                    <input
-                      type="text"
-                      name="verification_code"
-                      value={formData.verification_code}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm text-center text-lg tracking-widest"
-                      placeholder="000000"
-                      maxLength="6"
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="verification_code"
+                        value={formData.verification_code}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm text-center text-lg tracking-widest font-mono"
+                        placeholder="000000"
+                        maxLength="6"
+                        required
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </div>
+                    </div>
                     <div className="text-center mt-4">
                       <button
                         type="button"
                         onClick={resendVerificationCode}
                         disabled={countdown > 0 || loading}
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                       >
                         {countdown > 0
                           ? `Resend code in ${countdown}s`
@@ -326,29 +358,43 @@ const AccountRecoveryPage = () => {
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         New Password
                       </label>
-                      <input
-                        type="password"
-                        name="new_password"
-                        value={formData.new_password}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                        placeholder="••••••••"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="password"
+                          name="new_password"
+                          value={formData.new_password}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
+                          placeholder="••••••••"
+                          required
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Confirm New Password
                       </label>
-                      <input
-                        type="password"
-                        name="confirm_password"
-                        value={formData.confirm_password}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                        placeholder="••••••••"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="password"
+                          name="confirm_password"
+                          value={formData.confirm_password}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
+                          placeholder="••••••••"
+                          required
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}
@@ -356,7 +402,7 @@ const AccountRecoveryPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white py-3 px-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {loading ? (
                     <>
@@ -398,7 +444,7 @@ const AccountRecoveryPage = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/login')}
-                    className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+                    className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200"
                   >
                     Back to Sign In
                   </button>
