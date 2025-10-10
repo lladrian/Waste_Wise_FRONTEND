@@ -208,16 +208,13 @@ const AccountRecoveryPage = () => {
                   <img
                     src={WasteWiseLogo}
                     alt="WasteWise Logo"
-                    className="h-8 w-auto object-contain"
+                    className="h-24 w-auto object-contain"
                   />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  WasteWise
-                </span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer"
                 onClick={() => navigate('/login')}
               >
@@ -251,19 +248,17 @@ const AccountRecoveryPage = () => {
                 {[1, 2, 3].map((stepNumber) => (
                   <div key={stepNumber} className="flex items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all duration-300 ${
-                        step >= stepNumber
-                          ? "bg-blue-500 border-blue-500 text-white shadow-lg"
-                          : "bg-white border-blue-200 text-blue-300"
-                      }`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all duration-300 ${step >= stepNumber
+                        ? "bg-blue-500 border-blue-500 text-white shadow-lg"
+                        : "bg-white border-blue-200 text-blue-300"
+                        }`}
                     >
                       {stepNumber}
                     </div>
                     {stepNumber < 3 && (
                       <div
-                        className={`w-12 h-1 mx-2 transition-all duration-300 ${
-                          step > stepNumber ? "bg-blue-500" : "bg-blue-100"
-                        }`}
+                        className={`w-12 h-1 mx-2 transition-all duration-300 ${step > stepNumber ? "bg-blue-500" : "bg-blue-100"
+                          }`}
                       />
                     )}
                   </div>
@@ -305,8 +300,8 @@ const AccountRecoveryPage = () => {
                       />
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                         </svg>
                       </div>
                     </div>
