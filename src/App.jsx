@@ -9,6 +9,8 @@ import AdminResidentManagementPage from './pages/managements/AdminResidentManage
 
 
 import AccountDisabledPage from './pages/AccountDisabledPage';
+import AccountVerificationPage from './pages/AccountVerificationPage';
+
 
 
  
@@ -28,6 +30,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/verification/:id" element={<AccountVerificationPage />} />
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
         <Route path="/admin/dashboard" element={<AdminLayout />} />

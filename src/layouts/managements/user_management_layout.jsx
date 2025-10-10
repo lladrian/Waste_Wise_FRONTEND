@@ -34,6 +34,7 @@ const UserManagementLayout = () => {
         last_name: '',
         gender: '',
         contact_number: '',
+        is_disabled: '',
         role: ''
     });
 
@@ -97,7 +98,8 @@ const UserManagementLayout = () => {
             last_name: formData.last_name,
             gender: formData.gender,
             contact_number: formData.contact_number,
-            role: formData.role
+            role: formData.role,
+            is_disabled: formData.is_disabled
         };
 
         if (editingUserPassword) {
@@ -177,7 +179,8 @@ const UserManagementLayout = () => {
             last_name: user.last_name,
             gender: user.gender,
             contact_number: user.contact_number,
-            role: user.role
+            role: user.role,
+            is_disabled: user.is_disabled
         });
 
         setShowModal(true);
@@ -192,7 +195,8 @@ const UserManagementLayout = () => {
             last_name: user.last_name,
             gender: user.gender,
             contact_number: user.contact_number,
-            role: user.role
+            role: user.role,
+            is_disabled: user.is_disabled
         });
 
         setShowModalPassword(true);
@@ -226,7 +230,8 @@ const UserManagementLayout = () => {
             last_name: '',
             gender: '',
             contact_number: '',
-            role: ''
+            role: '',
+            is_disabled: '',
         });
 
         setEditingUser(null);
@@ -527,6 +532,26 @@ const UserManagementLayout = () => {
                                             {/* {editingUsers && <option value="resident">Resident</option>} */}
                                         </select>
                                     </div>
+
+
+                                    {editingUsers && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Account State
+                                            </label>
+                                            <select
+                                                name="is_disabled"
+                                                value={formData.is_disabled}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            >
+                                                <option value="" disabled>Select Status</option>
+                                                <option value="false">Enabled</option>
+                                                <option value="true">Disabled</option>
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Action Buttons */}
@@ -587,7 +612,7 @@ const UserManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                           {formatRole(formData?.role)}
+                                            {formatRole(formData?.role)}
                                         </p>
                                     </div>
                                     <div>
@@ -603,7 +628,7 @@ const UserManagementLayout = () => {
                                         </p>
                                     </div>
                                     <div>
-                                    <span className="text-gray-500">Email Address:</span>
+                                        <span className="text-gray-500">Email Address:</span>
                                         <p className="font-medium text-gray-800">
                                             {formData?.email || 'Not provided'}
                                         </p>

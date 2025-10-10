@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
 
 import { loginUser } from "../hooks/login_hook";
+import { createOTP } from "../hooks/recovery_hook";
+
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -32,18 +34,35 @@ const LoginPage = () => {
 
       const input_data = {
         password: formData.password,
-        email: formData.email,
+        email: formData.email
       };
 
       const { data, success } = await loginUser(input_data);
-      
+
       if (data && success === false) {
         toast.error(data.message || "Login failed");
       } else {
         setFormData(initialFormData)
 
-        if(data.data.is_disabled === true) {
+        if (data.data.is_disabled === true) {
           navigate(`/disabled/${data.data._id}`);
+          return;
+        }
+        const user_id = data.data._id;
+
+        if (data.data.is_verified === false) {
+          const input_data_2 = {
+            otp_type: "verification",
+            email: formData.email
+          };
+
+          const { data, success } = await createOTP(input_data_2);
+
+          if (data && success === false) {
+            toast.error(data.message || "Create OTP failed");
+            return;
+          }
+          navigate(`/verification/${user_id}`);
           return;
         }
 

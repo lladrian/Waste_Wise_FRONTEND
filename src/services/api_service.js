@@ -10,12 +10,13 @@ export const deleteUser = (id) => axios.delete(`/users/delete_user/${id}`);
 export const updateUser = (id, data) => axios.put(`/users/update_user/${id}`,data);
 export const updateUserPassword = (id, data) => axios.put(`/users/update_user_password/${id}`,data);
 export const createUser = (data) => axios.post(`/users/add_user`,data);
+export const verifyUser = (id, data) => axios.put(`/users/update_user_verified/${id}`, data);
+
 
 
 
 // userRoutes.post('/add_user', UserController.create_user);
 // userRoutes.post('/login_user', UserController.login_user);
-// userRoutes.put('/update_user_disabled/:id', UserController.update_user_disabled);
 // userRoutes.put('/update_user_verified/:id', UserController.update_user_verified);
 // userRoutes.put('/update_user/:id', UserController.update_user);
 // userRoutes.put('/update_user_password/:id', UserController.update_user_password);
