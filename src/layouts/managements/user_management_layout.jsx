@@ -232,6 +232,7 @@ const UserManagementLayout = () => {
         });
 
         setEditingUser(null);
+        setEditingUserPassword(null);
     };
 
 
