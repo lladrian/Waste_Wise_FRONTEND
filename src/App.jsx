@@ -5,6 +5,8 @@ import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AdminLayout from './layouts/admin_layout';
 
 import AdminUserManagementPage from './pages/managements/AdminUserManagementPage';
+import AdminResidentManagementPage from './pages/managements/AdminResidentManagementPage';
+
 
 import AccountDisabledPage from './pages/AccountDisabledPage';
 
@@ -30,6 +32,8 @@ function App() {
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
         <Route path="/admin/dashboard" element={<AdminLayout />} />
         <Route path="/admin/management/users" element={<AdminUserManagementPage />} />
+        <Route path="/admin/management/residents" element={<AdminResidentManagementPage />} />
+
 
 
        

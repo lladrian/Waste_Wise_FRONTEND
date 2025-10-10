@@ -48,6 +48,7 @@ const AdminLayout = ({ children }) => {
       label: "Waste Management",
       subItems: [
         { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
+        { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
         // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
         // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
         // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
@@ -91,6 +92,7 @@ const AdminLayout = ({ children }) => {
       'management': 'Waste Management',
       'requests': 'Collection Requests',
       'users': 'User Management',
+      'residents': 'Resident Management',
       'collectors': 'Collector Management',
       'zones': 'Zone Management',
       'schedule': 'Schedule Management',

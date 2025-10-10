@@ -13,14 +13,27 @@ export const createUser = async (data) => {
   }
 };
 
-
-export const getAllUser = async (id) => {
+export const getAllUserResident = async (id) => {
   try {
     const res = await API.getAllUser(id);
+    const filteredData = res.data.data.filter(user => user.role === 'resident');
 
-    return { data: res.data, success: true };
+    return { data: filteredData, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
+export const getAllUserNoResident = async (id) => {
+  try {
+    const res = await API.getAllUser(id);
+    
+    const filteredData = res.data.data.filter(user => user.role !== 'resident');
+        
+    return { data: filteredData, success: true };
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
     throw error;
   }
 };

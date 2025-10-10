@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../layouts/admin_layout';
 import UserManagementLayout from '../../layouts/managements/user_management_layout';
 
-const AdminCourseManagementPage = () => {
+const AdminUserManagementPage = () => {
 
     return (
         <AdminLayout>
@@ -11,4 +11,4 @@ const AdminCourseManagementPage = () => {
     );
 };
 
-export default AdminCourseManagementPage;
+export default AdminUserManagementPage;
