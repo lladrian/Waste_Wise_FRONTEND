@@ -6,6 +6,9 @@ import AdminLayout from './layouts/admin_layout';
 
 import AdminUserManagementPage from './pages/managements/AdminUserManagementPage';
 
+import AccountDisabledPage from './pages/AccountDisabledPage';
+
+
  
 // import RegisterPage from './pages/RegisterPage';
 // import RoleSelectionPage from './pages/RoleSelectionPage';
@@ -23,6 +26,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/disabled/:id" element={<AccountDisabledPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
         <Route path="/admin/dashboard" element={<AdminLayout />} />
         <Route path="/admin/management/users" element={<AdminUserManagementPage />} />
