@@ -13,7 +13,7 @@ import {
     FiXCircle
 } from 'react-icons/fi';
 
-import { getAllUserNoResident, deleteUser, updateUser, createUser, updateUserPassword } from "../../hooks/user_management_hook";
+import { getAllUserResident, deleteUser, updateUser, createUser, updateUserPassword } from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
 
@@ -45,11 +45,13 @@ const UserManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllUserNoResident();
+            const { data, success } = await getAllUserResident();
+
             if (success === true) {
                 setUsers(data)
                 setFilteredUsers(data)
             }
+
         } catch (err) {
             console.error("Error fetching reg data:", err);
             toast.error("Failed to load registration data");
@@ -250,7 +252,7 @@ const UserManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                     <button
                         onClick={() => setShowModal(true)}
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -258,7 +260,7 @@ const UserManagementLayout = () => {
                         <FiPlus className="w-4 h-4" />
                         <span>Add New User</span>
                     </button>
-                </div>
+                </div> */}
 
 
                 {/* Filters and Search */}
@@ -520,11 +522,12 @@ const UserManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Role</option>
-                                            <option value="admin">Admin</option>
+                                            <option value="resident">Resident</option>
+                                            {/* <option value="admin">Admin</option>
                                             <option value="enro_staff">ENRO Staff</option>
                                             <option value="barangay_official">Barangay Official</option>
                                             <option value="garbage_collector">Garbage Collector</option>
-                                            {/* {editingUsers && <option value="resident">Resident</option>} */}
+                                            {editingUsers && <option value="resident">Resident</option>} */}
                                         </select>
                                     </div>
                                 </div>
