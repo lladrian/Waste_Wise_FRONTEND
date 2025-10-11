@@ -6,10 +6,15 @@ import AdminLayout from './layouts/admin_layout';
 
 import AdminUserManagementPage from './pages/managements/AdminUserManagementPage';
 import AdminResidentManagementPage from './pages/managements/AdminResidentManagementPage';
+import AdminRoleActionManagementPage from './pages/managements/AdminRoleActionManagementPage';
+
 
 
 import AccountDisabledPage from './pages/AccountDisabledPage';
 import AccountVerificationPage from './pages/AccountVerificationPage';
+
+
+import PermissionSelector from './pages/PermissionSelector';
 
 
 
@@ -28,7 +33,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<PermissionSelector />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verification/:id" element={<AccountVerificationPage />} />
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
@@ -36,6 +41,8 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminLayout />} />
         <Route path="/admin/management/users" element={<AdminUserManagementPage />} />
         <Route path="/admin/management/residents" element={<AdminResidentManagementPage />} />
+        <Route path="/admin/management/role_actions" element={<AdminRoleActionManagementPage />} />
+
 
 
 
