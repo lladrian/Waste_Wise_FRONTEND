@@ -11,22 +11,8 @@ export const updateUser = (id, data) => axios.put(`/users/update_user/${id}`,dat
 export const updateUserPassword = (id, data) => axios.put(`/users/update_user_password/${id}`,data);
 export const createUser = (data) => axios.post(`/users/add_user`,data);
 export const verifyUser = (id, data) => axios.put(`/users/update_user_verified/${id}`, data);
-
-
-
-
-// userRoutes.post('/add_user', UserController.create_user);
-// userRoutes.post('/login_user', UserController.login_user);
-// userRoutes.put('/update_user_verified/:id', UserController.update_user_verified);
-// userRoutes.put('/update_user/:id', UserController.update_user);
-// userRoutes.put('/update_user_password/:id', UserController.update_user_password);
-// userRoutes.put('/update_user_password_recovery', UserController.update_user_password_recovery);
-// userRoutes.get('/get_all_user', UserController.get_all_user);
-// userRoutes.get('/get_specific_user/:id', UserController.get_specific_user);
-// userRoutes.delete('/delete_user/:id', UserController.delete_user);
-
-
-
-
-
-
+export const createRoleAction = (data) => axios.post(`/actions/add_role_action`,data);
+export const getAllRoleAction = () => axios.get(`/actions/get_all_role_action`);
+export const getSpecificRoleAction = (id) => axios.get(`/actions/get_specific_role_action/${id}`);
+export const deleteRoleAction = (id) => axios.delete(`/actions/delete_role_action/${id}`);
+export const updateRoleAction = (id, data) => axios.put(`/actions/update_role_action/${id}`, data);
