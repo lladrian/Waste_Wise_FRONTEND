@@ -33,7 +33,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<PermissionSelector />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verification/:id" element={<AccountVerificationPage />} />
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
