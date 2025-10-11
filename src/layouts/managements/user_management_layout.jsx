@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 
 const UserManagementLayout = () => {
     const [users, setUsers] = useState([]);
+    const [roleActions, setRoleActions] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -35,7 +36,9 @@ const UserManagementLayout = () => {
         gender: '',
         contact_number: '',
         is_disabled: '',
-        role: ''
+        role: '',
+        role_action: '',
+        role_action_name: '',
     });
 
 
@@ -46,8 +49,9 @@ const UserManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllUserNoResident();
+            const { data, data2, success } = await getAllUserNoResident();
             if (success === true) {
+                setRoleActions(data2)
                 setUsers(data)
                 setFilteredUsers(data)
             }
@@ -99,8 +103,10 @@ const UserManagementLayout = () => {
             gender: formData.gender,
             contact_number: formData.contact_number,
             role: formData.role,
+            role_action: formData.role_action,
             is_disabled: formData.is_disabled
         };
+
 
         if (editingUserPassword) {
             try {
@@ -180,7 +186,8 @@ const UserManagementLayout = () => {
             gender: user.gender,
             contact_number: user.contact_number,
             role: user.role,
-            is_disabled: user.is_disabled
+            role_action: user?.role_action?._id || "", // Use optional chaining
+            is_disabled: String(user.is_disabled)
         });
 
         setShowModal(true);
@@ -196,6 +203,8 @@ const UserManagementLayout = () => {
             gender: user.gender,
             contact_number: user.contact_number,
             role: user.role,
+            role_action: user.role_action || '',
+            role_action_name: user?.role_action?.action_name || "None",
             is_disabled: user.is_disabled
         });
 
@@ -232,6 +241,7 @@ const UserManagementLayout = () => {
             contact_number: '',
             role: '',
             is_disabled: '',
+            role_action: ''
         });
 
         setEditingUser(null);
@@ -297,6 +307,9 @@ const UserManagementLayout = () => {
                                         Role
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Role Action
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Gender
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -318,6 +331,9 @@ const UserManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user?.role_action?.action_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1).toLowerCase() : ''}</span>
@@ -533,6 +549,27 @@ const UserManagementLayout = () => {
                                         </select>
                                     </div>
 
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Role Action
+                                        </label>
+                                        <select
+                                            name="role_action"
+                                            value={formData.role_action || ""}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Role Action</option>
+                                            {roleActions?.filter(role => role?._id && role?.action_name)
+                                                .map((role) => (
+                                                    <option key={role._id} value={role._id}>
+                                                        {role.action_name}
+                                                    </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
 
                                     {editingUsers && (
                                         <div className="md:col-span-2">
@@ -610,17 +647,25 @@ const UserManagementLayout = () => {
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Role:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {formatRole(formData?.role)}
-                                        </p>
-                                    </div>
-                                    <div>
                                         <span className="text-gray-500">Gender:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {formData?.gender}
                                         </p>
                                     </div>
+                                    <div>
+                                        <span className="text-gray-500">Role:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formatRole(formData?.role)}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <span className="text-gray-500">Role Action:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.role_action_name}
+                                        </p>
+                                    </div>
+
                                     <div>
                                         <span className="text-gray-500">Contact:</span>
                                         <p className="font-medium text-gray-800">
