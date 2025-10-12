@@ -47,13 +47,16 @@ const AdminLayout = ({ children }) => {
       icon: FiFolder, 
       label: "Waste Management",
       subItems: [
-        { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
         { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
-        { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
-        { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
-        { path: "/admin/management/schedule", icon: FiClock, label: "Schedule Management" },
-        { path: "/admin/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
-        { path: "/admin/management/reports", icon: FiBarChart2, label: "Waste Reports" },
+        { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
+        { path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" },
+        { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
+        // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
+        // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
+        // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
+        // { path: "/admin/management/schedule", icon: FiClock, label: "Schedule Management" },
+        // { path: "/admin/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
+        // { path: "/admin/management/reports", icon: FiBarChart2, label: "Waste Reports" },
       ]
     },
     
@@ -85,12 +88,16 @@ const AdminLayout = ({ children }) => {
     // Enhanced custom titles for WasteWise admin pages
     const customTitles = {
       // Dashboard
-      'dashboard': 'Waste Wise Management Dashboard',
+      'dashboard': 'Waste Wise Dashboard',
       
       // Management section
       'management': 'Waste Management',
       'requests': 'Collection Requests',
       'users': 'User Management',
+      'residents': 'Resident Management',
+      'role_actions': 'Role Action Management',
+      'logs': 'Log Management',
+ 
       'collectors': 'Collector Management',
       'zones': 'Zone Management',
       'schedule': 'Schedule Management',
@@ -279,7 +286,7 @@ const AdminLayout = ({ children }) => {
         {/* User Profile & Logout - Compact */}
         <div className="p-2 border-t border-blue-200/40 space-y-2 flex-shrink-0">
           {/* Admin Quick Stats - Only show when sidebar is open */}
-          {sidebarOpen && (
+          {/* {sidebarOpen && (
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2 border border-blue-200/40">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-xs font-medium text-gray-600">Pending</span>
@@ -290,7 +297,7 @@ const AdminLayout = ({ children }) => {
                 <span className="text-xs font-bold text-blue-600 truncate">{adminId}</span>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Admin & Logout */}
           <div className="space-y-1">

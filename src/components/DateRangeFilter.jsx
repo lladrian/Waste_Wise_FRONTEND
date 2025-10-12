@@ -26,6 +26,7 @@ function DateRangeFilter({ onChange, downloadHandler }) {
     const value = e.target.value;
 
     if (startDate && value < startDate) {
+      setEndDate('');
       return;
     }
 
