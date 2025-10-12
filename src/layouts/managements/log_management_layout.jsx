@@ -48,6 +48,7 @@ const UserManagementLayout = () => {
         remark: '',
         status: '',
         created_at: '',
+        os: ''
     });
 
 
@@ -132,6 +133,7 @@ const UserManagementLayout = () => {
     const handleEditPassword = (user, log) => {
         setEditingUserPassword(user)
         setFormData({
+            os: log.os,
             device: log.device,
             platform: log.platform,
             remark: log.remark,
@@ -154,6 +156,7 @@ const UserManagementLayout = () => {
 
     const resetForm = () => {
         setFormData({
+            os: '',
             device: '',
             platform: '',
             remark: '',
@@ -216,7 +219,6 @@ const UserManagementLayout = () => {
                                 onChange={({ startDate, endDate }) => {
                                     setStartDate(startDate);
                                     setEndDate(endDate);
-                                    console.log('Filtering from', startDate, 'to', endDate);
                                 }}
                                 downloadHandler={downloadGeneratedReport}
                             />
@@ -259,6 +261,9 @@ const UserManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Platform
                                     </th>
+                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Operating System
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Remark
                                     </th>
@@ -287,6 +292,9 @@ const UserManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.platform}</span>
+                                        </td>
+                                          <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.os}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.remark}</span>
@@ -404,6 +412,12 @@ const UserManagementLayout = () => {
                                         <span className="text-gray-500">Platform:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {formData?.platform}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Operating System:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.os}
                                         </p>
                                     </div>
                                     <div>
