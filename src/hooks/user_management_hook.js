@@ -72,3 +72,15 @@ export const updateUserPassword = async (id, data) => {
     throw error;
   }
 };
+
+
+export const updateUserPasswordAdmin = async (id, data) => {
+  try {
+    const res = await API.updateUserPasswordAdmin(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};

@@ -50,6 +50,7 @@ const AdminLayout = ({ children }) => {
         { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
         { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
         { path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" },
+        { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
         // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
         // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
         // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
@@ -95,6 +96,8 @@ const AdminLayout = ({ children }) => {
       'users': 'User Management',
       'residents': 'Resident Management',
       'role_actions': 'Role Action Management',
+      'logs': 'Log Management',
+ 
       'collectors': 'Collector Management',
       'zones': 'Zone Management',
       'schedule': 'Schedule Management',

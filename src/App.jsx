@@ -7,6 +7,8 @@ import AdminLayout from './layouts/admin_layout';
 import AdminUserManagementPage from './pages/managements/AdminUserManagementPage';
 import AdminResidentManagementPage from './pages/managements/AdminResidentManagementPage';
 import AdminRoleActionManagementPage from './pages/managements/AdminRoleActionManagementPage';
+import AdminLogManagementPage from './pages/managements/AdminLogManagementPage';
+
 
 
 
@@ -42,6 +44,8 @@ function App() {
         <Route path="/admin/management/users" element={<AdminUserManagementPage />} />
         <Route path="/admin/management/residents" element={<AdminResidentManagementPage />} />
         <Route path="/admin/management/role_actions" element={<AdminRoleActionManagementPage />} />
+        <Route path="/admin/management/logs" element={<AdminLogManagementPage />} />
+
 
 
 
