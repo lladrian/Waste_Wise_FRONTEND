@@ -13,7 +13,7 @@ import {
     FiXCircle
 } from 'react-icons/fi';
 
-import { getAllUserNoResident, deleteUser, updateUser, createUser, updateUserPassword } from "../../hooks/user_management_hook";
+import { getAllUserNoResident, deleteUser, updateUser, createUser, updateUserPasswordAdmin } from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
 
@@ -114,7 +114,7 @@ const UserManagementLayout = () => {
                     password: formData.update_password,
                 };
 
-                const { data, success } = await updateUserPassword(editingUserPassword._id, input_data2);
+                const { data, success } = await updateUserPasswordAdmin(editingUserPassword._id, input_data2);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to update user password");
