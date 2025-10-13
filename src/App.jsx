@@ -4,10 +4,10 @@ import LoginPage from './pages/LoginPage';
 import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AdminLayout from './layouts/admin_layout';
 
-import AdminUserManagementPage from './pages/managements/AdminUserManagementPage';
-import AdminResidentManagementPage from './pages/managements/AdminResidentManagementPage';
-import AdminRoleActionManagementPage from './pages/managements/AdminRoleActionManagementPage';
-import AdminLogManagementPage from './pages/managements/AdminLogManagementPage';
+import AdminUserManagementPage from './pages/managements/admin/AdminUserManagementPage';
+import AdminResidentManagementPage from './pages/managements/admin/AdminResidentManagementPage';
+import AdminRoleActionManagementPage from './pages/managements/admin/AdminRoleActionManagementPage';
+import AdminLogManagementPage from './pages/managements/admin/AdminLogManagementPage';
 
 
 
