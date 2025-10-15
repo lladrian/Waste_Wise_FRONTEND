@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../../../layouts/staff_layout';
+import AdminLayout from '../../../layouts/admin_layout';
 import TruckManagementLayout from '../../../layouts/managements/truck_management_layout';
 
 
