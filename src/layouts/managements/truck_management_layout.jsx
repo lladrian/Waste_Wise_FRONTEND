@@ -252,7 +252,7 @@ const RoleActionManagementLayout = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col gap-4">
                         {/* First Row: Date Range Filter */}
-                        <div className="w-full">
+                        {/* <div className="w-full">
                             <DateRangeFilter
                                 onChange={({ startDate, endDate }) => {
                                     setStartDate(startDate);
@@ -260,7 +260,7 @@ const RoleActionManagementLayout = () => {
                                 }}
                                 downloadHandler={downloadGeneratedReport}
                             />
-                        </div>
+                        </div> */}
 
                         {/* Second Row: Search Input */}
                         <div className="relative w-full">

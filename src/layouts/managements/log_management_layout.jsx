@@ -24,10 +24,7 @@ const LogManagementLayout = () => {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [showModalPassword, setShowModalPassword] = useState(false);
-    const [editingUsers, setEditingUser] = useState(null);
-    const [editingUserPassword, setEditingUserPassword] = useState(null);
+    const [showModalData, setShowModalData] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [formData, setFormData] = useState({
@@ -129,8 +126,7 @@ const LogManagementLayout = () => {
         setFilteredUsers(filtered);
     };
 
-    const handleEditPassword = (user, log) => {
-        setEditingUserPassword(user)
+    const handleEdit = (user, log) => {
         setFormData({
             os: log.os,
             device: log.device,
@@ -150,7 +146,7 @@ const LogManagementLayout = () => {
             is_disabled: user.is_disabled
         });
 
-        setShowModalPassword(true);
+        setShowModalData(true);
     };
 
     const resetForm = () => {
@@ -172,9 +168,6 @@ const LogManagementLayout = () => {
             is_disabled: '',
             role_action: ''
         });
-
-        setEditingUser(null);
-        setEditingUserPassword(null);
     };
 
 
@@ -306,9 +299,9 @@ const LogManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => handleEditPassword(user?.user || user?.resident_user, user)}
+                                                    onClick={() => handleEdit(user?.user || user?.resident_user, user)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                                    title="Change Password"
+                                                    title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
@@ -338,7 +331,7 @@ const LogManagementLayout = () => {
 
 
 
-            {showModalPassword && (
+            {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
@@ -346,7 +339,7 @@ const LogManagementLayout = () => {
 
                                 <button
                                     onClick={() => {
-                                        setShowModalPassword(false);
+                                        setShowModalData(false);
                                         resetForm();
                                     }}
                                     className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
