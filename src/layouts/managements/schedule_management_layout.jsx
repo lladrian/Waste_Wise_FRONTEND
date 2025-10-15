@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 import DateRangeFilter from '../../components/DateRangeFilter';
 
 
-const RoleActionManagementLayout = () => {
+const ScheduleManagementLayout = () => {
     const [schedules, setSchedules] = useState([]);
     const [trucks, setTrucks] = useState([]);
     const [routes, setRoutes] = useState([]);
@@ -136,7 +136,7 @@ const RoleActionManagementLayout = () => {
                 const { data, success } = await createSchedule(input_data);
 
                 const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
-                if (selectedTruck?.status !== 'Ready') { // Change 'active' to your "ready" status
+                if (selectedTruck?.status !== 'Active') { // Change 'active' to your "ready" status
                     alert('Cannot schedule: Selected truck is not ready. Please select an active truck.');
                     return;
                 }
@@ -285,38 +285,24 @@ const RoleActionManagementLayout = () => {
 
 
     const scheduleStatusOptions = [
-        'Scheduled',        // Planned but not started
-        'Assigned',         // Assigned to crew but not started
-        'In Progress',      // Currently being executed
-        'Completed',        // Successfully finished
-        'Cancelled',        // Cancelled before starting
-        'Pending',          // Waiting for approval or resources
-        'Delayed',          // Behind schedule
-        'Rescheduled',      // Moved to different time
-        'On Hold',          // Temporarily paused
-        'Failed',           // Could not be completed
-        'Partially Completed' // Some tasks done, some pending
+        'Pending',
+        'Scheduled',
+        'In Progress',
+        'Completed',
+        'Delayed',
+        'Cancelled',
     ];
 
 
     const commonRemarks = [
-    'None',
-    'Completed successfully',
-    'No one home',
-    'Bin not available',
-    'Access blocked',
-    'Weather delay',
-    'Vehicle breakdown',
-    'Staff shortage',
-    'Road closure',
-    'Overflowing bin',
-    'Special collection required',
-    'Hazardous materials found',
-    'Resident request',
-    'Public holiday',
-    'Emergency situation',
-    'Route change'
-];
+        'None',
+        'Pending',
+        'Approved',
+        'In Progress',
+        'Completed',
+        'Delayed',
+        'Cancelled',
+    ];
 
     return (
         <>
@@ -516,20 +502,23 @@ const RoleActionManagementLayout = () => {
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                                     Remark
                                                 </label>
-                                                <select
-                                                    name="remark"
-                                                    value={formData.remark}
-                                                    onChange={handleInputChange}
-                                                    required
-                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                >
-                                                    <option value="" disabled>Select Remark</option>
-                                                    {commonRemarks .map((status) => (
-                                                        <option key={status} value={status}>
-                                                            {status}
-                                                        </option>
-                                                    ))}
-                                                </select>
+
+                                                {/* Combined approach */}
+                                                <div className="space-y-2">
+                                                    <input
+                                                        list="remark-suggestions"
+                                                        name="remark"
+                                                        value={formData.remark}
+                                                        onChange={handleInputChange}
+                                                        placeholder="Type or select a remark..."
+                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                    />
+                                                    <datalist id="remark-suggestions">
+                                                        {commonRemarks.map((remark) => (
+                                                            <option key={remark} value={remark} />
+                                                        ))}
+                                                    </datalist>
+                                                </div>
                                             </div>
 
                                             {/* Status Field */}
@@ -545,7 +534,7 @@ const RoleActionManagementLayout = () => {
                                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                                 >
                                                     <option value="" disabled>Select Truck Status</option>
-                                                    {scheduleStatusOptions .map((status) => (
+                                                    {scheduleStatusOptions.map((status) => (
                                                         <option key={status} value={status}>
                                                             {status}
                                                         </option>
@@ -570,7 +559,7 @@ const RoleActionManagementLayout = () => {
                                         >
                                             <option value="" disabled>Select Garbage Collector</option>
                                             {/* Active trucks */}
-                                            {trucks?.filter(truck => truck?.status === 'Ready')
+                                            {trucks?.filter(truck => truck?.status === 'Active')
                                                 .map((truck) => (
                                                     <option key={truck?._id} value={truck?._id}>
                                                         {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ✓
@@ -578,7 +567,7 @@ const RoleActionManagementLayout = () => {
                                                 ))}
 
                                             {/* Non-active trucks (disabled) */}
-                                            {trucks?.filter(truck => truck?.status !== 'Ready')
+                                            {trucks?.filter(truck => truck?.status !== 'Active')
                                                 .map((truck) => (
                                                     <option key={truck?._id} value={truck?._id} disabled>
                                                         {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ({truck?.status}) ❌
@@ -600,7 +589,7 @@ const RoleActionManagementLayout = () => {
                                                 (() => {
                                                     const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
                                                     const status = selectedTruck?.status;
-                                                    const isReady = status === 'Ready';
+                                                    const isReady = status === 'Active';
 
                                                     return (
                                                         <div className="space-y-2">
@@ -697,4 +686,4 @@ const RoleActionManagementLayout = () => {
     );
 };
 
-export default RoleActionManagementLayout;
+export default ScheduleManagementLayout;

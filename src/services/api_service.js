@@ -40,6 +40,12 @@ export const getAllTruck = () => axios.get(`/trucks/get_all_truck`);
 export const getSpecificTruck = (id) => axios.get(`/trucks/get_specific_truck/${id}`);
 export const deleteTruck = (id) => axios.delete(`/trucks/delete_truck/${id}`);
 export const updateTruck = (id, data) => axios.put(`/trucks/update_truck/${id}`, data);
+export const createComplain = (data) => axios.post(`/complains/add_complain`,data);
+export const getAllComplain = () => axios.get(`/complains/get_all_complain`);
+export const getSpecificComplain = (id) => axios.get(`/complains/get_specific_complain/${id}`);
+export const deleteComplain= (id) => axios.delete(`/complains/delete_complain/${id}`);
+export const updateComplain = (id, data) => axios.put(`/complains/update_complain/${id}`, data);
+
 
 
 
