@@ -23,12 +23,12 @@ import {
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
 import { AuthContext } from '../context/AuthContext';
 
-const AdminLayout = ({ children }) => {
+const StaffLayout = ({ children }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
-    management: location.pathname.includes('/admin/management')
+    management: location.pathname.includes('/staff/management')
   });
   const navigate = useNavigate();
   const { logout, user, refresh } = useContext(AuthContext);
@@ -468,4 +468,4 @@ const AdminLayout = ({ children }) => {
   );
 };
 
-export default AdminLayout;
+export default StaffLayout;
