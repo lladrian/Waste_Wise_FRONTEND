@@ -76,6 +76,9 @@ export const deleteUser = async (id) => {
   }
 };
 
+
+
+
 export const updateUser = async (id, data) => {
   try {
     const res = await API.updateUser(id, data);
@@ -86,6 +89,8 @@ export const updateUser = async (id, data) => {
     throw error;
   }
 };
+
+
 
 export const updateUserProfile = async (id, data) => {
   try {

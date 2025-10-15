@@ -205,7 +205,7 @@ const UserManagementLayout = () => {
             role: user.role,
             role_action: user.role_action || '',
             role_action_name: user?.role_action?.action_name || "None",
-            is_disabled: user.is_disabled
+            is_disabled: String(user.is_disabled),
         });
 
         setShowModalPassword(true);

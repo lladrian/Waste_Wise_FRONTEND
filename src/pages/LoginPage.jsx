@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaRecycle, FaTrashAlt, FaLeaf, FaTruck, FaWater } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
@@ -7,17 +7,22 @@ import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
 import { loginUser } from "../hooks/login_hook";
 import { createOTP } from "../hooks/recovery_hook";
 
+import { AuthContext } from '../context/AuthContext';
+
+
+
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { user, login, logout } = useContext(AuthContext);
   const initialFormData = {
     email: "",
     password: "",
   };
-
   const [formData, setFormData] = useState(initialFormData);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +30,26 @@ const LoginPage = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const encryptData = (data, key) => {
+    const dataStr = JSON.stringify(data);
+
+    // Generate random IV (16 bytes)
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+
+    // Combine IV with data
+    const combinedData = Array.from(iv).concat(Array.from(new TextEncoder().encode(dataStr)));
+
+    // XOR encryption with key
+    let encrypted = '';
+    for (let i = 0; i < combinedData.length; i++) {
+      const keyChar = key.charCodeAt(i % key.length);
+      const dataChar = combinedData[i];
+      encrypted += String.fromCharCode(dataChar ^ keyChar);
+    }
+
+    return btoa(encrypted);
   };
 
   const handleLogin = async (e) => {
@@ -42,15 +67,15 @@ const LoginPage = () => {
       if (data && success === false) {
         toast.error(data.message || "Login failed");
       } else {
-        setFormData(initialFormData)
 
-        if (data.data.is_disabled === true) {
+        if (data.data.user.is_disabled === true) {
           navigate(`/disabled/${data.data._id}`);
           return;
         }
-        const user_id = data.data._id;
+        const user_id = data.data.user._id;
+        const role = data.data.user.role;
 
-        if (data.data.is_verified === false) {
+        if (data.data.user.is_verified === false) {
           const input_data_2 = {
             otp_type: "verification",
             email: formData.email
@@ -66,8 +91,22 @@ const LoginPage = () => {
           return;
         }
 
+        //  localStorage.setItem('user_data', encryptData(data.data, 'test'));
+
+
+        // localStorage.setItem('user_id', encryptData(user_id, 'test'));
+        // localStorage.setItem('user_role', encryptData(role, 'test'));
+
+        await login(data.data.user, data.data.logged_in_at);
+
         toast.success("Welcome to WasteWise!");
-        navigate('/admin/dashboard');
+
+        if (role == 'admin') {
+          navigate('/admin/dashboard');
+        }
+        if (role == 'enro_staff') {
+          navigate('/staff/dashboard');
+        }
       }
     } catch (error) {
       if (error.response && error.response.data) {

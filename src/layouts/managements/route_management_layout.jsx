@@ -14,20 +14,19 @@ import {
     FiXCircle
 } from 'react-icons/fi';
 
-import { updateRoleAction, deleteRoleAction, getAllRoleAction, createRoleAction, getSpecificRoleAction } from "../../hooks/permission_management_hook";
+import { getSpecificRoute, createRoute, getAllRoute, deleteRoute, updateRoute } from "../../hooks/route_hook";
 
 import { toast } from "react-toastify";
 
 const RoleActionManagementLayout = () => {
-    const [users, setUsers] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [routes, setRoutes] = useState([]);
+    const [filteredRoutes, setFilteredRoutes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [showModalPassword, setShowModalPassword] = useState(false);
-    const [editingUsers, setEditingUser] = useState(null);
+    const [editingRoutes, setEditingRoute] = useState(null);
     const [formData, setFormData] = useState({
-        action_name: '',
-        permission: []
+        route_name: ''
     });
 
     useEffect(() => {
@@ -37,10 +36,10 @@ const RoleActionManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllRoleAction();
+            const { data, success } = await getAllRoute();
             if (success === true) {
-                setUsers(data.data)
-                setFilteredUsers(data.data)
+                setRoutes(data.data)
+                setFilteredRoutes(data.data)
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -49,19 +48,19 @@ const RoleActionManagementLayout = () => {
     };
 
     useEffect(() => {
-        filterUsers();
-    }, [searchTerm, users]);
+        filterRoutes();
+    }, [searchTerm, routes]);
 
-    const filterUsers = () => {
-        let filtered = users;
+    const filterRoutes = () => {
+        let filtered = routes;
 
         // Search filter
         if (searchTerm) {
-            filtered = filtered.filter(user =>
-                user.action_name.toLowerCase().includes(searchTerm.toLowerCase())
+            filtered = filtered.filter(route =>
+                route.route_name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-        setFilteredUsers(filtered);
+        setFilteredRoutes(filtered);
     };
 
 
@@ -69,21 +68,16 @@ const RoleActionManagementLayout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const permissionValues = formData.permission ? formData.permission.map(option =>
-            typeof option === 'string' ? option : option.value
-        ) : [];
-
         const input_data = {
-            action_name: formData.action_name,
-            permission: permissionValues
+            route_name: formData.route_name
         };
 
-        if (editingUsers) {
+        if (editingRoutes) {
             try {
-                const { data, success } = await updateRoleAction(editingUsers._id, input_data);
+                const { data, success } = await updateRoute(editingRoutes._id, input_data);
 
                 if (data && success === false) {
-                    toast.error(data.message || "Failed to update role action");
+                    toast.error(data.message || "Failed to update route");
                 }
 
                 if (success === true) {
@@ -92,17 +86,17 @@ const RoleActionManagementLayout = () => {
                 }
             } catch (error) {
                 if (error.response && error.response.data) {
-                    toast.error(error.response.data.message || error.message || "Failed to update role action");
+                    toast.error(error.response.data.message || error.message || "Failed to update route");
                 } else {
-                    toast.error("Failed to update role action");
+                    toast.error("Failed to update route");
                 }
             }
         } else {
             try {
-                const { data, success } = await createRoleAction(input_data);
+                const { data, success } = await createRoute(input_data);
 
                 if (data && success === false) {
-                    toast.error(data.message || "Failed to create role action");
+                    toast.error(data.message || "Failed to create route");
                 }
 
                 if (success === true) {
@@ -111,9 +105,9 @@ const RoleActionManagementLayout = () => {
                 }
             } catch (error) {
                 if (error.response && error.response.data) {
-                    toast.error(error.response.data.message || error.message || "Failed to create role action");
+                    toast.error(error.response.data.message || error.message || "Failed to create route");
                 } else {
-                    toast.error("Failed to create role action");
+                    toast.error("Failed to create route");
                 }
             }
         }
@@ -123,11 +117,10 @@ const RoleActionManagementLayout = () => {
         setShowModalPassword(false);
     };
 
-    const handleEdit = (user) => {
-        setEditingUser(user);
+    const handleEdit = (route) => {
+        setEditingRoute(route);
         setFormData({
-            action_name: user.action_name,
-            permission: user.permission || []
+            route_name: route.route_name
         });
 
         setShowModal(true);
@@ -135,9 +128,9 @@ const RoleActionManagementLayout = () => {
 
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
+        if (window.confirm('Are you sure you want to delete this route?')) {
             try {
-                const { data, success } = await deleteRoleAction(id);
+                const { data, success } = await deleteRoute(id);
 
                 if (success === true) {
                     toast.success(data.data);
@@ -145,7 +138,7 @@ const RoleActionManagementLayout = () => {
                 }
             } catch (error) {
                 console.error('Delete failed:', error);
-                toast.error('Failed to delete user');
+                toast.error('Failed to delete route');
             }
         }
     };
@@ -153,29 +146,12 @@ const RoleActionManagementLayout = () => {
 
     const resetForm = () => {
         setFormData({
-            action_name: '',
-            permission: []
+            route_name: '',
         });
 
-        setEditingUser(null);
+        setEditingRoute(null);
     };
 
-
-    const permissionOptions = [
-        { value: 'create_user', label: 'Create User' },
-        { value: 'read_user', label: 'Read User' },
-        { value: 'update_user', label: 'Update User' },
-        { value: 'delete_user', label: 'Delete User' },
-        { value: 'create_post', label: 'Create Post' },
-        { value: 'read_post', label: 'Read Post' },
-        { value: 'update_post', label: 'Update Post' },
-        { value: 'delete_post', label: 'Delete Post' },
-        { value: 'manage_roles', label: 'Manage Roles' },
-        { value: 'view_analytics', label: 'View Analytics' },
-        { value: 'system_config', label: 'System Configuration' },
-        { value: 'backup_manage', label: 'Manage Backups' },
-        // Add more permissions as needed
-    ];
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -184,27 +160,6 @@ const RoleActionManagementLayout = () => {
             [name]: value
         }));
     };
-
-    // Handle select change - convert option objects back to values
-    const handleSelectChange = (selectedOptions) => {
-        // Extract just the values from the selected option objects
-        const permissionValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
-
-        setFormData(prev => ({
-            ...prev,
-            permission: permissionValues
-        }));
-    };
-
-    const getSelectedOptions = (permissionValues) => {
-        return permissionValues.map(value => {
-            // Find the option object for this value
-            const option = permissionOptions.find(opt => opt.value === value);
-            // If found, return the option object, otherwise create a fallback
-            return option || { value: value, label: value };
-        });
-    };
-
 
     return (
         <>
@@ -216,7 +171,7 @@ const RoleActionManagementLayout = () => {
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                     >
                         <FiPlus className="w-4 h-4" />
-                        <span>Add New User</span>
+                        <span>Add New Route</span>
                     </button>
                 </div>
 
@@ -229,7 +184,7 @@ const RoleActionManagementLayout = () => {
                             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="search user"
+                                placeholder="search route"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -246,7 +201,7 @@ const RoleActionManagementLayout = () => {
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Role Action Name
+                                        Route Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
@@ -254,23 +209,23 @@ const RoleActionManagementLayout = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredUsers.map((user) => (
-                                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                                {filteredRoutes.map((route) => (
+                                    <tr key={route._id} className="hover:bg-gray-50 transition-colors">
 
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.action_name}</span>
+                                            <span className="text-sm text-gray-900">{route.route_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => handleEdit(user)}
+                                                    onClick={() => handleEdit(route)}
                                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                     title="Edit"
                                                 >
                                                     <FiEdit className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(user._id)}
+                                                    onClick={() => handleDelete(route._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Delete"
                                                 >
@@ -285,14 +240,14 @@ const RoleActionManagementLayout = () => {
                     </div>
 
                     {/* Empty State */}
-                    {filteredUsers.length === 0 && (
+                    {filteredRoutes.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No user found</p>
+                            <p className="text-gray-500 text-lg">No route found</p>
                             <p className="text-gray-400 text-sm mt-1">
                                 {searchTerm
                                     ? 'Try adjusting your search or filters'
-                                    : 'Get started by adding your first user'
+                                    : 'Get started by adding your first route'
                                 }
                             </p>
                         </div>
@@ -306,7 +261,7 @@ const RoleActionManagementLayout = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {editingUsers ? 'Edit Role Action' : 'Add New Role Action'}
+                                    {editingRoutes ? 'Edit Route' : 'Add New Route'}
                                 </h2>
                                 <button
                                     onClick={() => {
@@ -324,49 +279,18 @@ const RoleActionManagementLayout = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Role Action Name
+                                            Route Name
                                         </label>
                                         <input
                                             type="text"
-                                            name="action_name"
-                                            value={formData.action_name}
+                                            name="route_name"
+                                            value={formData.route_name}
                                             onChange={handleInputChange}
                                             required
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                            placeholder="Enter Role Action Name"
+                                            placeholder="Enter Route Name"
                                         />
                                     </div>
-
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                             Select Permission
-                                        </label>
-                                        <Select
-                                            id="permission-select"
-                                            name="permission"
-                                            isMulti
-                                            options={permissionOptions}
-                                            value={getSelectedOptions(formData.permission)} // Convert values to option objects
-                                            onChange={handleSelectChange}
-                                            placeholder="Choose permissions..."
-                                            isSearchable
-                                            closeMenuOnSelect={false}
-                                            styles={{
-                                                menu: (base) => ({
-                                                    ...base,
-                                                    zIndex: 9999
-                                                }),
-                                                menuPortal: (base) => ({
-                                                    ...base,
-                                                    zIndex: 9999
-                                                })
-                                            }}
-                                            menuPortalTarget={document.body}
-                                        />
-                                    </div>
-
-
-
                                 </div>
 
                                 {/* Action Buttons */}
@@ -385,7 +309,7 @@ const RoleActionManagementLayout = () => {
                                         type="submit"
                                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
                                     >
-                                        {editingUsers ? 'Update Role Action' : 'Add Role Action'}
+                                        {editingRoutes ? 'Update Route' : 'Add Route'}
                                     </button>
                                 </div>
                             </form>
@@ -414,12 +338,12 @@ const RoleActionManagementLayout = () => {
                                 </button>
                             </div>
 
-                            {/* User Information Section */}
+                            {/* Route Information Section */}
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Role Action Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Route Information</h3>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
-                                        <span className="text-gray-500">Role Action Name:</span>
+                                        <span className="text-gray-500">Route Name:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {formData?.action_name}
                                         </p>
