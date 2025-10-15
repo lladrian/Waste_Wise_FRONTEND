@@ -7,6 +7,7 @@ import {
     FiSearch,
     FiFilter,
     FiBook,
+    FiInfo,
     FiLock,
     FiUser,
     FiClock,
@@ -23,7 +24,7 @@ import DateRangeFilter from '../../components/DateRangeFilter';
 
 const RoleActionManagementLayout = () => {
     const [schedules, setSchedules] = useState([]);
-    const [users, setUsers] = useState([]);
+    const [trucks, setTrucks] = useState([]);
     const [routes, setRoutes] = useState([]);
     const [filteredSchedules, setFilteredSchedules] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,7 +38,7 @@ const RoleActionManagementLayout = () => {
 
     const [formData, setFormData] = useState({
         route: '',
-        user: '',
+        truck: '',
         status: '',
         remark: '',
         scheduled_collection: ''
@@ -52,7 +53,7 @@ const RoleActionManagementLayout = () => {
         try {
             const { data, success } = await getAllSchedule();
             if (success === true) {
-                setUsers(data.users)
+                setTrucks(data.trucks.data)
                 setRoutes(data.routes.data)
                 setSchedules(data.schedules.data)
                 setFilteredSchedules(data.schedules.data)
@@ -74,13 +75,13 @@ const RoleActionManagementLayout = () => {
         // Search filter
         if (searchTerm) {
             filtered = filtered.filter(schedule =>
-                schedule?.user?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                schedule?.user?.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                schedule?.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+                schedule?.truck?.user?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                schedule?.truck?.user?.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                schedule?.truck?.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
-         if (startDate && endDate) {
+        if (startDate && endDate) {
             const startDateStr = `${startDate} 00:00:00`;
             const endDateStr = `${endDate} 23:59:59`;
 
@@ -100,7 +101,7 @@ const RoleActionManagementLayout = () => {
 
         const input_data = {
             route: formData?.route,
-            user: formData?.user,
+            truck: formData?.truck,
             status: formData?.status || "Not Yet",
             remark: formData?.remark || "Not Yet",
             scheduled_collection: formData?.scheduled_collection,
@@ -155,7 +156,7 @@ const RoleActionManagementLayout = () => {
         setEditingSchedule(route);
         setFormData({
             route: route?.route?._id || '',
-            user: route?.user?._id  || '',
+            truck: route?.truck?._id || '',
             status: route.status,
             remark: route.remark,
             scheduled_collection: route.scheduled_collection
@@ -185,7 +186,7 @@ const RoleActionManagementLayout = () => {
     const resetForm = () => {
         setFormData({
             route: '',
-            user: '',
+            truck: '',
             status: '',
             remark: '',
             scheduled_collection: ''
@@ -218,32 +219,32 @@ const RoleActionManagementLayout = () => {
     };
 
 
-    
-    
-        const downloadGeneratedReport = async () => {
-            try {
-                const res = await generateReportLoginLog({
-                    start_date: startDate,
-                    end_date: endDate,
-                });
-    
-                const blob = new Blob([res.data], {
-                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                });
-    
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'login-logs-report.xlsx');
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            } catch (err) {
-                console.error('Download failed:', err);
-                toast.error('Failed to download reports data');
-            }
-        };
-    
+
+
+    const downloadGeneratedReport = async () => {
+        try {
+            const res = await generateReportLoginLog({
+                start_date: startDate,
+                end_date: endDate,
+            });
+
+            const blob = new Blob([res.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'login-logs-report.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error('Download failed:', err);
+            toast.error('Failed to download reports data');
+        }
+    };
+
 
     return (
         <>
@@ -298,6 +299,9 @@ const RoleActionManagementLayout = () => {
                                         Complete Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Truck ID
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Route Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -309,6 +313,9 @@ const RoleActionManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Truck Status
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -318,7 +325,10 @@ const RoleActionManagementLayout = () => {
                                 {filteredSchedules.map((schedule) => (
                                     <tr key={schedule._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{schedule?.user?.first_name || "None"} {schedule?.user?.middle_name} {schedule?.user?.last_name}</span>
+                                            <span className="text-sm text-gray-900">{schedule?.truck?.user?.first_name || "None"} {schedule?.truck?.user?.middle_name} {schedule?.truck?.user?.last_name}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{schedule?.truck?.truck_id}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule?.route?.route_name || "None"}</span>
@@ -332,6 +342,9 @@ const RoleActionManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.status || "Not Yet"}</span>
                                         </td>
+                                         <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{schedule?.truck?.status}</span>
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
@@ -341,6 +354,15 @@ const RoleActionManagementLayout = () => {
                                                 >
                                                     <FiEdit className="w-4 h-4" />
                                                 </button>
+
+                                                <button
+                                                    // onClick={() => handleEdit(user.user, user)}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    title="View Data"
+                                                >
+                                                    <FiInfo className="w-4 h-4" />
+                                                </button>
+
                                                 <button
                                                     onClick={() => handleDelete(schedule._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -457,17 +479,17 @@ const RoleActionManagementLayout = () => {
                                             Garbage Collector
                                         </label>
                                         <select
-                                            name="user"
-                                            value={formData.user}
+                                            name="truck"
+                                            value={formData.truck}
                                             onChange={handleInputChange}
                                             required
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Garbage Collector</option>
-                                            {users?.filter(user => user?._id)
-                                                .map((user) => (
-                                                    <option key={user._id} value={user._id}>
-                                                        {user.first_name} {user.middle_name} {user.last_name}
+                                            {trucks?.filter(truck => truck?._id)
+                                                .map((truck) => (
+                                                    <option key={truck?._id} value={truck?._id}>
+                                                        {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name}
                                                     </option>
                                                 ))}
                                         </select>
