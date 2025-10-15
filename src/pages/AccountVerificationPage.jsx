@@ -118,6 +118,7 @@ const AccountVerificationPage = () => {
           toast.error(data.message || "Failed to verify. Please try again.");
         }
 
+        localStorage.setItem('user_id', dataUser._id);
         toast.success(data.data || "Account verified successfully!");
         navigate('/admin/dashboard');
       }

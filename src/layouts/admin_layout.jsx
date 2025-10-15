@@ -1,5 +1,5 @@
 // layout/admin_layout.jsx
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
@@ -22,20 +22,23 @@ import {
 } from "react-icons/fi";
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
 
+import { AuthContext } from '../context/AuthContext';
+ 
+
 const AdminLayout = ({ children }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     management: location.pathname.includes('/admin/management')
   });
-  const navigate = useNavigate();
-
-  const adminFirstName = localStorage.getItem("first_name");
-  const adminMiddleName = localStorage.getItem("middle_name");
-  const adminLastName = localStorage.getItem("last_name");
-  const adminEmail = localStorage.getItem("email") || "admin@wastewise.com";
-  const adminId = localStorage.getItem("admin_id") || "N/A";
+  const { logout, user, refresh } = useContext(AuthContext);
+  const adminFirstName = user?.first_name;
+  const adminMiddleName = user?.middle_name;
+  const adminLastName = user?.last_name;
+  const adminEmail = user?.email;
+  const adminId = user?._id || "N/A";
 
   // Optimized navigation with grouped items for WasteWise
   const navItems = [
@@ -51,6 +54,8 @@ const AdminLayout = ({ children }) => {
         { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
         { path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" },
         { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
+        { path: "/admin/management/routes", icon: FiUsers, label: "Route Management" },        
+        { path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" },
         // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
         // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
         // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
@@ -61,9 +66,17 @@ const AdminLayout = ({ children }) => {
     },
     
     // Analytics & Settings
-    { path: "/admin/analytics", icon: FiBarChart2, label: "Analytics" },
-    { path: "/admin/settings", icon: FiSettings, label: "System Settings" },
+    { path: "/admin/login_history", icon: FiBarChart2, label: "Login History" },
+    { path: "/admin/update_profile", icon: FiBarChart2, label: "Profile" },
+    // { path: "/admin/analytics", icon: FiBarChart2, label: "Analytics" },
+    // { path: "/admin/settings", icon: FiSettings, label: "System Settings" },
   ];
+
+
+    useEffect(() => {
+            refresh();
+    }, []);
+    
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -74,6 +87,7 @@ const AdminLayout = ({ children }) => {
 
   const handleLogout = () => {
     navigate("/");
+    logout();
     localStorage.clear();
   };
 
@@ -97,9 +111,12 @@ const AdminLayout = ({ children }) => {
       'residents': 'Resident Management',
       'role_actions': 'Role Action Management',
       'logs': 'Log Management',
+      'routes': 'Route Management',
+      'trucks': 'Truck Management',
  
-      'collectors': 'Collector Management',
-      'zones': 'Zone Management',
+      'update_profile': 'Profile',
+      'login_history': 'Login History',
+
       'schedule': 'Schedule Management',
       'vehicles': 'Vehicle Management',
       'reports': 'Waste Analytics',
@@ -367,7 +384,7 @@ const AdminLayout = ({ children }) => {
                     <p className="text-sm font-semibold text-gray-800 truncate">
                       {adminFirstName} {adminLastName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">ID: {adminId}</p>
+                    {/* <p className="text-xs text-gray-500 truncate">ID: {adminId}</p> */}
                   </div>
                   <FiChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-300 flex-shrink-0 ${
                     userDropdownOpen ? "rotate-180" : ""

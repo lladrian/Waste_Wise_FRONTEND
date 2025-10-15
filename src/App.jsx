@@ -1,34 +1,41 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
+import ProtectedRoute from './components/ProtectedRoute';
+
 
 import LoginPage from './pages/LoginPage';
 import AccountRecoveryPage from './pages/AccountRecoveryPage';
-import AdminLayout from './layouts/admin_layout';
+import AccountDisabledPage from './pages/AccountDisabledPage';
+import AccountVerificationPage from './pages/AccountVerificationPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
 
 import AdminUserManagementPage from './pages/managements/admin/AdminUserManagementPage';
 import AdminResidentManagementPage from './pages/managements/admin/AdminResidentManagementPage';
 import AdminRoleActionManagementPage from './pages/managements/admin/AdminRoleActionManagementPage';
 import AdminLogManagementPage from './pages/managements/admin/AdminLogManagementPage';
+import AdminRouteManagementPage from './pages/managements/admin/AdminRouteManagementPage';
+import AdminTruckManagementPage from './pages/managements/admin/AdminTruckManagementPage';
+
+
+import StaffLogManagementPage from './pages/managements/staff/StaffLogManagementPage';
+import StaffScheduleManagementPage from './pages/managements/staff/StaffScheduleManagementPage';
+import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManagementPage';
+import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManagementPage';
 
 
 
 
-import AccountDisabledPage from './pages/AccountDisabledPage';
-import AccountVerificationPage from './pages/AccountVerificationPage';
+import AdminLayout from './layouts/admin_layout';
+import StaffLayout from './layouts/staff_layout';
 
+import StaffLogPage from './pages/staff/StaffLogPage';
+import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
 
-import PermissionSelector from './pages/PermissionSelector';
+import AdminLogPage from './pages/admin/AdminLogPage';
+import AdminUpdateProfilePage from './pages/admin/AdminUpdateProfilePage';
 
-
-
- 
-// import RegisterPage from './pages/RegisterPage';
-// import RoleSelectionPage from './pages/RoleSelectionPage';
-// import AccountRecoveryPage from './pages/AccountRecoveryPage';
-
-
-
-import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -40,24 +47,151 @@ function App() {
         <Route path="/verification/:id" element={<AccountVerificationPage />} />
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
-        <Route path="/admin/dashboard" element={<AdminLayout />} />
-        <Route path="/admin/management/users" element={<AdminUserManagementPage />} />
-        <Route path="/admin/management/residents" element={<AdminResidentManagementPage />} />
-        <Route path="/admin/management/role_actions" element={<AdminRoleActionManagementPage />} />
-        <Route path="/admin/management/logs" element={<AdminLogManagementPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin/update_profile"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminUpdateProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/login_history"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management/users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminUserManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management/residents"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminResidentManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management/role_actions"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminRoleActionManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management/logs"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLogManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management/routes"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminRouteManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management/trucks"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminTruckManagementPage />
+            </ProtectedRoute>
+          }
+        />
 
 
 
 
 
-       
-{/*
-        <Route path="/register/:role_selected" element={<RegisterPage />} /> 
-        <Route path="/role_selection" element={<RoleSelectionPage />} /> 
-        <Route path="/account_recovery" element={<AccountRecoveryPage />} />  */}
+        {/* Staff Routes */}
+        <Route
+          path="/staff/update_profile"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffUpdateProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/login_history"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffLogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffLayout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/management/logs"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffLogManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/management/routes"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffRouteManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/management/schedules"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffScheduleManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/management/trucks"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffTruckManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+
       </Routes>
     </Router>
-  ); 
+  );
 
 }
 

@@ -10,3 +10,4 @@ npm install react-router-dom
 npm install axios
 npm install react-icons
 npm install react-select
+npm install lucide-react

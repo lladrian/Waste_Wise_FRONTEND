@@ -13,11 +13,12 @@ import {
     FiXCircle
 } from 'react-icons/fi';
 
-import { getAllUserResident, deleteUser, updateUser, createUser, updateUserPassword } from "../../hooks/user_management_hook";
+//import { getAllResidentUser, updateResidentUserPasswordAdmin, deleteResidentUser, updateResidentUser, createResidentUser } from "../../hooks/resident_user_management_hook";
+import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident} from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
 
-const UserManagementLayout = () => {
+const ResidentManagementLayout = () => {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +26,7 @@ const UserManagementLayout = () => {
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingUsers, setEditingUser] = useState(null);
     const [editingUserPassword, setEditingUserPassword] = useState(null);
+    const [routes, setRoutes] = useState([]);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -34,6 +36,9 @@ const UserManagementLayout = () => {
         last_name: '',
         gender: '',
         contact_number: '',
+        is_disabled: '',
+        route: '',
+        route_name: '',
         role: ''
     });
 
@@ -45,11 +50,12 @@ const UserManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllUserResident();
+            const { data, data2, success } = await getAllUser();
 
             if (success === true) {
                 setUsers(data)
                 setFilteredUsers(data)
+                setRoutes(data2)
             }
 
         } catch (err) {
@@ -99,6 +105,8 @@ const UserManagementLayout = () => {
             last_name: formData.last_name,
             gender: formData.gender,
             contact_number: formData.contact_number,
+            is_disabled: formData.is_disabled,
+            route: formData.route,
             role: formData.role
         };
 
@@ -108,7 +116,7 @@ const UserManagementLayout = () => {
                     password: formData.update_password,
                 };
 
-                const { data, success } = await updateUserPassword(editingUserPassword._id, input_data2);
+                const { data, success } = await updateUserPasswordAdmin(editingUserPassword._id, input_data2);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to update user password");
@@ -127,7 +135,7 @@ const UserManagementLayout = () => {
             }
         } else if (editingUsers) {
             try {
-                const { data, success } = await updateUser(editingUsers._id, input_data);
+                const { data, success } = await updateUserResident(editingUsers._id, input_data);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to create user");
@@ -178,6 +186,9 @@ const UserManagementLayout = () => {
             middle_name: user.middle_name,
             last_name: user.last_name,
             gender: user.gender,
+            route: user?.route?._id,
+            route_name: user?.route?.route_name,
+            is_disabled: String(user.is_disabled),
             contact_number: user.contact_number,
             role: user.role
         });
@@ -193,6 +204,9 @@ const UserManagementLayout = () => {
             middle_name: user.middle_name,
             last_name: user.last_name,
             gender: user.gender,
+            route: user?.route?._id,
+            route_name: user?.route?.route_name,
+            is_disabled: String(user.is_disabled),
             contact_number: user.contact_number,
             role: user.role
         });
@@ -228,6 +242,9 @@ const UserManagementLayout = () => {
             last_name: '',
             gender: '',
             contact_number: '',
+            is_disabled: '',
+            route: '',
+            route_name: '',
             role: ''
         });
 
@@ -510,6 +527,29 @@ const UserManagementLayout = () => {
                                         </select>
                                     </div>
 
+
+                                      <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Role Action
+                                        </label>
+                                        <select
+                                            name="route"
+                                            value={formData.route || ""}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Route</option>
+                                            {routes?.filter(route => route?._id && route?.route_name)
+                                                .map((route) => (
+                                                    <option key={route._id} value={route._id}>
+                                                        {route.route_name}
+                                                    </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Role
@@ -530,6 +570,25 @@ const UserManagementLayout = () => {
                                             {editingUsers && <option value="resident">Resident</option>} */}
                                         </select>
                                     </div>
+
+                                       {editingUsers && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Account State
+                                            </label>
+                                            <select
+                                                name="is_disabled"
+                                                value={formData.is_disabled}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            >
+                                                <option value="" disabled>Select Status</option>
+                                                <option value="false">Enabled</option>
+                                                <option value="true">Disabled</option>
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Action Buttons */}
@@ -602,13 +661,19 @@ const UserManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Contact:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formData?.contact_number || 'Not provided'}
+                                            {formData?.contact_number || 'None'}
                                         </p>
                                     </div>
                                     <div>
-                                    <span className="text-gray-500">Email Address:</span>
+                                        <span className="text-gray-500">Email Address:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formData?.email || 'Not provided'}
+                                            {formData?.email || 'None'}
+                                        </p>
+                                    </div>
+                                     <div>
+                                        <span className="text-gray-500">Route Name:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.route_name || 'None'}
                                         </p>
                                     </div>
                                 </div>
@@ -671,4 +736,4 @@ const UserManagementLayout = () => {
     );
 };
 
-export default UserManagementLayout;
+export default ResidentManagementLayout;

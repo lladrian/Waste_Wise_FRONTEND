@@ -1,5 +1,5 @@
 // layout/admin_layout.jsx
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
@@ -21,6 +21,7 @@ import {
   FiCalendar
 } from "react-icons/fi";
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
+import { AuthContext } from '../context/AuthContext';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -30,40 +31,54 @@ const AdminLayout = ({ children }) => {
     management: location.pathname.includes('/admin/management')
   });
   const navigate = useNavigate();
+  const { logout, user, refresh } = useContext(AuthContext);
 
-  const adminFirstName = localStorage.getItem("first_name");
-  const adminMiddleName = localStorage.getItem("middle_name");
-  const adminLastName = localStorage.getItem("last_name");
-  const adminEmail = localStorage.getItem("email") || "admin@wastewise.com";
-  const adminId = localStorage.getItem("admin_id") || "N/A";
+  const adminFirstName = user?.first_name;
+  const adminMiddleName = user?.middle_name;
+  const adminLastName = user?.last_name;
+  const adminEmail = user?.email;
+  const adminId = user?._id || "N/A";
 
   // Optimized navigation with grouped items for WasteWise
   const navItems = [
-    { path: "/admin/dashboard", icon: FiHome, label: "Dashboard" },
+    { path: "/staff/dashboard", icon: FiHome, label: "Dashboard" },
     
     // Grouped Waste Management
     { 
-      path: "/admin/management", 
+      path: "/staff/management", 
       icon: FiFolder, 
       label: "Waste Management",
       subItems: [
-        { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
-        { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
-        { path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" },
-        { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
-        // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
-        // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
-        // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
-        // { path: "/admin/management/schedule", icon: FiClock, label: "Schedule Management" },
-        // { path: "/admin/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
-        // { path: "/admin/management/reports", icon: FiBarChart2, label: "Waste Reports" },
+        // { path: "/staff/management/users", icon: FiUsers, label: "User Management" },
+        // { path: "/staff/management/residents", icon: FiUsers, label: "Resident Management" },
+        // { path: "/staff/management/role_actions", icon: FiUsers, label: "Role Action Management" },
+        { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
+        { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
+        { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },        
+        { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
+        // { path: "/staff/login_history", icon: FiUsers, label: "Log History" },
+        // { path: "/staff/management/requests", icon: FiFileText, label: "Collection Requests" },
+        // { path: "/staff/management/collectors", icon: FiUser, label: "Collector Management" },
+        // { path: "/staff/management/zones", icon: FiList, label: "Zone Management" },
+        // { path: "/staff/management/schedule", icon: FiClock, label: "Schedule Management" },
+        // { path: "/staff/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
+        // { path: "/staff/management/reports", icon: FiBarChart2, label: "Waste Reports" },
       ]
     },
     
     // Analytics & Settings
-    { path: "/admin/analytics", icon: FiBarChart2, label: "Analytics" },
-    { path: "/admin/settings", icon: FiSettings, label: "System Settings" },
+    { path: "/staff/login_history", icon: FiBarChart2, label: "Login History" },
+    { path: "/staff/update_profile", icon: FiBarChart2, label: "Profile" },
+    // { path: "/staff/analytics", icon: FiBarChart2, label: "Analytics" },
+    // { path: "/staff/settings", icon: FiSettings, label: "System Settings" },
   ];
+
+
+  useEffect(() => {
+          refresh();
+  }, []);
+  
+  
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -75,6 +90,7 @@ const AdminLayout = ({ children }) => {
   const handleLogout = () => {
     navigate("/");
     localStorage.clear();
+    logout();
   };
 
   const getPageTitle = () => {
@@ -85,7 +101,6 @@ const AdminLayout = ({ children }) => {
     const isLikelyId = /^[0-9a-fA-F]{8,}$/.test(last) || !isNaN(last);
     const label = isLikelyId ? secondLast : last;
 
-    // Enhanced custom titles for WasteWise admin pages
     const customTitles = {
       // Dashboard
       'dashboard': 'Waste Wise Dashboard',
@@ -96,8 +111,15 @@ const AdminLayout = ({ children }) => {
       'users': 'User Management',
       'residents': 'Resident Management',
       'role_actions': 'Role Action Management',
+
       'logs': 'Log Management',
- 
+      'schedules': 'Schedule Management',
+      'routes': 'Route Management',
+      'trucks': 'Truck Management',
+
+      'login_history': 'Login History',
+      'profile': 'Profile',
+
       'collectors': 'Collector Management',
       'zones': 'Zone Management',
       'schedule': 'Schedule Management',
@@ -107,7 +129,7 @@ const AdminLayout = ({ children }) => {
       // Other pages
       'analytics': 'System Analytics',
       'settings': 'System Settings',
-      'profile': 'Admin Profile',
+      // 'profile': 'Admin Profile',
       
       // Fallbacks for common patterns
       'new': 'Create New',
@@ -159,7 +181,7 @@ const AdminLayout = ({ children }) => {
               <div className="flex items-center space-x-2 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                    WasteWise Admin
+                    WasteWise Staff
                   </h1>
                   <p className="text-xs text-gray-500 truncate">Control Panel</p>
                 </div>
@@ -312,7 +334,7 @@ const AdminLayout = ({ children }) => {
                   <p className="text-xs font-semibold text-gray-800 truncate">
                     {adminFirstName} {adminLastName}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">Administrator</p>
+                  <p className="text-xs text-gray-500 truncate">Staff</p>
                 </div>
               )}
             </div>
@@ -367,7 +389,7 @@ const AdminLayout = ({ children }) => {
                     <p className="text-sm font-semibold text-gray-800 truncate">
                       {adminFirstName} {adminLastName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">ID: {adminId}</p>
+                    {/* <p className="text-xs text-gray-500 truncate">ID: {adminId}</p> */}
                   </div>
                   <FiChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-300 flex-shrink-0 ${
                     userDropdownOpen ? "rotate-180" : ""

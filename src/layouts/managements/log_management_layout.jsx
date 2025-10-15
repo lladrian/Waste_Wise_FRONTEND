@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import DateRangeFilter from '../../components/DateRangeFilter';
 
 
-const UserManagementLayout = () => {
+const LogManagementLayout = () => {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -102,17 +102,16 @@ const UserManagementLayout = () => {
 
     const filterUsers = () => {
         let filtered = users;
-
         // Search filter
         if (searchTerm) {
             filtered = filtered.filter(user =>
-                user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.role.toLowerCase().includes(searchTerm.toLowerCase())
+                user.user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.user.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.user.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.user.role.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -279,10 +278,12 @@ const UserManagementLayout = () => {
                                 {filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.user.first_name} {user.user.middle_name} {user.user.last_name}</span>
+                                            <span className="text-sm text-gray-900">{user?.user?.first_name} {user?.user?.middle_name} {user?.user?.last_name}</span>
+                                            <span className="text-sm text-gray-900">{user?.resident_user?.first_name} {user?.resident_user?.middle_name} {user?.resident_user?.last_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatRole(user.user.role)}</span>
+                                            <span className="text-sm text-gray-900">{formatRole(user?.user?.role)}</span>
+                                            <span className="text-sm text-gray-900">{formatRole(user?.resident_user?.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{formatDate(user.created_at)}</span>
@@ -305,7 +306,7 @@ const UserManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => handleEditPassword(user.user, user)}
+                                                    onClick={() => handleEditPassword(user?.user || user?.resident_user, user)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="Change Password"
                                                 >
@@ -450,4 +451,4 @@ const UserManagementLayout = () => {
     );
 };
 
-export default UserManagementLayout;
+export default LogManagementLayout;
