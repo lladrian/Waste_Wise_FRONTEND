@@ -39,6 +39,7 @@ const RoleActionManagementLayout = () => {
     const [formData, setFormData] = useState({
         route: '',
         truck: '',
+        user: '',
         status: '',
         remark: '',
         scheduled_collection: ''
@@ -99,9 +100,12 @@ const RoleActionManagementLayout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+
+
         const input_data = {
             route: formData?.route,
             truck: formData?.truck,
+            user: formData?.user,
             status: formData?.status || "Not Yet",
             remark: formData?.remark || "Not Yet",
             scheduled_collection: formData?.scheduled_collection,
@@ -128,7 +132,14 @@ const RoleActionManagementLayout = () => {
             }
         } else {
             try {
+
                 const { data, success } = await createSchedule(input_data);
+
+                const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
+                if (selectedTruck?.status !== 'Ready') { // Change 'active' to your "ready" status
+                    alert('Cannot schedule: Selected truck is not ready. Please select an active truck.');
+                    return;
+                }
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to create route");
@@ -156,6 +167,7 @@ const RoleActionManagementLayout = () => {
         setEditingSchedule(route);
         setFormData({
             route: route?.route?._id || '',
+            user: route?.user?._id || '',
             truck: route?.truck?._id || '',
             status: route.status,
             remark: route.remark,
@@ -163,6 +175,12 @@ const RoleActionManagementLayout = () => {
         });
 
         setShowModal(true);
+    };
+
+    const getSelectedTruckStatus = () => {
+        if (!formData.truck) return null;
+        const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
+        return selectedTruck?.status;
     };
 
 
@@ -187,6 +205,7 @@ const RoleActionManagementLayout = () => {
         setFormData({
             route: '',
             truck: '',
+            user: '',
             status: '',
             remark: '',
             scheduled_collection: ''
@@ -195,14 +214,33 @@ const RoleActionManagementLayout = () => {
         setEditingSchedule(null);
     };
 
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+
+        if (name === 'truck') {
+            const selectedTruck = trucks?.find(truck => truck._id === value);
+            const userId = selectedTruck?.user?._id || '';
+
+            setFormData(prev => ({
+                ...prev,
+                truck: value,
+                user: userId // Automatically set user ID
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
+
+    // const handleInputChange = (e) => {
+    //     const { name, value } = e.target;
+    //     setFormData(prev => ({
+    //         ...prev,
+    //         [name]: value
+    //     }));
+    // };
 
     const formatDate = (dateString) => {
         const months = [
@@ -246,6 +284,40 @@ const RoleActionManagementLayout = () => {
     };
 
 
+    const scheduleStatusOptions = [
+        'Scheduled',        // Planned but not started
+        'Assigned',         // Assigned to crew but not started
+        'In Progress',      // Currently being executed
+        'Completed',        // Successfully finished
+        'Cancelled',        // Cancelled before starting
+        'Pending',          // Waiting for approval or resources
+        'Delayed',          // Behind schedule
+        'Rescheduled',      // Moved to different time
+        'On Hold',          // Temporarily paused
+        'Failed',           // Could not be completed
+        'Partially Completed' // Some tasks done, some pending
+    ];
+
+
+    const commonRemarks = [
+    'None',
+    'Completed successfully',
+    'No one home',
+    'Bin not available',
+    'Access blocked',
+    'Weather delay',
+    'Vehicle breakdown',
+    'Staff shortage',
+    'Road closure',
+    'Overflowing bin',
+    'Special collection required',
+    'Hazardous materials found',
+    'Resident request',
+    'Public holiday',
+    'Emergency situation',
+    'Route change'
+];
+
     return (
         <>
             <div className="space-y-6">
@@ -256,7 +328,7 @@ const RoleActionManagementLayout = () => {
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                     >
                         <FiPlus className="w-4 h-4" />
-                        <span>Add New Route</span>
+                        <span>Add New Schedule</span>
                     </button>
                 </div>
 
@@ -313,9 +385,9 @@ const RoleActionManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
-                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Truck Status
-                                    </th>
+                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -328,7 +400,7 @@ const RoleActionManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{schedule?.truck?.user?.first_name || "None"} {schedule?.truck?.user?.middle_name} {schedule?.truck?.user?.last_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{schedule?.truck?.truck_id}</span>
+                                            <span className="text-sm text-gray-900">{schedule?.truck?.truck_id || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule?.route?.route_name || "None"}</span>
@@ -342,9 +414,9 @@ const RoleActionManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.status || "Not Yet"}</span>
                                         </td>
-                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{schedule?.truck?.status}</span>
-                                        </td>
+                                        {/* <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{schedule?.truck?.status || "None"}</span>
+                                        </td> */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
@@ -355,13 +427,13 @@ const RoleActionManagementLayout = () => {
                                                     <FiEdit className="w-4 h-4" />
                                                 </button>
 
-                                                <button
+                                                {/* <button
                                                     // onClick={() => handleEdit(user.user, user)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
 
                                                 <button
                                                     onClick={() => handleDelete(schedule._id)}
@@ -444,15 +516,20 @@ const RoleActionManagementLayout = () => {
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                                     Remark
                                                 </label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     name="remark"
-                                                    value={formData.remark || "Not Yet"}
+                                                    value={formData.remark}
                                                     onChange={handleInputChange}
                                                     required
                                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                    placeholder="Enter Remark"
-                                                />
+                                                >
+                                                    <option value="" disabled>Select Remark</option>
+                                                    {commonRemarks .map((status) => (
+                                                        <option key={status} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
 
                                             {/* Status Field */}
@@ -460,16 +537,22 @@ const RoleActionManagementLayout = () => {
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                                     Status
                                                 </label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     name="status"
-                                                    value={formData.status || "Not Yet"}
+                                                    value={formData.status}
                                                     onChange={handleInputChange}
                                                     required
                                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                    placeholder="Enter Status"
-                                                />
+                                                >
+                                                    <option value="" disabled>Select Truck Status</option>
+                                                    {scheduleStatusOptions .map((status) => (
+                                                        <option key={status} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
+
                                         </>
                                     )}
 
@@ -486,13 +569,66 @@ const RoleActionManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Garbage Collector</option>
-                                            {trucks?.filter(truck => truck?._id)
+                                            {/* Active trucks */}
+                                            {trucks?.filter(truck => truck?.status === 'Ready')
                                                 .map((truck) => (
                                                     <option key={truck?._id} value={truck?._id}>
-                                                        {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name}
+                                                        {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ✓
+                                                    </option>
+                                                ))}
+
+                                            {/* Non-active trucks (disabled) */}
+                                            {trucks?.filter(truck => truck?.status !== 'Ready')
+                                                .map((truck) => (
+                                                    <option key={truck?._id} value={truck?._id} disabled>
+                                                        {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ({truck?.status}) ❌
                                                     </option>
                                                 ))}
                                         </select>
+                                    </div>
+
+                                    {/* Status container */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Truck Status
+                                        </label>
+                                        <div className={`w-full border rounded-lg px-4 py-3 ${formData.truck && getSelectedTruckStatus() !== 'active'
+                                            ? 'border-amber-300 bg-amber-50'
+                                            : 'border-gray-300 bg-gray-50'
+                                            }`}>
+                                            {formData.truck ? (
+                                                (() => {
+                                                    const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
+                                                    const status = selectedTruck?.status;
+                                                    const isReady = status === 'Ready';
+
+                                                    return (
+                                                        <div className="space-y-2">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium text-gray-700">Status:</span>
+                                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${isReady
+                                                                    ? 'bg-green-100 text-green-800 border border-green-200'
+                                                                    : 'bg-amber-100 text-amber-800 border border-amber-200'
+                                                                    }`}>
+                                                                    {status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown'}
+
+                                                                </span>
+                                                            </div>
+                                                            {!isReady && (
+                                                                <div className="flex items-start space-x-2 text-amber-600 text-sm">
+                                                                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                    <span>This truck cannot be scheduled in its current status.</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()
+                                            ) : (
+                                                <span className="text-gray-500 text-sm">Select a garbage collector to view status</span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="md:col-span-2">

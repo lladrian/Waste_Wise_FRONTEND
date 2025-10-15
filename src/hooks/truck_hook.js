@@ -27,11 +27,13 @@ export const createTruck = async (data) => {
 export const getAllTruck = async () => {
   try {
     const res = await API.getAllTruck();
-    const res2 = await API.getAllUser();
+    const res2 = await API.getAllTruckDriverUser();
+    const res3 = await API.getAllUser();
+    const filteredData = res3.data.data.filter(user => user.role === 'garbage_collector');
 
-    const filteredData = res2.data.data.filter(user => user.role === 'garbage_collector');
 
-    return { data: {trucks: res.data, users: filteredData}, success: true };
+
+    return { data: {trucks: res.data, users: res2.data, drivers: filteredData}, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
     throw error;
