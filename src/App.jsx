@@ -30,10 +30,10 @@ import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManage
 import AdminLayout from './layouts/admin_layout';
 import StaffLayout from './layouts/staff_layout';
 
-// import StaffLogPage from './pages/staff/StaffLogPage';
+import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
 
-// import AdminLogPage from './pages/admin/AdminLogPage';
+import AdminLogPage from './pages/admin/AdminLogPage';
 import AdminUpdateProfilePage from './pages/admin/AdminUpdateProfilePage';
 
 
@@ -60,14 +60,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/admin/login_history"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminLogPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route
           path="/admin/dashboard"
           element={
