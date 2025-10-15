@@ -30,7 +30,7 @@ import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManage
 import AdminLayout from './layouts/admin_layout';
 import StaffLayout from './layouts/staff_layout';
 
-// import StaffLogPage from './pages/staff/StaffLogPage';
+import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
 
 import AdminLogPage from './pages/admin/AdminLogPage';
@@ -138,14 +138,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/staff/login_history"
           element={
             <ProtectedRoute allowedRoles={['enro_staff']}>
               <StaffLogPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route
           path="/staff/dashboard"
           element={
