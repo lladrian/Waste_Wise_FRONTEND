@@ -30,7 +30,7 @@ import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManage
 import AdminLayout from './layouts/admin_layout';
 import StaffLayout from './layouts/staff_layout';
 
-import StaffLogPage from './pages/staff/StaffLogPage';
+// import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
 
 import AdminLogPage from './pages/admin/AdminLogPage';
