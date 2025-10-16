@@ -56,6 +56,7 @@ const StaffLayout = ({ children }) => {
         { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
         { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },        
         { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
+        { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
         // { path: "/staff/login_history", icon: FiUsers, label: "Log History" },
         // { path: "/staff/management/requests", icon: FiFileText, label: "Collection Requests" },
         // { path: "/staff/management/collectors", icon: FiUser, label: "Collector Management" },
@@ -116,6 +117,8 @@ const StaffLayout = ({ children }) => {
       'schedules': 'Schedule Management',
       'routes': 'Route Management',
       'trucks': 'Truck Management',
+      'complains': 'Complain Management',
+
 
       'login_history': 'Login History',
       'profile': 'Profile',

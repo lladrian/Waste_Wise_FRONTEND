@@ -56,6 +56,7 @@ const AdminLayout = ({ children }) => {
         { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
         { path: "/admin/management/routes", icon: FiUsers, label: "Route Management" },        
         { path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" },
+        { path: "/admin/management/complains", icon: FiUsers, label: "Complain Management" },
         // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
         // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
         // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
@@ -113,6 +114,9 @@ const AdminLayout = ({ children }) => {
       'logs': 'Log Management',
       'routes': 'Route Management',
       'trucks': 'Truck Management',
+      'complains': 'Complain Management',
+
+      
  
       'update_profile': 'Profile',
       'login_history': 'Login History',

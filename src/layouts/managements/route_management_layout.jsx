@@ -18,7 +18,7 @@ import { getSpecificRoute, createRoute, getAllRoute, deleteRoute, updateRoute } 
 
 import { toast } from "react-toastify";
 
-const RoleActionManagementLayout = () => {
+const RouteManagementLayout = () => {
     const [routes, setRoutes] = useState([]);
     const [filteredRoutes, setFilteredRoutes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -398,4 +398,4 @@ const RoleActionManagementLayout = () => {
     );
 };
 
-export default RoleActionManagementLayout;
+export default RouteManagementLayout;

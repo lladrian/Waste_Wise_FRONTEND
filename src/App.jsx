@@ -17,12 +17,16 @@ import AdminRoleActionManagementPage from './pages/managements/admin/AdminRoleAc
 import AdminLogManagementPage from './pages/managements/admin/AdminLogManagementPage';
 import AdminRouteManagementPage from './pages/managements/admin/AdminRouteManagementPage';
 import AdminTruckManagementPage from './pages/managements/admin/AdminTruckManagementPage';
+import AdminComplainManagementPage from './pages/managements/admin/AdminComplainManagementPage';
+
 
 
 import StaffLogManagementPage from './pages/managements/staff/StaffLogManagementPage';
 import StaffScheduleManagementPage from './pages/managements/staff/StaffScheduleManagementPage';
 import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManagementPage';
 import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManagementPage';
+import StaffComplainManagementPage from './pages/managements/staff/StaffComplainManagementPage';
+
 
 
 
@@ -124,6 +128,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/management/complains"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminComplainManagementPage />
+            </ProtectedRoute>
+          }
+        />
 
 
 
@@ -183,6 +195,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['enro_staff']}>
               <StaffTruckManagementPage />
+            </ProtectedRoute>
+          }
+        />
+           <Route
+          path="/staff/management/complains"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffComplainManagementPage />
             </ProtectedRoute>
           }
         />

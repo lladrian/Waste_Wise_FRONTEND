@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import DateRangeFilter from '../../components/DateRangeFilter';
 
 
-const RoleActionManagementLayout = () => {
+const TruckManagementLayout = () => {
     const [trucks, setTrucks] = useState([]);
     const [users, setUsers] = useState([]);
     const [drivers, setDrivers] = useState([]);
@@ -236,16 +236,11 @@ const RoleActionManagementLayout = () => {
 
 
     const statusOptions = [
-        'Ready',           // Ready for assignment
-        'On Duty',         // Currently on collection route
-        'Maintenance',     // Under repair/maintenance
-        'Out of Service',  // Temporarily unavailable
-        'Available',       // Available but not necessarily ready
-        'Busy',            // Currently occupied with tasks
-        'Breakdown',       // Mechanical failure
-        'Cleaning',        // Being cleaned/sanitized
-        'Fueling',         // Refueling in progress
-        'Idle'             // Available but not assigned
+        'Active',       
+        'On Route',  
+        'Under Maintenance', 
+        'Unavailable',
+        'Inactive',
     ];
 
 
@@ -498,4 +493,4 @@ const RoleActionManagementLayout = () => {
     );
 };
 
-export default RoleActionManagementLayout;
+export default TruckManagementLayout;
