@@ -24,6 +24,7 @@ import DateRangeFilter from '../../components/DateRangeFilter';
 const RoleActionManagementLayout = () => {
     const [trucks, setTrucks] = useState([]);
     const [users, setUsers] = useState([]);
+    const [drivers, setDrivers] = useState([]);
     const [filteredTrucks, setFilteredTrucks] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -46,7 +47,8 @@ const RoleActionManagementLayout = () => {
         try {
             const { data, success } = await getAllTruck();
             if (success === true) {
-                setUsers(data.users)
+                setUsers(data.users.data)
+                setDrivers(data.drivers)
                 setTrucks(data.trucks.data)
                 setFilteredTrucks(data.trucks.data)
             }
@@ -75,7 +77,7 @@ const RoleActionManagementLayout = () => {
             );
         }
 
-         if (startDate && endDate) {
+        if (startDate && endDate) {
             const startDateStr = `${startDate} 00:00:00`;
             const endDateStr = `${endDate} 23:59:59`;
 
@@ -146,7 +148,7 @@ const RoleActionManagementLayout = () => {
     const handleEdit = (truck) => {
         setEditingTruck(truck);
         setFormData({
-            user: truck?.user?._id  || '',
+            user: truck?.user?._id || '',
             status: truck.status,
             truck_id: truck.truck_id,
         });
@@ -174,7 +176,7 @@ const RoleActionManagementLayout = () => {
 
     const resetForm = () => {
         setFormData({
-            user:  '',
+            user: '',
             status: '',
             truck_id: '',
         });
@@ -206,32 +208,46 @@ const RoleActionManagementLayout = () => {
     };
 
 
-    
-    
-        const downloadGeneratedReport = async () => {
-            try {
-                const res = await generateReportLoginLog({
-                    start_date: startDate,
-                    end_date: endDate,
-                });
-    
-                const blob = new Blob([res.data], {
-                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                });
-    
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'login-logs-report.xlsx');
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            } catch (err) {
-                console.error('Download failed:', err);
-                toast.error('Failed to download reports data');
-            }
-        };
-    
+
+
+    const downloadGeneratedReport = async () => {
+        try {
+            const res = await generateReportLoginLog({
+                start_date: startDate,
+                end_date: endDate,
+            });
+
+            const blob = new Blob([res.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'login-logs-report.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error('Download failed:', err);
+            toast.error('Failed to download reports data');
+        }
+    };
+
+
+    const statusOptions = [
+        'Ready',           // Ready for assignment
+        'On Duty',         // Currently on collection route
+        'Maintenance',     // Under repair/maintenance
+        'Out of Service',  // Temporarily unavailable
+        'Available',       // Available but not necessarily ready
+        'Busy',            // Currently occupied with tasks
+        'Breakdown',       // Mechanical failure
+        'Cleaning',        // Being cleaned/sanitized
+        'Fueling',         // Refueling in progress
+        'Idle'             // Available but not assigned
+    ];
+
 
     return (
         <>
@@ -289,7 +305,7 @@ const RoleActionManagementLayout = () => {
                                         Truck ID
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
+                                        Truck Status
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
@@ -370,9 +386,9 @@ const RoleActionManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     <div className="md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Truck ID 
+                                            Truck ID
                                         </label>
                                         <input
                                             type="text"
@@ -385,43 +401,73 @@ const RoleActionManagementLayout = () => {
                                         />
                                     </div>
 
-                                     <div className="md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Status
+                                            Truck Status
                                         </label>
-                                        <input
-                                            type="text"
+                                        <select
                                             name="status"
                                             value={formData.status}
                                             onChange={handleInputChange}
                                             required
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                            placeholder="Enter Status"
-                                        />
-                                    </div>
-                                    
-
-
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Garbage Collector
-                                        </label>
-                                        <select
-                                            name="user"
-                                            value={formData.user}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
-                                            <option value="" disabled>Select Garbage Collector</option>
-                                            {users?.filter(user => user?._id)
-                                                .map((user) => (
-                                                    <option key={user._id} value={user._id}>
-                                                        {user.first_name} {user.middle_name} {user.last_name}
-                                                    </option>
-                                                ))}
+                                            <option value="" disabled>Select Truck Status</option>
+                                            {statusOptions.map((status) => (
+                                                <option key={status} value={status}>
+                                                    {status}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
+
+
+                                    {!editingTrucks && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Garbage Collector
+                                            </label>
+                                            <select
+                                                name="user"
+                                                value={formData.user}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            >
+                                                <option value="" disabled>Select Garbage Collector</option>
+                                                {users?.filter(user => user?._id)
+                                                    .map((user) => (
+                                                        <option key={user._id} value={user._id}>
+                                                            {user.first_name} {user.middle_name} {user.last_name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {editingTrucks && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Garbage Collector
+                                            </label>
+                                            <select
+                                                name="user"
+                                                value={formData.user}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            >
+                                                <option value="" disabled>Select Garbage Collector</option>
+                                                {drivers?.filter(user => user?._id)
+                                                    .map((user) => (
+                                                        <option key={user._id} value={user._id}>
+                                                            {user.first_name} {user.middle_name} {user.last_name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                    )}
+
                                 </div>
 
                                 {/* Action Buttons */}

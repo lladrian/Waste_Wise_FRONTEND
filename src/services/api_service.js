@@ -7,6 +7,7 @@ export const createUserGarbageCollector = (data) => axios.post(`/users/add_user_
 export const changePasswordRecovery = (data) => axios.put('/users/update_user_password_recovery', data);
 export const loginUser = (data) => axios.post('/users/login_user', data);
 export const getSpecificUser = (id) => axios.get(`/users/get_specific_user/${id}`);
+export const getAllTruckDriverUser = () => axios.get(`/users/get_all_user_truck_driver`);
 export const getAllUser = () => axios.get(`/users/get_all_user`);
 export const deleteUser = (id) => axios.delete(`/users/delete_user/${id}`);
 export const updateUser = (id, data) => axios.put(`/users/update_user/${id}`,data);
@@ -34,6 +35,13 @@ export const getAllSchedule = () => axios.get(`/schedules/get_all_schedule`);
 export const getSpecificSchedule = (id) => axios.get(`/schedules/get_specific_schedule/${id}`);
 export const deleteSchedule= (id) => axios.delete(`/schedules/delete_schedule/${id}`);
 export const updateSchedule = (id, data) => axios.put(`/schedules/update_schedule/${id}`,data);
+export const createTruck = (data) => axios.post(`/trucks/add_truck`,data);
+export const getAllTruck = () => axios.get(`/trucks/get_all_truck`);
+export const getSpecificTruck = (id) => axios.get(`/trucks/get_specific_truck/${id}`);
+export const deleteTruck = (id) => axios.delete(`/trucks/delete_truck/${id}`);
+export const updateTruck = (id, data) => axios.put(`/trucks/update_truck/${id}`, data);
+
+
 
 export const getAllResidentUser = () => axios.get(`/residents/get_all_user`);
 export const updateResidentUserPasswordAdmin = (id, data) => axios.put(`/residents/update_user_password_admin/${id}`,data);
@@ -46,8 +54,3 @@ export const loginResidentUser = (data) => axios.post('/residents/login_user', d
 
 
 
-export const createTruck = (data) => axios.post(`/trucks/add_truck`,data);
-export const getAllTruck = () => axios.get(`/trucks/get_all_truck`);
-export const getSpecificTruck = (id) => axios.get(`/trucks/get_specific_truck/${id}`);
-export const deleteTruck = (id) => axios.delete(`/trucks/delete_truck/${id}`);
-export const updateTruck = (id, data) => axios.put(`/trucks/update_truck/${id}`, data);
