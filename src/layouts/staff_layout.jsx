@@ -42,31 +42,30 @@ const StaffLayout = ({ children }) => {
   // Optimized navigation with grouped items for WasteWise
   const navItems = [
     { path: "/staff/dashboard", icon: FiHome, label: "Dashboard" },
-    
+
     // Grouped Waste Management
-    { 
-      path: "/staff/management", 
-      icon: FiFolder, 
-      label: "Waste Management",
+    {
+      path: "/staff/management",
+      icon: FiFolder,
+      label: "Management",
       subItems: [
-        // { path: "/staff/management/users", icon: FiUsers, label: "User Management" },
-        // { path: "/staff/management/residents", icon: FiUsers, label: "Resident Management" },
-        // { path: "/staff/management/role_actions", icon: FiUsers, label: "Role Action Management" },
         { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
         { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
-        { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },        
+        { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
         { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
         { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
-        // { path: "/staff/login_history", icon: FiUsers, label: "Log History" },
-        // { path: "/staff/management/requests", icon: FiFileText, label: "Collection Requests" },
-        // { path: "/staff/management/collectors", icon: FiUser, label: "Collector Management" },
-        // { path: "/staff/management/zones", icon: FiList, label: "Zone Management" },
-        // { path: "/staff/management/schedule", icon: FiClock, label: "Schedule Management" },
-        // { path: "/staff/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
-        // { path: "/staff/management/reports", icon: FiBarChart2, label: "Waste Reports" },
       ]
     },
-    
+
+    {
+      path: "/staff/approval",
+      icon: FiFolder,
+      label: "Approval",
+      subItems: [
+        { path: "/staff/approval/schedules", icon: FiUsers, label: "Schedule Approval" },
+      ]
+    },
+
     // Analytics & Settings
     { path: "/staff/login_history", icon: FiBarChart2, label: "Login History" },
     { path: "/staff/update_profile", icon: FiBarChart2, label: "Profile" },
@@ -76,10 +75,10 @@ const StaffLayout = ({ children }) => {
 
 
   useEffect(() => {
-          refresh();
+    refresh();
   }, []);
-  
-  
+
+
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -94,71 +93,57 @@ const StaffLayout = ({ children }) => {
     logout();
   };
 
-  const getPageTitle = () => {
-    const segments = location.pathname.split("/").filter(Boolean);
-    const last = segments[segments.length - 1];
-    const secondLast = segments[segments.length - 2];
 
-    const isLikelyId = /^[0-9a-fA-F]{8,}$/.test(last) || !isNaN(last);
-    const label = isLikelyId ? secondLast : last;
+  
+const customTitles = {
+  // Dashboard
+  'dashboard': 'Waste Wise Dashboard',
+  
+  // Management section
+  'management': 'Waste Management',
+  'management/logs': 'Log Management',
+  'management/schedules': 'Schedule Management',
+  'management/routes': 'Route Management',
+  'management/trucks': 'Truck Management',
+  'management/complains': 'Complain Management',
 
-    const customTitles = {
-      // Dashboard
-      'dashboard': 'Waste Wise Dashboard',
-      
-      // Management section
-      'management': 'Waste Management',
-      'requests': 'Collection Requests',
-      'users': 'User Management',
-      'residents': 'Resident Management',
-      'role_actions': 'Role Action Management',
+  // Approval section
+  'approval': 'Approval Management',
+  'approval/schedules': 'Schedule Approval',
 
-      'logs': 'Log Management',
-      'schedules': 'Schedule Management',
-      'routes': 'Route Management',
-      'trucks': 'Truck Management',
-      'complains': 'Complain Management',
+  // Other pages
+  'login_history': 'Login History',
+  'update_profile': 'Profile Management',
+};
 
+const getPageTitle = () => {
+  const segments = location.pathname.split("/").filter(Boolean);
+  
+  // Remove 'staff' prefix for matching
+  const relevantSegments = segments.slice(1);
+  const pathKey = relevantSegments.join('/');
 
-      'login_history': 'Login History',
-      'profile': 'Profile',
+  // Try exact match
+  if (customTitles[pathKey]) {
+    return customTitles[pathKey];
+  }
 
-      'collectors': 'Collector Management',
-      'zones': 'Zone Management',
-      'schedule': 'Schedule Management',
-      'vehicles': 'Vehicle Management',
-      'reports': 'Waste Analytics',
-      
-      // Other pages
-      'analytics': 'System Analytics',
-      'settings': 'System Settings',
-      // 'profile': 'Admin Profile',
-      
-      // Fallbacks for common patterns
-      'new': 'Create New',
-      'edit': 'Edit',
-      'view': 'View Details'
-    };
-
-    const pageKey = label?.toLowerCase() || 'dashboard';
-    
-    // Check if we have a direct match
-    if (customTitles[pageKey]) {
-      return customTitles[pageKey];
+  // Try parent sections
+  for (let i = relevantSegments.length - 1; i >= 0; i--) {
+    const testKey = relevantSegments.slice(0, i + 1).join('/');
+    if (customTitles[testKey]) {
+      return customTitles[testKey];
     }
-    
-    // Check if it's a management sub-page
-    if (secondLast === 'management' && customTitles[last]) {
-      return customTitles[last];
-    }
-    
-    // Fallback: format the label nicely
-    return label
-      ?.replace(/-/g, " ")
-      .replace(/_/g, " ")
-      .replace(/^\w/, (c) => c.toUpperCase())
-      .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
-  };
+  }
+
+  // Fallback
+  const lastSegment = segments[segments.length - 1];
+  return lastSegment
+    ?.replace(/-/g, " ")
+    .replace(/_/g, " ")
+    .replace(/^\w/, (c) => c.toUpperCase())
+    .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
+};
 
   // Get pending requests count
   const pendingRequestsCount = 5;
@@ -172,9 +157,8 @@ const StaffLayout = ({ children }) => {
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-100">
       {/* Sidebar */}
       <div
-        className={`relative bg-white/95 backdrop-blur-lg shadow-xl border-r border-blue-200/60 transition-all duration-500 ease-in-out flex flex-col ${
-          sidebarOpen ? "w-64" : "w-16"
-        }`}
+        className={`relative bg-white/95 backdrop-blur-lg shadow-xl border-r border-blue-200/60 transition-all duration-500 ease-in-out flex flex-col ${sidebarOpen ? "w-64" : "w-16"
+          }`}
       >
         {/* Header and Navigation */}
         <div className="flex-1 flex flex-col min-h-0">
@@ -190,23 +174,20 @@ const StaffLayout = ({ children }) => {
                 </div>
               </div>
             )}
-      
+
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`p-1.5 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 shadow-sm border border-blue-200/40 flex-shrink-0 ${
-                !sidebarOpen 
-                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700' 
+              className={`p-1.5 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 shadow-sm border border-blue-200/40 flex-shrink-0 ${!sidebarOpen
+                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700'
                   : 'bg-white hover:bg-blue-50/80'
-              }`}
+                }`}
             >
               {sidebarOpen ? (
-                <HiOutlineChevronLeft className={`w-3 h-3 transition-colors ${
-                  !sidebarOpen ? 'text-white' : 'text-blue-600'
-                }`} />
+                <HiOutlineChevronLeft className={`w-3 h-3 transition-colors ${!sidebarOpen ? 'text-white' : 'text-blue-600'
+                  }`} />
               ) : (
-                <HiOutlineChevronRight className={`w-3 h-3 transition-colors ${
-                  !sidebarOpen ? 'text-white' : 'text-blue-600'
-                }`} />
+                <HiOutlineChevronRight className={`w-3 h-3 transition-colors ${!sidebarOpen ? 'text-white' : 'text-blue-600'
+                  }`} />
               )}
             </button>
           </div>
@@ -224,11 +205,10 @@ const StaffLayout = ({ children }) => {
                     {/* Section Header */}
                     <button
                       onClick={() => toggleSection(item.label.toLowerCase().replace(' ', ''))}
-                      className={`flex items-center w-full p-2 rounded-lg transition-all duration-300 group ${
-                        isRequestActive(item.path)
+                      className={`flex items-center w-full p-2 rounded-lg transition-all duration-300 group ${isRequestActive(item.path)
                           ? "bg-blue-50 text-blue-600 border border-blue-200"
                           : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                      }`}
+                        }`}
                     >
                       <item.icon className="text-base flex-shrink-0" />
                       {sidebarOpen && (
@@ -236,10 +216,9 @@ const StaffLayout = ({ children }) => {
                           <span className="ml-2 font-medium text-sm truncate flex-1 text-left">
                             {item.label}
                           </span>
-                          <FiChevronDown 
-                            className={`w-3 h-3 transition-transform duration-300 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`} 
+                          <FiChevronDown
+                            className={`w-3 h-3 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""
+                              }`}
                           />
                         </>
                       )}
@@ -251,16 +230,15 @@ const StaffLayout = ({ children }) => {
                         {item.subItems.map((subItem) => {
                           const isSubActive = location.pathname.startsWith(subItem.path);
                           const showBadge = subItem.badge && subItem.badge > 0;
-                          
+
                           return (
                             <Link
                               key={subItem.path}
                               to={subItem.path}
-                              className={`flex items-center p-1.5 rounded-md transition-all duration-200 group relative ${
-                                isSubActive
+                              className={`flex items-center p-1.5 rounded-md transition-all duration-200 group relative ${isSubActive
                                   ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm"
                                   : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                              }`}
+                                }`}
                             >
                               <subItem.icon className="text-sm flex-shrink-0" />
                               <span className="ml-2 text-sm font-medium truncate flex-1">
@@ -285,17 +263,15 @@ const StaffLayout = ({ children }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center p-2 rounded-lg transition-all duration-300 group relative ${
-                    isActive
+                  className={`flex items-center p-2 rounded-lg transition-all duration-300 group relative ${isActive
                       ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md shadow-blue-200"
                       : "text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:shadow-sm hover:border hover:border-blue-200/60"
-                  }`}
+                    }`}
                 >
                   <item.icon className="text-base flex-shrink-0" />
                   {sidebarOpen && (
-                    <span className={`ml-2 font-medium text-sm truncate flex-1 ${
-                      isActive ? "text-white" : "group-hover:text-blue-600"
-                    }`}>
+                    <span className={`ml-2 font-medium text-sm truncate flex-1 ${isActive ? "text-white" : "group-hover:text-blue-600"
+                      }`}>
                       {item.label}
                     </span>
                   )}
@@ -394,9 +370,8 @@ const StaffLayout = ({ children }) => {
                     </p>
                     {/* <p className="text-xs text-gray-500 truncate">ID: {adminId}</p> */}
                   </div>
-                  <FiChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-300 flex-shrink-0 ${
-                    userDropdownOpen ? "rotate-180" : ""
-                  }`} />
+                  <FiChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-300 flex-shrink-0 ${userDropdownOpen ? "rotate-180" : ""
+                    }`} />
                 </button>
 
                 {/* Dropdown Menu */}

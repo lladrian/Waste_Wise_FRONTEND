@@ -61,3 +61,17 @@ export const updateSchedule = async (id, data) => {
     throw error;
   }
 };
+
+
+export const updateScheduleApproval = async (id, data) => {
+  try {
+    const res = await API.updateScheduleApproval(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
+

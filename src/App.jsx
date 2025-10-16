@@ -27,6 +27,9 @@ import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManage
 import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManagementPage';
 import StaffComplainManagementPage from './pages/managements/staff/StaffComplainManagementPage';
 
+import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
+
+
 
 
 
@@ -198,7 +201,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-           <Route
+        <Route
           path="/staff/management/complains"
           element={
             <ProtectedRoute allowedRoles={['enro_staff']}>
@@ -206,6 +209,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/staff/approval/schedules"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffScheduleApprovalPage />
+            </ProtectedRoute>
+          }
+        />
+
+
 
 
 

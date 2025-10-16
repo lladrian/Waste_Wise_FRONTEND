@@ -12,7 +12,8 @@ import {
     FiUser,
     FiClock,
     FiCheckCircle,
-    FiXCircle
+    FiXCircle,
+    FiArchive
 } from 'react-icons/fi';
 
 import { getSpecificComplain, createComplain, getAllComplain, deleteComplain, updateComplain } from "../../hooks/complain_hook";
@@ -25,6 +26,9 @@ const ComplainManagementLayout = () => {
     const [routes, setRoutes] = useState([]);
     const [filteredComplains, setFilteredComplains] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [complainTypeFilter, setComplainTypeFilter] = useState('');
+    const [userRoleFilter, setUserRoleFilter] = useState('');
+    const [archiveFilter, setArchiveFilter] = useState(''); // Archive filter state
     const [showModal, setShowModal] = useState(false);
     const [showModalData, setShowModalData] = useState(false);
     const [editingComplains, setEditingComplain] = useState(null);
@@ -35,13 +39,13 @@ const ComplainManagementLayout = () => {
         user: '',
         complain_content: '',
         complain_type: '',
+        archived: '',
         resolution_status: ''
     });
 
     useEffect(() => {
         fetchData();
     }, []);
-
 
     const fetchData = async () => {
         try {
@@ -60,21 +64,46 @@ const ComplainManagementLayout = () => {
 
     useEffect(() => {
         filterComplains();
-    }, [searchTerm, complains]);
+    }, [searchTerm, complainTypeFilter, userRoleFilter, archiveFilter, complains]); // Added archiveFilter dependency
 
     const filterComplains = () => {
         let filtered = complains;
 
         // Search filter
         if (searchTerm) {
-            // filtered = filtered.filter(route =>
-            //     route.route_name.toLowerCase().includes(searchTerm.toLowerCase())
-            // );
+            filtered = filtered.filter(complain =>
+                complain.complain_content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.route.route_name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
         }
+
+        // Complain type filter
+        if (complainTypeFilter) {
+            filtered = filtered.filter(complain =>
+                complain.complain_type === complainTypeFilter
+            );
+        }
+
+        // User role filter
+        if (userRoleFilter) {
+            filtered = filtered.filter(complain =>
+                complain.user.role === userRoleFilter
+            );
+        }
+
+        // Archive filter
+        if (archiveFilter) {
+            if (archiveFilter === 'archived') {
+                filtered = filtered.filter(complain => complain.archived === true);
+            } else if (archiveFilter === 'active') {
+                filtered = filtered.filter(complain => complain.archived === false);
+            }
+        }
+
         setFilteredComplains(filtered);
     };
-
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -85,6 +114,7 @@ const ComplainManagementLayout = () => {
             complain_content: formData.complain_content,
             complain_type: formData.complain_type,
             resolution_status: formData.resolution_status,
+            archived: formData.archived
         };
 
         if (editingComplains) {
@@ -136,6 +166,7 @@ const ComplainManagementLayout = () => {
         setEditingComplain(complain);
         setFormData({
             route: complain.route._id,
+            archived: String(complain.archived),
             user: complain.user._id,
             complain_content: complain.complain_content,
             complain_type: complain.complain_type,
@@ -145,13 +176,10 @@ const ComplainManagementLayout = () => {
         setShowModal(true);
     };
 
-
-
     const handleView = (complain) => {
         setViewingComplain(complain);
         setShowModalData(true);
     };
-
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this complain?')) {
@@ -169,7 +197,6 @@ const ComplainManagementLayout = () => {
         }
     };
 
-
     const resetForm = () => {
         setFormData({
             route: '',
@@ -177,11 +204,11 @@ const ComplainManagementLayout = () => {
             complain_content: '',
             complain_type: '',
             resolution_status: '',
+            archived: '',
         });
 
         setEditingComplain(null);
     };
-
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -191,6 +218,33 @@ const ComplainManagementLayout = () => {
         }));
     };
 
+    // Function to get unique complain types from data
+    const getComplainTypes = () => {
+        const types = [...new Set(complains.map(complain => complain.complain_type))];
+        return types.filter(type => type); // Remove empty/null values
+    };
+
+    // Function to get available user roles from data
+    const getUserRoles = () => {
+        const roles = [...new Set(complains.map(complain => complain?.user?.role))];
+        return roles.filter(role => role); // Remove empty/null values
+    };
+
+    const formatRoleForDisplay = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'enro_staff_head': 'ENRO Staff Head',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+        return roleMap[role] || role;
+    };
+
+    const formatArchiveStatus = (archived) => {
+        return archived ? 'Archived' : 'Active';
+    };
 
     function formatDate(datetimeString) {
         const date = new Date(datetimeString.replace(' ', 'T')); // Ensure proper parsing
@@ -204,17 +258,21 @@ const ComplainManagementLayout = () => {
         });
     }
 
-      const formatRole = (role) => {
+    const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_head': 'ENRO Staff Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
 
         return roleMap[role] || role; // Return formatted role or original if not found
     };
+
+    // Check if any filters are active
+    const isAnyFilterActive = searchTerm || complainTypeFilter || userRoleFilter || archiveFilter;
 
     return (
         <>
@@ -230,7 +288,6 @@ const ComplainManagementLayout = () => {
                     </button>
                 </div>
 
-
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -239,15 +296,126 @@ const ComplainManagementLayout = () => {
                             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="search complain"
+                                placeholder="Search complain by content, name, or route"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
 
+                        {/* Complain Type Filter */}
+                        <div className="sm:w-48">
+                            <select
+                                value={complainTypeFilter}
+                                onChange={(e) => setComplainTypeFilter(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="">All Types</option>
+                                {getComplainTypes().map((type) => (
+                                    <option key={type} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
+                        {/* User Role Filter */}
+                        <div className="sm:w-48">
+                            <select
+                                value={userRoleFilter}
+                                onChange={(e) => setUserRoleFilter(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="">All Roles</option>
+                                {getUserRoles()
+                                    .filter(role => role === 'resident' || role === 'garbage_collector')
+                                    .map((role) => (
+                                        <option key={role} value={role}>
+                                            {formatRoleForDisplay(role)}
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        {/* Archive Filter */}
+                        <div className="sm:w-48">
+                            <select
+                                value={archiveFilter}
+                                onChange={(e) => setArchiveFilter(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
+
+                        {/* Clear Filters Button */}
+                        {isAnyFilterActive && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setComplainTypeFilter('');
+                                    setUserRoleFilter('');
+                                    setArchiveFilter('');
+                                }}
+                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Clear All
+                            </button>
+                        )}
                     </div>
+
+                    {/* Active Filters Display */}
+                    {isAnyFilterActive && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {searchTerm && (
+                                <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                    Search: "{searchTerm}"
+                                    <button
+                                        onClick={() => setSearchTerm('')}
+                                        className="ml-1 text-blue-600 hover:text-blue-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            )}
+                            {complainTypeFilter && (
+                                <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                    Type: {complainTypeFilter}
+                                    <button
+                                        onClick={() => setComplainTypeFilter('')}
+                                        className="ml-1 text-green-600 hover:text-green-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            )}
+                            {userRoleFilter && (
+                                <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                                    Role: {formatRoleForDisplay(userRoleFilter)}
+                                    <button
+                                        onClick={() => setUserRoleFilter('')}
+                                        className="ml-1 text-purple-600 hover:text-purple-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            )}
+                            {archiveFilter && (
+                                <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                                    <FiArchive className="w-3 h-3 mr-1" />
+                                    Status: {archiveFilter === 'archived' ? 'Archived' : 'Active'}
+                                    <button
+                                        onClick={() => setArchiveFilter('')}
+                                        className="ml-1 text-orange-600 hover:text-orange-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -258,6 +426,9 @@ const ComplainManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Complete Name
                                     </th>
+                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        User Role
+                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Route Name
                                     </th>
@@ -265,11 +436,14 @@ const ComplainManagementLayout = () => {
                                         Complain Content
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Type
+                                        Complain Type
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Archive
+                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date
                                     </th>
@@ -280,10 +454,13 @@ const ComplainManagementLayout = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredComplains.map((complain) => (
-                                    <tr key={complain._id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={complain._id} className={`hover:bg-gray-50 transition-colors ${complain.archived ? 'bg-gray-50' : ''}`}>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain.user.first_name} {complain.user.middle_name} {complain.user.last_name}</span>
                                         </td>
+                                        {/* <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{formatRole(complain.user.role)}</span>
+                                        </td> */}
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain.route.route_name}</span>
                                         </td>
@@ -298,6 +475,15 @@ const ComplainManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain.resolution_status}</span>
                                         </td>
+                                        {/* <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${complain.archived
+                                                    ? 'bg-gray-100 text-gray-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                                }`}>
+                                                <FiArchive className={`w-3 h-3 mr-1 ${complain.archived ? '' : 'opacity-50'}`} />
+                                                {formatArchiveStatus(complain.archived)}
+                                            </span>
+                                        </td> */}
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{formatDate(complain.created_at)}</span>
                                         </td>
@@ -312,7 +498,6 @@ const ComplainManagementLayout = () => {
                                                 </button>
 
                                                 <button
-
                                                     onClick={() => handleView(complain)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="View Data"
@@ -338,9 +523,9 @@ const ComplainManagementLayout = () => {
                     {filteredComplains.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No complain found</p>
+                            <p className="text-gray-500 text-lg">No complains found</p>
                             <p className="text-gray-400 text-sm mt-1">
-                                {searchTerm
+                                {isAnyFilterActive
                                     ? 'Try adjusting your search or filters'
                                     : 'Get started by adding your first complain'
                                 }
@@ -350,6 +535,7 @@ const ComplainManagementLayout = () => {
                 </div>
             </div>
 
+            {/* Rest of your modal code remains the same */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -427,11 +613,17 @@ const ComplainManagementLayout = () => {
                                         >
                                             <option value="" disabled>Select Resolution Status</option>
                                             <option value="Pending">Pending</option>
-                                            <option value="status1">Status 1</option>
-                                            <option value="status2">Status 2</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Resolved">Resolved</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            {/* <option value="Pending">Pending</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Under Review">Under Review</option>
+                                            <option value="Cancelled">Resolved</option> 
+                                            <option value="Invalid">Invalid</option> 
+                                            */}
                                         </select>
                                     </div>
-
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -445,10 +637,35 @@ const ComplainManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Complain Type</option>
-                                            <option value="type1">Type 1</option>
-                                            <option value="type2">Type 2</option>
+                                            <option value="Breakdown">Breakdown</option>
+                                            <option value="Roadblock">Roadblock</option>
+                                            <option value="Delay">Delay</option>
+                                            <option value="Other">Other</option>
+                                            {/* <option value="Missed Pickup">Missed Pickup</option>
+                                            <option value="Delayed Collection">Delayed Collection</option>
+                                            <option value="Uncollected Area">Uncollected Area</option>
+                                            <option value="Illegal Dumping">Illegal Dumping</option> */}
                                         </select>
                                     </div>
+
+                                    {editingComplains && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Archive Status
+                                            </label>
+                                            <select
+                                                name="archived"
+                                                value={formData.archived}
+                                                onChange={handleInputChange}
+                                                required
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                            >
+                                                <option value="" disabled>Select Archive Status</option>
+                                                <option value="true">Archived</option>
+                                                <option value="false">Active</option>
+                                            </select>
+                                        </div>
+                                    )}
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -461,12 +678,12 @@ const ComplainManagementLayout = () => {
                                                 handleInputChange(e);
                                                 // Auto-resize logic
                                                 e.target.style.height = 'auto';
-                                                e.target.style.height = e.target.scrollHeight + 'px';
+                                                e.target.style.height = e.target.scrollHeight + 30 + 'px';
                                             }}
                                             onFocus={(e) => {
                                                 // Trigger resize on focus as well
                                                 e.target.style.height = 'auto';
-                                                e.target.style.height = e.target.scrollHeight + 'px';
+                                                e.target.style.height = e.target.scrollHeight + 30 + 'px';
                                             }}
                                             required
                                             rows={3}
@@ -502,15 +719,12 @@ const ComplainManagementLayout = () => {
                 </div>
             )}
 
-
+            {/* View Modal - remains the same */}
             {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex justify-end items-center mb-6">
-                                {/* <h2 className="text-xl font-bold text-gray-800">
-                                    Change Password
-                                </h2> */}
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);
@@ -578,6 +792,12 @@ const ComplainManagementLayout = () => {
                                         <span className="text-gray-500">Status:</span>
                                         <p className="font-medium text-gray-800">
                                             {viewingComplains?.resolution_status}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Archive Status:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatArchiveStatus(viewingComplains?.archived)}
                                         </p>
                                     </div>
                                     <div>

@@ -254,6 +254,7 @@ const UserManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_head': 'ENRO Staff Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
@@ -543,6 +544,7 @@ const UserManagementLayout = () => {
                                             <option value="" disabled>Select Role</option>
                                             <option value="admin">Admin</option>
                                             <option value="enro_staff">ENRO Staff</option>
+                                            <option value="enro_staff_head">ENRO Staff Head</option>
                                             <option value="barangay_official">Barangay Official</option>
                                             <option value="garbage_collector">Garbage Collector</option>
                                             {/* {editingUsers && <option value="resident">Resident</option>} */}

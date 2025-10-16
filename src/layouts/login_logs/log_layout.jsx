@@ -205,6 +205,7 @@ const decryptData = (encryptedData, key) => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_head': 'ENRO Staff Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
