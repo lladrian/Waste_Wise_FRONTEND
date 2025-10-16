@@ -50,21 +50,25 @@ const StaffLayout = ({ children }) => {
       label: "Management",
       subItems: [
         { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
-        { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
-        { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
-        { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
+        ...(user?.role !== 'enro_staff_head' ? [
+         { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
+         { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
+         { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
+        ] : []),
         { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
       ]
     },
 
-    {
-      path: "/staff/approval",
-      icon: FiFolder,
-      label: "Approval",
-      subItems: [
-        { path: "/staff/approval/schedules", icon: FiUsers, label: "Schedule Approval" },
-      ]
-    },
+    ...(user?.role === 'enro_staff_head' ? [
+      {
+        path: "/staff/approval",
+        icon: FiFolder,
+        label: "Approval",
+        subItems: [
+          { path: "/staff/approval/schedules", icon: FiUsers, label: "Schedule Approval" },
+        ]
+      }
+    ] : []),
 
     // Analytics & Settings
     { path: "/staff/login_history", icon: FiBarChart2, label: "Login History" },
@@ -94,56 +98,56 @@ const StaffLayout = ({ children }) => {
   };
 
 
-  
-const customTitles = {
-  // Dashboard
-  'dashboard': 'Waste Wise Dashboard',
-  
-  // Management section
-  'management': 'Waste Management',
-  'management/logs': 'Log Management',
-  'management/schedules': 'Schedule Management',
-  'management/routes': 'Route Management',
-  'management/trucks': 'Truck Management',
-  'management/complains': 'Complain Management',
 
-  // Approval section
-  'approval': 'Approval Management',
-  'approval/schedules': 'Schedule Approval',
+  const customTitles = {
+    // Dashboard
+    'dashboard': 'Waste Wise Dashboard',
 
-  // Other pages
-  'login_history': 'Login History',
-  'update_profile': 'Profile Management',
-};
+    // Management section
+    'management': 'Waste Management',
+    'management/logs': 'Log Management',
+    'management/schedules': 'Schedule Management',
+    'management/routes': 'Route Management',
+    'management/trucks': 'Truck Management',
+    'management/complains': 'Complain Management',
 
-const getPageTitle = () => {
-  const segments = location.pathname.split("/").filter(Boolean);
-  
-  // Remove 'staff' prefix for matching
-  const relevantSegments = segments.slice(1);
-  const pathKey = relevantSegments.join('/');
+    // Approval section
+    'approval': 'Approval Management',
+    'approval/schedules': 'Schedule Approval',
 
-  // Try exact match
-  if (customTitles[pathKey]) {
-    return customTitles[pathKey];
-  }
+    // Other pages
+    'login_history': 'Login History',
+    'update_profile': 'Profile Management',
+  };
 
-  // Try parent sections
-  for (let i = relevantSegments.length - 1; i >= 0; i--) {
-    const testKey = relevantSegments.slice(0, i + 1).join('/');
-    if (customTitles[testKey]) {
-      return customTitles[testKey];
+  const getPageTitle = () => {
+    const segments = location.pathname.split("/").filter(Boolean);
+
+    // Remove 'staff' prefix for matching
+    const relevantSegments = segments.slice(1);
+    const pathKey = relevantSegments.join('/');
+
+    // Try exact match
+    if (customTitles[pathKey]) {
+      return customTitles[pathKey];
     }
-  }
 
-  // Fallback
-  const lastSegment = segments[segments.length - 1];
-  return lastSegment
-    ?.replace(/-/g, " ")
-    .replace(/_/g, " ")
-    .replace(/^\w/, (c) => c.toUpperCase())
-    .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
-};
+    // Try parent sections
+    for (let i = relevantSegments.length - 1; i >= 0; i--) {
+      const testKey = relevantSegments.slice(0, i + 1).join('/');
+      if (customTitles[testKey]) {
+        return customTitles[testKey];
+      }
+    }
+
+    // Fallback
+    const lastSegment = segments[segments.length - 1];
+    return lastSegment
+      ?.replace(/-/g, " ")
+      .replace(/_/g, " ")
+      .replace(/^\w/, (c) => c.toUpperCase())
+      .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
+  };
 
   // Get pending requests count
   const pendingRequestsCount = 5;
@@ -168,7 +172,7 @@ const getPageTitle = () => {
               <div className="flex items-center space-x-2 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                    WasteWise Staff
+                      WasteWise {user?.role === 'enro_staff_head' ? 'Staff Head' : 'Staff'}
                   </h1>
                   <p className="text-xs text-gray-500 truncate">Control Panel</p>
                 </div>
@@ -178,8 +182,8 @@ const getPageTitle = () => {
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className={`p-1.5 rounded-lg cursor-pointer transition-all duration-300 hover:scale-105 shadow-sm border border-blue-200/40 flex-shrink-0 ${!sidebarOpen
-                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700'
-                  : 'bg-white hover:bg-blue-50/80'
+                ? 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700'
+                : 'bg-white hover:bg-blue-50/80'
                 }`}
             >
               {sidebarOpen ? (
@@ -206,8 +210,8 @@ const getPageTitle = () => {
                     <button
                       onClick={() => toggleSection(item.label.toLowerCase().replace(' ', ''))}
                       className={`flex items-center w-full p-2 rounded-lg transition-all duration-300 group ${isRequestActive(item.path)
-                          ? "bg-blue-50 text-blue-600 border border-blue-200"
-                          : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                        ? "bg-blue-50 text-blue-600 border border-blue-200"
+                        : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                         }`}
                     >
                       <item.icon className="text-base flex-shrink-0" />
@@ -236,8 +240,8 @@ const getPageTitle = () => {
                               key={subItem.path}
                               to={subItem.path}
                               className={`flex items-center p-1.5 rounded-md transition-all duration-200 group relative ${isSubActive
-                                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm"
-                                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                                ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm"
+                                : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                                 }`}
                             >
                               <subItem.icon className="text-sm flex-shrink-0" />
@@ -264,8 +268,8 @@ const getPageTitle = () => {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center p-2 rounded-lg transition-all duration-300 group relative ${isActive
-                      ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md shadow-blue-200"
-                      : "text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:shadow-sm hover:border hover:border-blue-200/60"
+                    ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md shadow-blue-200"
+                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:shadow-sm hover:border hover:border-blue-200/60"
                     }`}
                 >
                   <item.icon className="text-base flex-shrink-0" />
@@ -313,7 +317,7 @@ const getPageTitle = () => {
                   <p className="text-xs font-semibold text-gray-800 truncate">
                     {adminFirstName} {adminLastName}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">Staff</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.role === 'enro_staff_head' ? 'Staff Head' : 'Staff'}</p>
                 </div>
               )}
             </div>
