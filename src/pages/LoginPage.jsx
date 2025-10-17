@@ -104,7 +104,7 @@ const LoginPage = () => {
         if (role == 'admin') {
           navigate('/admin/dashboard');
         }
-        if (role == 'enro_staff') {
+        if (role == 'enro_staff' || role == 'enro_staff_head') {
           navigate('/staff/dashboard');
         }
       }

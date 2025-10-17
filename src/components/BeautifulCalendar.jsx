@@ -75,8 +75,7 @@ const BeautifulCalendar = ({ value, onChange, name, minDate, isOpen, onClose }) 
     const day = String(selectedDateLocal.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
     
-    console.log('Selected date:', selectedDateLocal);
-    console.log('Formatted date:', formattedDate);
+
     
     onChange({
       target: {

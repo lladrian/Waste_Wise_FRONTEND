@@ -148,7 +148,7 @@ function App() {
         <Route
           path="/staff/update_profile"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
               <StaffUpdateProfilePage />
             </ProtectedRoute>
           }
@@ -156,7 +156,7 @@ function App() {
         <Route
           path="/staff/login_history"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
               <StaffLogPage />
             </ProtectedRoute>
           }
@@ -164,7 +164,7 @@ function App() {
         <Route
           path="/staff/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
               <StaffLayout />
             </ProtectedRoute>
           }
@@ -172,7 +172,7 @@ function App() {
         <Route
           path="/staff/management/logs"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
               <StaffLogManagementPage />
             </ProtectedRoute>
           }
@@ -204,7 +204,7 @@ function App() {
         <Route
           path="/staff/management/complains"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
               <StaffComplainManagementPage />
             </ProtectedRoute>
           }
