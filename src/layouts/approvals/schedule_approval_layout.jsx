@@ -15,7 +15,7 @@ import {
     FiXCircle
 } from 'react-icons/fi';
 
-import { getSpecificSchedule, createSchedule, getAllSchedule, deleteSchedule, updateSchedule } from "../../hooks/schedule_hook";
+import { getSpecificSchedule, createSchedule, getAllSchedule, deleteSchedule, updateSchedule, updateScheduleApproval } from "../../hooks/schedule_hook";
 import BeautifulCalendar from "../../components/BeautifulCalendar";
 import { toast } from "react-toastify";
 
@@ -45,6 +45,7 @@ const ScheduleManagementLayout = () => {
         status: '',
         remark: '',
         garbage_type: '',
+        is_editable: '',
         scheduled_collection: ''
     });
 
@@ -97,7 +98,7 @@ const ScheduleManagementLayout = () => {
             const startDateStr = `${startDate}`;
             const endDateStr = `${endDate}`;
 
-             filtered = filtered.filter(schedule => {
+            filtered = filtered.filter(schedule => {
                 const createdAt = schedule.scheduled_collection || ''; // try both places
                 return createdAt >= startDateStr && createdAt <= endDateStr;
             });
@@ -120,12 +121,13 @@ const ScheduleManagementLayout = () => {
             garbage_type: formData?.garbage_type,
             status: formData?.status,
             remark: formData?.remark,
+            is_editable: formData?.is_editable,
             scheduled_collection: formData?.scheduled_collection,
         };
 
         if (editingSchedules) {
             try {
-                const { data, success } = await updateSchedule(editingSchedules._id, input_data);
+                const { data, success } = await updateScheduleApproval(editingSchedules._id, input_data);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to update route");
@@ -183,6 +185,7 @@ const ScheduleManagementLayout = () => {
             truck: schedule?.truck?._id || '',
             status: schedule.status,
             remark: schedule.remark,
+            is_editable: String(schedule.is_editable),
             garbage_type: schedule.garbage_type,
             scheduled_collection: schedule.scheduled_collection
         });
@@ -196,7 +199,7 @@ const ScheduleManagementLayout = () => {
     };
 
 
-    
+
 
     const getSelectedTruckStatus = () => {
         if (!formData.truck) return null;
@@ -230,6 +233,7 @@ const ScheduleManagementLayout = () => {
             status: '',
             remark: '',
             garbage_type: '',
+            is_editable: '',
             scheduled_collection: ''
         });
 
@@ -279,7 +283,7 @@ const ScheduleManagementLayout = () => {
         return `${month} ${day}, ${year}`;
     };
 
-     const formatRole = (role) => {
+    const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
             'resident': 'Resident',
@@ -322,19 +326,19 @@ const ScheduleManagementLayout = () => {
     const scheduleStatusOptions = [
         'Pending',
         'Scheduled',
-        'In Progress',
-        'Completed',
-        'Delayed',
+        // 'In Progress',
+        // 'Completed',
+        // 'Delayed',
         'Cancelled',
     ];
 
 
     const commonRemarks = [
-        'None',
+        // 'None',
         'Pending',
         'Approved',
-        'In Progress',
-        'Completed',
+        // 'In Progress',
+        // 'Completed',
         'Delayed',
         'Cancelled',
     ];
@@ -343,7 +347,7 @@ const ScheduleManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                     <button
                         onClick={() => setShowModal(true)}
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -351,7 +355,7 @@ const ScheduleManagementLayout = () => {
                         <FiPlus className="w-4 h-4" />
                         <span>Add New Schedule</span>
                     </button>
-                </div>
+                </div> */}
 
 
                 {/* Filters and Search */}
@@ -400,7 +404,7 @@ const ScheduleManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Collection Date
                                     </th>
-                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Garbage Type
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -432,7 +436,7 @@ const ScheduleManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{formatDate(schedule.scheduled_collection)}</span>
                                         </td>
-                                           <td className="px-6 py-4">
+                                        <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.garbage_type}</span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -462,13 +466,13 @@ const ScheduleManagementLayout = () => {
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
 
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleDelete(schedule._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Delete"
                                                 >
                                                     <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -515,7 +519,7 @@ const ScheduleManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Route
                                         </label>
@@ -534,7 +538,7 @@ const ScheduleManagementLayout = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
+                                    </div> */}
 
                                     {editingSchedules && (
                                         <>
@@ -546,19 +550,33 @@ const ScheduleManagementLayout = () => {
 
                                                 {/* Combined approach */}
                                                 <div className="space-y-2">
-                                                    <input
+                                                    {/* <input
                                                         list="remark-suggestions"
                                                         name="remark"
                                                         value={formData.remark}
                                                         onChange={handleInputChange}
                                                         placeholder="Type or select a remark..."
                                                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                    />
-                                                    <datalist id="remark-suggestions">
+                                                    /> */}
+                                                    {/* <datalist id="remark-suggestions">
                                                         {commonRemarks.map((remark) => (
                                                             <option key={remark} value={remark} />
                                                         ))}
-                                                    </datalist>
+                                                    </datalist> */}
+                                                    <select
+                                                        name="remark"
+                                                        value={formData.remark}
+                                                        onChange={handleInputChange}
+                                                        required
+                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                    >
+                                                        <option value="" disabled>Select Remark</option>
+                                                        {commonRemarks.map((remark) => (
+                                                            <option key={remark} value={remark}>
+                                                                {remark}
+                                                            </option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
 
@@ -583,10 +601,27 @@ const ScheduleManagementLayout = () => {
                                                 </select>
                                             </div>
 
+                                             <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Editable
+                                                </label>
+                                                <select
+                                                    name="is_editable"
+                                                    value={formData.is_editable}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                >
+                                                    <option value="" disabled>Select Editable</option>
+                                                    <option value="true">True</option>
+                                                    <option value="false">False</option>
+                                                </select>
+                                            </div>
+
                                         </>
                                     )}
 
-
+                                    {/* 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Garbage Collector
@@ -599,7 +634,6 @@ const ScheduleManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Garbage Collector</option>
-                                            {/* Active trucks */}
                                             {trucks?.filter(truck => truck?.status === 'Active' || truck?.status === 'On Route')
                                                 .map((truck) => (
                                                     <option key={truck?._id} value={truck?._id}>
@@ -607,7 +641,6 @@ const ScheduleManagementLayout = () => {
                                                     </option>
                                                 ))}
 
-                                            {/* Non-active trucks (disabled) */}
                                             {trucks?.filter(truck => truck?.status !== 'Active' && truck?.status !== 'On Route' )
                                                 .map((truck) => (
                                                     <option key={truck?._id} value={truck?._id} disabled>
@@ -615,10 +648,9 @@ const ScheduleManagementLayout = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
+                                    </div> */}
 
-                                    
-                                    {/* Status container */}
+                                    {/*                                     
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Truck Status
@@ -661,8 +693,8 @@ const ScheduleManagementLayout = () => {
                                             )}
                                         </div>
                                     </div>
-
-
+ */}
+                                    {/* 
                                        <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Garbage Type
@@ -678,21 +710,20 @@ const ScheduleManagementLayout = () => {
                                             <option value="Biodegradable">Biodegradable</option>
                                             <option value="Non Biodegradable">Non Biodegradable</option>
                                             <option value="Recyclable">Recyclable</option>
-                                            {/* <option value="Pending">Pending</option>
-                                            <option value="In Progress">In Progress</option>
-                                            <option value="Under Review">Under Review</option>
-                                            <option value="Cancelled">Resolved</option> 
-                                            <option value="Invalid">Invalid</option> 
-                                            */}
+                                            //  <option value="Pending">Pending</option>
+                                            // <option value="In Progress">In Progress</option>
+                                            // <option value="Under Review">Under Review</option>
+                                            // <option value="Cancelled">Resolved</option> 
+                                            // <option value="Invalid">Invalid</option> 
+                                            //
                                         </select>
-                                    </div>
+                                    </div> */}
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Collection Date
                                         </label>
 
-                                        {/* Display selected date or placeholder */}
                                         <div
                                             onClick={() => setShowCalendarModal(true)}
                                             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 cursor-pointer bg-white hover:border-gray-400 flex items-center justify-between"
@@ -713,7 +744,6 @@ const ScheduleManagementLayout = () => {
                                             </svg>
                                         </div>
 
-                                        {/* Beautiful Calendar Modal */}
                                         <BeautifulCalendar
                                             name="scheduled_collection"
                                             value={formData.scheduled_collection}
@@ -722,7 +752,7 @@ const ScheduleManagementLayout = () => {
                                             isOpen={showCalendarModal}
                                             onClose={() => setShowCalendarModal(false)}
                                         />
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* Action Buttons */}
@@ -750,111 +780,111 @@ const ScheduleManagementLayout = () => {
                 </div>
             )}
 
-             {showModalData && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
-                                    <div className="p-6">
-                                        <div className="flex justify-end items-center mb-6">
-                                            <button
-                                                onClick={() => {
-                                                    setShowModalData(false);
-                                                    setViewingComplain(null);
-                                                    resetForm();
-                                                }}
-                                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                            >
-                                                <FiXCircle className="w-6 h-6" />
-                                            </button>
-                                        </div>
-            
-                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div>
-                                                    <span className="text-gray-500">Complete Name:</span>
-                                                    <p className="font-medium text-gray-800 capitalize">
-                                                        {viewingSchedules.user.first_name} {viewingSchedules.user.middle_name} {viewingSchedules.user.last_name}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Gender:</span>
-                                                    <p className="font-medium text-gray-800 capitalize">
-                                                        {viewingSchedules.user.gender}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Role:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {formatRole(viewingSchedules.user.role)}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Contact Number:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules.user.contact_number}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Email Address:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules.user.email}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-            
-                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Information</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                <div>
-                                                    <span className="text-gray-500">Garbage Type:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.garbage_type}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Route:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.route.route_name}
-                                                    </p>
-                                                </div>
-                                                   <div>
-                                                    <span className="text-gray-500">Truck ID:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.truck?.truck_id}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Schedule Status:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.status}
-                                                    </p>
-                                                </div>
-                                                  <div>
-                                                    <span className="text-gray-500">Truck Status:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.truck.status}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Remark:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.remark}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Date:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {formatDate(viewingSchedules?.created_at)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                  
-                                        </div>
+            {showModalData && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-end items-center mb-6">
+                                <button
+                                    onClick={() => {
+                                        setShowModalData(false);
+                                        setViewingComplain(null);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Complete Name:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {viewingSchedules.user.first_name} {viewingSchedules.user.middle_name} {viewingSchedules.user.last_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Gender:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {viewingSchedules.user.gender}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Role:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatRole(viewingSchedules.user.role)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Contact Number:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules.user.contact_number}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Email Address:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules.user.email}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                        )}
+
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Garbage Type:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.garbage_type}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Route:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.route.route_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Truck ID:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.truck?.truck_id}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Schedule Status:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.status}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Truck Status:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.truck.status}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Remark:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.remark}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Date:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatDate(viewingSchedules?.created_at)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

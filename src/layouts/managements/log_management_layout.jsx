@@ -143,8 +143,9 @@ const LogManagementLayout = () => {
             role: user.role,
             role_action: user.role_action || '',
             role_action_name: user?.role_action?.action_name || "None",
-            is_disabled: user.is_disabled
+            is_disabled: String(user.is_disabled)
         });
+
 
         setShowModalData(true);
     };
@@ -176,6 +177,7 @@ const LogManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_head': 'ENRO Staff Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };

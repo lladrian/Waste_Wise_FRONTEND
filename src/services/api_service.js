@@ -35,6 +35,7 @@ export const getAllSchedule = () => axios.get(`/schedules/get_all_schedule`);
 export const getSpecificSchedule = (id) => axios.get(`/schedules/get_specific_schedule/${id}`);
 export const deleteSchedule= (id) => axios.delete(`/schedules/delete_schedule/${id}`);
 export const updateSchedule = (id, data) => axios.put(`/schedules/update_schedule/${id}`,data);
+export const updateScheduleApproval = (id, data) => axios.put(`/schedules/update_schedule_approval/${id}`,data);
 export const createTruck = (data) => axios.post(`/trucks/add_truck`,data);
 export const getAllTruck = () => axios.get(`/trucks/get_all_truck`);
 export const getSpecificTruck = (id) => axios.get(`/trucks/get_specific_truck/${id}`);
