@@ -97,7 +97,7 @@ const ScheduleManagementLayout = () => {
             const startDateStr = `${startDate}`;
             const endDateStr = `${endDate}`;
 
-             filtered = filtered.filter(schedule => {
+            filtered = filtered.filter(schedule => {
                 const createdAt = schedule.scheduled_collection || ''; // try both places
                 return createdAt >= startDateStr && createdAt <= endDateStr;
             });
@@ -196,7 +196,7 @@ const ScheduleManagementLayout = () => {
     };
 
 
-    
+
 
     const getSelectedTruckStatus = () => {
         if (!formData.truck) return null;
@@ -279,7 +279,7 @@ const ScheduleManagementLayout = () => {
         return `${month} ${day}, ${year}`;
     };
 
-     const formatRole = (role) => {
+    const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
             'resident': 'Resident',
@@ -400,7 +400,7 @@ const ScheduleManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Collection Date
                                     </th>
-                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Garbage Type
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -432,7 +432,7 @@ const ScheduleManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{formatDate(schedule.scheduled_collection)}</span>
                                         </td>
-                                           <td className="px-6 py-4">
+                                        <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.garbage_type}</span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -608,7 +608,7 @@ const ScheduleManagementLayout = () => {
                                                 ))}
 
                                             {/* Non-active trucks (disabled) */}
-                                            {trucks?.filter(truck => truck?.status !== 'Active' && truck?.status !== 'On Route' )
+                                            {trucks?.filter(truck => truck?.status !== 'Active' && truck?.status !== 'On Route')
                                                 .map((truck) => (
                                                     <option key={truck?._id} value={truck?._id} disabled>
                                                         {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ({truck?.status}) ❌
@@ -617,7 +617,7 @@ const ScheduleManagementLayout = () => {
                                         </select>
                                     </div>
 
-                                    
+
                                     {/* Status container */}
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -663,7 +663,7 @@ const ScheduleManagementLayout = () => {
                                     </div>
 
 
-                                       <div className="md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Garbage Type
                                         </label>
@@ -737,9 +737,14 @@ const ScheduleManagementLayout = () => {
                                     >
                                         Cancel
                                     </button>
+
                                     <button
                                         type="submit"
-                                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                                        disabled={editingSchedules && !editingSchedules.is_editable}
+                                        className={`px-6 py-2 rounded-lg transition-colors duration-200 font-medium shadow-sm ${editingSchedules && !editingSchedules.is_editable
+                                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'
+                                            }`}
                                     >
                                         {editingSchedules ? 'Update Schedule' : 'Add Schedule'}
                                     </button>
@@ -750,111 +755,111 @@ const ScheduleManagementLayout = () => {
                 </div>
             )}
 
-             {showModalData && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
-                                    <div className="p-6">
-                                        <div className="flex justify-end items-center mb-6">
-                                            <button
-                                                onClick={() => {
-                                                    setShowModalData(false);
-                                                    setViewingComplain(null);
-                                                    resetForm();
-                                                }}
-                                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                            >
-                                                <FiXCircle className="w-6 h-6" />
-                                            </button>
-                                        </div>
-            
-                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div>
-                                                    <span className="text-gray-500">Complete Name:</span>
-                                                    <p className="font-medium text-gray-800 capitalize">
-                                                        {viewingSchedules.user.first_name} {viewingSchedules.user.middle_name} {viewingSchedules.user.last_name}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Gender:</span>
-                                                    <p className="font-medium text-gray-800 capitalize">
-                                                        {viewingSchedules.user.gender}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Role:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {formatRole(viewingSchedules.user.role)}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Contact Number:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules.user.contact_number}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Email Address:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules.user.email}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-            
-                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Information</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                <div>
-                                                    <span className="text-gray-500">Garbage Type:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.garbage_type}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Route:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.route.route_name}
-                                                    </p>
-                                                </div>
-                                                   <div>
-                                                    <span className="text-gray-500">Truck ID:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.truck?.truck_id}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Schedule Status:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.status}
-                                                    </p>
-                                                </div>
-                                                  <div>
-                                                    <span className="text-gray-500">Truck Status:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.truck.status}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Remark:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingSchedules?.remark}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Date:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {formatDate(viewingSchedules?.created_at)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                  
-                                        </div>
+            {showModalData && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-end items-center mb-6">
+                                <button
+                                    onClick={() => {
+                                        setShowModalData(false);
+                                        setViewingComplain(null);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Complete Name:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {viewingSchedules.user.first_name} {viewingSchedules.user.middle_name} {viewingSchedules.user.last_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Gender:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {viewingSchedules.user.gender}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Role:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatRole(viewingSchedules.user.role)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Contact Number:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules.user.contact_number}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Email Address:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules.user.email}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                        )}
+
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Garbage Type:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.garbage_type}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Route:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.route.route_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Truck ID:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.truck?.truck_id}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Schedule Status:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.status}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Truck Status:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.truck.status}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Remark:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.remark}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Date:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatDate(viewingSchedules?.created_at)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
