@@ -467,15 +467,38 @@ const UserManagementLayout = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Contact Number
                                         </label>
-                                        <input
-                                            type="text"
-                                            name="contact_number"
-                                            value={formData.contact_number}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                            placeholder="Enter Contact Number"
-                                        />
+                                        <div className="flex">
+                                            <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                                +63
+                                            </span>
+                                            <input
+                                                type="tel"
+                                                name="contact_number"
+                                                value={formData.contact_number}
+                                                onChange={(e) => {
+                                                    // Remove any non-digit characters
+                                                    let value = e.target.value.replace(/\D/g, '');
+
+                                                    // Limit to 10 digits (after +63)
+                                                    if (value.length > 10) {
+                                                        value = value.slice(0, 10);
+                                                    }
+
+                                                    handleInputChange({
+                                                        target: {
+                                                            name: 'contact_number',
+                                                            value: value
+                                                        }
+                                                    });
+                                                }}
+                                                required
+                                                className="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                placeholder="9123456789"
+                                                pattern="\d{10}"
+                                                title="Please enter 10-digit Philippine mobile number"
+                                            />
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Enter 10-digit number (e.g., 9123456789)</p>
                                     </div>
 
                                     {/* Email Address - Full Width */}
@@ -568,7 +591,7 @@ const UserManagementLayout = () => {
                                                     <option key={role._id} value={role._id}>
                                                         {role.action_name}
                                                     </option>
-                                            ))}
+                                                ))}
                                         </select>
                                     </div>
 

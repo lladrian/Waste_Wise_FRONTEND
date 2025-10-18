@@ -1,8 +1,8 @@
 import * as API from '../services/api_service'; // or axios if used directly
 
-export const getSpecificRoute = async (id) => {
+export const getSpecificBarangay = async (id) => {
   try {
-    const res = await API.getSpecificRoute(id);
+    const res = await API.getSpecificBarangay(id);
 
     return { data: res.data, success: true };
   } catch (error) {
@@ -12,9 +12,9 @@ export const getSpecificRoute = async (id) => {
 };
 
 
-export const createRoute = async (data) => {
+export const createBarangay = async (data) => {
   try {
-    const res = await API.createRoute(data);
+    const res = await API.createBarangay(data);
 
     return { data: res.data, success: true };
   } catch (error) {
@@ -24,21 +24,20 @@ export const createRoute = async (data) => {
 };
 
 
-export const getAllRoute = async () => {
+export const getAllBarangay = async () => {
   try {
-    const res = await API.getAllRoute();
-    const res2 = await API.getAllBarangay();
+    const res = await API.getAllBarangay();
 
-    return { data: {routes: res.data, barangays: res2.data}, success: true };
+    return { data: res.data, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
     throw error;
   }
 };
 
-export const deleteRoute = async (id) => {
+export const deleteBarangay = async (id) => {
   try {
-    const res = await API.deleteRoute(id);
+    const res = await API.deleteBarangay(id);
 
     return { data: res.data, success: true };
   } catch (error) {
@@ -49,9 +48,9 @@ export const deleteRoute = async (id) => {
 
 
 
-export const updateRoute = async (id, data) => {
+export const updateBarangay = async (id, data) => {
   try {
-    const res = await API.updateRoute(id, data);
+    const res = await API.updateBarangay(id, data);
 
     return { data: res.data, success: true };
   } catch (error) {

@@ -18,6 +18,9 @@ import AdminLogManagementPage from './pages/managements/admin/AdminLogManagement
 import AdminRouteManagementPage from './pages/managements/admin/AdminRouteManagementPage';
 import AdminTruckManagementPage from './pages/managements/admin/AdminTruckManagementPage';
 import AdminComplainManagementPage from './pages/managements/admin/AdminComplainManagementPage';
+import AdminBarangayManagementPage from './pages/managements/admin/AdminBarangayManagementPage';
+
+
 
 
 
@@ -26,16 +29,24 @@ import StaffScheduleManagementPage from './pages/managements/staff/StaffSchedule
 import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManagementPage';
 import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManagementPage';
 import StaffComplainManagementPage from './pages/managements/staff/StaffComplainManagementPage';
+import StaffBarangayManagementPage from './pages/managements/staff/StaffBarangayManagementPage';
+
+
+import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
 
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
 
 
 
 
-
-
 import AdminLayout from './layouts/admin_layout';
 import StaffLayout from './layouts/staff_layout';
+import OfficialLayout from './layouts/official_layout';
+
+
+import OfficialLogPage from './pages/official/OfficialLogPage';
+import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
+
 
 import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
@@ -57,6 +68,7 @@ function App() {
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
 
+     
 
         {/* Admin Routes */}
         <Route
@@ -75,6 +87,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
         <Route
           path="/admin/dashboard"
           element={
@@ -124,6 +138,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/management/barangays"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminBarangayManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/management/trucks"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
@@ -136,6 +158,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminComplainManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/approval/schedules"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminScheduleApprovalPage />
             </ProtectedRoute>
           }
         />
@@ -186,6 +217,14 @@ function App() {
           }
         />
         <Route
+          path="/staff/management/barangays"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff']}>
+              <StaffBarangayManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/staff/management/schedules"
           element={
             <ProtectedRoute allowedRoles={['enro_staff']}>
@@ -218,6 +257,39 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+
+
+
+       <Route
+          path="/official/update_profile"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialUpdateProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/official/login_history"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialLogPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/official/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialLayout />
+            </ProtectedRoute>
+          }
+        />
+
+
 
 
 

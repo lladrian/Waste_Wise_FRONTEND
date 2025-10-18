@@ -18,7 +18,7 @@ const AccountDisabledPage = () => {
             const { data, success } = await getSpecificUser(id);
 
             if (success === true) {
-                setDataUser(data.data);
+                setDataUser(data.data.user);
             } else {
                 navigate('/login')
             }
@@ -46,24 +46,24 @@ const AccountDisabledPage = () => {
         }
     };
 
-const formatDate = (dateString) => {
-  if (!dateString || dateString === "none") return "none";
-  
-  try {
-    const date = new Date(dateString.replace(' ', 'T')); // Replace space with T for ISO format
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return "Invalid date";
-  }
-};
+    const formatDate = (dateString) => {
+        if (!dateString || dateString === "none") return "none";
+
+        try {
+            const date = new Date(dateString.replace(' ', 'T')); // Replace space with T for ISO format
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return "Invalid date";
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-100 flex flex-col">
@@ -160,7 +160,7 @@ const formatDate = (dateString) => {
                                             <div className="flex justify-between items-center py-2 border-b border-blue-100">
                                                 <span className="text-sm font-medium text-gray-600">Gender:</span>
                                                 <span className="text-sm font-semibold text-gray-600">
-                                                    {dataUser.gender ? dataUser.gender.charAt(0).toUpperCase() + dataUser.gender.slice(1) : "none"}                                             
+                                                    {dataUser.gender ? dataUser.gender.charAt(0).toUpperCase() + dataUser.gender.slice(1) : "none"}
                                                 </span>
                                             </div>
 
@@ -174,7 +174,7 @@ const formatDate = (dateString) => {
                                                 <span className="text-sm font-semibold text-blue-600">{dataUser.role}</span>
                                             </div>
 
-                                       
+
 
                                             <div className="flex justify-between items-center py-2 border-b border-blue-100">
                                                 <span className="text-sm font-medium text-gray-600">Disabled Since:</span>

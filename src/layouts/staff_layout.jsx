@@ -53,6 +53,7 @@ const StaffLayout = ({ children }) => {
         ...(user?.role !== 'enro_staff_head' ? [
          { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
          { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
+         { path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" },
          { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
         ] : []),
         { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
@@ -108,6 +109,7 @@ const StaffLayout = ({ children }) => {
     'management/logs': 'Log Management',
     'management/schedules': 'Schedule Management',
     'management/routes': 'Route Management',
+    'management/barangays': 'Barangay Management',
     'management/trucks': 'Truck Management',
     'management/complains': 'Complain Management',
 
