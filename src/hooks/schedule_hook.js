@@ -29,9 +29,10 @@ export const getAllSchedule = async () => {
     const res = await API.getAllSchedule();
     const res2 = await API.getAllRoute();
     const res3 = await API.getAllTruck();
+    const res4 = await API.getAllBarangay();
     // const filteredData = res3.data.data.filter(user => user.role === 'garbage_collector');
 
-    return { data: { schedules: res.data, routes: res2.data, trucks: res3.data }, success: true };
+    return { data: { schedules: res.data, routes: res2.data, trucks: res3.data, barangays: res4.data }, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
     throw error;

@@ -616,12 +616,12 @@ const ComplainManagementLayout = () => {
                                             <option value="In Progress">In Progress</option>
                                             <option value="Resolved">Resolved</option>
                                             <option value="Cancelled">Cancelled</option>
-                                            {/* <option value="Pending">Pending</option>
+                                            <option value="" disabled>Select Resolution Status Resident</option>
+                                            <option value="Pending">Pending</option>
                                             <option value="In Progress">In Progress</option>
                                             <option value="Under Review">Under Review</option>
                                             <option value="Cancelled">Resolved</option> 
                                             <option value="Invalid">Invalid</option> 
-                                            */}
                                         </select>
                                     </div>
 
@@ -641,10 +641,11 @@ const ComplainManagementLayout = () => {
                                             <option value="Roadblock">Roadblock</option>
                                             <option value="Delay">Delay</option>
                                             <option value="Other">Other</option>
-                                            {/* <option value="Missed Pickup">Missed Pickup</option>
+                                            <option value="" disabled>Select Complain Type Resident</option>
+                                            <option value="Missed Pickup">Missed Pickup</option>
                                             <option value="Delayed Collection">Delayed Collection</option>
                                             <option value="Uncollected Area">Uncollected Area</option>
-                                            <option value="Illegal Dumping">Illegal Dumping</option> */}
+                                            <option value="Illegal Dumping">Illegal Dumping</option> 
                                         </select>
                                     </div>
 

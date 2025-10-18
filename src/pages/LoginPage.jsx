@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { FaRecycle, FaTrashAlt, FaLeaf, FaTruck, FaWater } from "react-icons/fa";
+import React, { useState, useContext, useEffect } from "react";
+import { FaRecycle, FaTrashAlt, FaLeaf, FaTruck, FaWater, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png'; // or .jpg, .svg
@@ -9,20 +9,47 @@ import { createOTP } from "../hooks/recovery_hook";
 
 import { AuthContext } from '../context/AuthContext';
 
-
-
-
 const LoginPage = () => {
   const navigate = useNavigate();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [capsLockOn, setCapsLockOn] = useState(false);
   const { user, login, logout } = useContext(AuthContext);
+  
   const initialFormData = {
     email: "",
     password: "",
   };
   const [formData, setFormData] = useState(initialFormData);
 
+  // Caps lock detection
+  const handleKeyDown = (e) => {
+    if (e.getModifierState("CapsLock")) {
+      setCapsLockOn(true);
+    } else {
+      setCapsLockOn(false);
+    }
+  };
+
+  const handleKeyUp = (e) => {
+    if (e.getModifierState("CapsLock")) {
+      setCapsLockOn(true);
+    } else {
+      setCapsLockOn(false);
+    }
+  };
+
+  // Add event listeners for caps lock detection
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,6 +57,10 @@ const LoginPage = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const encryptData = (data, key) => {
@@ -107,6 +138,9 @@ const LoginPage = () => {
         if (role == 'enro_staff' || role == 'enro_staff_head') {
           navigate('/staff/dashboard');
         }
+        if (role == 'barangay_official') {
+          navigate('/official/dashboard');
+        }
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -127,10 +161,6 @@ const LoginPage = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center space-x-3">
-                {/* <div className="relative">
-                  <FaRecycle className="h-8 w-8 text-blue-600 animate-spin-slow" />
-                  <FaWater className="h-4 w-4 text-cyan-500 absolute -top-1 -right-1" />
-                </div> */}
                 <div className="relative">
                   <img
                     src={WasteWiseLogo}
@@ -138,18 +168,9 @@ const LoginPage = () => {
                     className="h-24 w-auto object-fit"
                   />
                 </div>
-                {/* <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  WasteWise
-                </span> */}
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* <button
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                onClick={() => { navigate('/register') }}
-              >
-                Join WasteWise
-              </button> */}
               <button className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
                 Sign In
               </button>
@@ -191,26 +212,6 @@ const LoginPage = () => {
                   <p className="text-blue-100 text-lg leading-relaxed max-w-md mx-auto mb-8">
                     Join thousands of communities transforming waste management through technology. Track, manage, and optimize your waste collection system.
                   </p>
-
-                  {/* Features Grid */}
-                  {/* <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
-                    <div className="flex items-center space-x-2 bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                      <FaTruck className="h-5 w-5 text-blue-200" />
-                      <span className="text-sm font-medium">Smart Routes</span>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                      <FaLeaf className="h-5 w-5 text-blue-200" />
-                      <span className="text-sm font-medium">Eco Analytics</span>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                      <FaRecycle className="h-5 w-5 text-blue-200" />
-                      <span className="text-sm font-medium">Recycling</span>
-                    </div>
-                    <div className="flex items-center space-x-2 bg-white/10 p-3 rounded-xl backdrop-blur-sm">
-                      <FaTrashAlt className="h-5 w-5 text-blue-200" />
-                      <span className="text-sm font-medium">Waste Track</span>
-                    </div>
-                  </div> */}
                 </div>
               </div>
 
@@ -256,11 +257,13 @@ const LoginPage = () => {
                       </label>
                       <div className="relative">
                         <input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           name="password"
                           value={formData.password}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
+                          onKeyDown={handleKeyDown}
+                          onKeyUp={handleKeyUp}
+                          className="w-full px-4 py-3 pl-11 pr-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
                           placeholder="••••••••"
                           required
                         />
@@ -269,7 +272,28 @@ const LoginPage = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
                         </div>
+                        {/* Eye icon for password visibility toggle */}
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        >
+                          {showPassword ? (
+                            <FaEyeSlash className="h-5 w-5" />
+                          ) : (
+                            <FaEye className="h-5 w-5" />
+                          )}
+                        </button>
                       </div>
+                      {/* Caps lock warning */}
+                      {capsLockOn && (
+                        <div className="mt-2 flex items-center text-amber-600 text-sm">
+                          <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          Caps Lock is ON
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -330,17 +354,16 @@ const LoginPage = () => {
                       </>
                     )}
                   </button>
-
-                  {/* <div className="text-center text-sm text-gray-600">
-                    New to WasteWise?{" "}
+                  <div className="text-center text-sm text-gray-600">
+                    No account?{" "}
                     <button
                       type="button"
-                      onClick={() => navigate('/register')}
+                      onClick={() => navigate('/request')}
                       className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200"
                     >
-                      Create your account
+                      Request access from admin
                     </button>
-                  </div> */}
+                  </div> *
                 </form>
               </div>
             </div>

@@ -26,6 +26,7 @@ const ScheduleManagementLayout = () => {
     const [schedules, setSchedules] = useState([]);
     const [trucks, setTrucks] = useState([]);
     const [routes, setRoutes] = useState([]);
+    const [barangays, setBarangays] = useState([]);
     const [filteredSchedules, setFilteredSchedules] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -58,6 +59,7 @@ const ScheduleManagementLayout = () => {
             const { data, success } = await getAllSchedule();
             if (success === true) {
                 setTrucks(data.trucks.data)
+                setBarangays(data.barangays.data)
                 setRoutes(data.routes.data)
                 setSchedules(data.schedules.data)
                 setFilteredSchedules(data.schedules.data)
@@ -338,6 +340,11 @@ const ScheduleManagementLayout = () => {
         'Delayed',
         'Cancelled',
     ];
+
+    const getBarangayName = (barangayId) => {
+    const barangay = barangays.find(b => b._id === barangayId);
+    return barangay?.barangay_name || 'Unknown Barangay';
+};
 
     return (
         <>
@@ -742,8 +749,8 @@ const ScheduleManagementLayout = () => {
                                         type="submit"
                                         disabled={editingSchedules && !editingSchedules.is_editable}
                                         className={`px-6 py-2 rounded-lg transition-colors duration-200 font-medium shadow-sm ${editingSchedules && !editingSchedules.is_editable
-                                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                                                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'
+                                            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                            : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'
                                             }`}
                                     >
                                         {editingSchedules ? 'Update Schedule' : 'Add Schedule'}
@@ -778,31 +785,31 @@ const ScheduleManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingSchedules.user.first_name} {viewingSchedules.user.middle_name} {viewingSchedules.user.last_name}
+                                            {viewingSchedules?.user?.first_name} {viewingSchedules?.user?.middle_name} {viewingSchedules?.user?.last_name}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Gender:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingSchedules.user.gender}
+                                            {viewingSchedules?.user?.gender}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formatRole(viewingSchedules.user.role)}
+                                            {formatRole(viewingSchedules?.user?.role)}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Contact Number:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingSchedules.user.contact_number}
+                                            {viewingSchedules?.user?.contact_number}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Email Address:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingSchedules.user.email}
+                                            {viewingSchedules?.user?.email}
                                         </p>
                                     </div>
                                 </div>
@@ -815,12 +822,6 @@ const ScheduleManagementLayout = () => {
                                         <span className="text-gray-500">Garbage Type:</span>
                                         <p className="font-medium text-gray-800">
                                             {viewingSchedules?.garbage_type}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Route:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingSchedules?.route.route_name}
                                         </p>
                                     </div>
                                     <div>
@@ -854,7 +855,62 @@ const ScheduleManagementLayout = () => {
                                         </p>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Route Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Route Name:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingSchedules?.route.route_name}
+                                        </p>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <span className="text-gray-500">Barangays Covered:</span>
+                                        <div className="mt-2 bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Order</th>
+                                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Barangay Name</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200">
+                                                    {viewingSchedules?.route.merge_barangay && viewingSchedules.route.merge_barangay.length > 0 ? (
+                                                        viewingSchedules.route.merge_barangay
+                                                            .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+                                                            .map((barangay, index) => {
+                                                                const barangayId = barangay.barangay_id;
+                                                                const barangayName = getBarangayName(barangayId);
+                                                                const orderNumber = barangay.order_index + 1;
+
+                                                                return (
+                                                                    <tr key={barangayId}>
+                                                                        <td className="px-4 py-2">
+                                                                            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-xs">
+                                                                                {orderNumber}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-4 py-2 font-medium text-gray-700">
+                                                                            {barangayName}
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            })
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="2" className="px-4 py-4 text-center text-gray-400">
+                                                                No barangays assigned to this route
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

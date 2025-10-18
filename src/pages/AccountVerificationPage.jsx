@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { FaRecycle, FaShieldAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png';
 
 import { getSpecificUser, verifyOTP, createOTP, verifyUser } from "../hooks/verification_hook";
+import { AuthContext } from '../context/AuthContext';
 
 
 const AccountVerificationPage = () => {
@@ -16,6 +17,8 @@ const AccountVerificationPage = () => {
   const [countdown, setCountdown] = useState(60);
   const inputRefs = useRef([]);
   const [dataUser, setDataUser] = useState([]);
+  const { login } = useContext(AuthContext);
+  
 
 
 
@@ -100,7 +103,7 @@ const AccountVerificationPage = () => {
     try {
       const input_data = {
         otp_type: "verification",
-        email: dataUser.email,
+        email: dataUser.user.email,
         otp: otp
       };
 
@@ -112,17 +115,27 @@ const AccountVerificationPage = () => {
         const input_data_2 = {
           verify: true
         };
-        const { data, success } = await verifyUser(dataUser._id, input_data_2);
+        const { data, success } = await verifyUser(dataUser.user._id, input_data_2);
 
         if (success === false) {
           toast.error(data.message || "Failed to verify. Please try again.");
         }
+    
+        await login(dataUser.user, dataUser.fetched_at);
 
-        localStorage.setItem('user_id', dataUser._id);
-        toast.success(data.data || "Account verified successfully!");
-        navigate('/admin/dashboard');
+        toast.success("Account verified successfully!");
+        if (dataUser.user.role == 'admin') {
+          navigate('/admin/dashboard');
+        }
+        if (dataUser.user.role == 'enro_staff' || dataUser.user.role == 'enro_staff_head') {
+          navigate('/staff/dashboard');
+        }
+        if (dataUser.user.role == 'barangay_official') {
+          navigate('/official/dashboard');
+        }
       }
     } catch (error) {
+      
       if (error.response && error.response.data) {
         toast.error(error.response.data.message || "Invalid verification code. Please try again.");
       } else {
@@ -151,7 +164,7 @@ const AccountVerificationPage = () => {
 
       const input_data = {
         otp_type: "verification",
-        email: dataUser.email
+        email: dataUser.user.email
       };
 
       const { data, success } = await createOTP(input_data);
