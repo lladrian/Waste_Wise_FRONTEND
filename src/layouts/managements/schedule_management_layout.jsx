@@ -785,31 +785,31 @@ const ScheduleManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingSchedules?.user?.first_name} {viewingSchedules?.user?.middle_name} {viewingSchedules?.user?.last_name}
+                                            {viewingSchedules?.truck?.user?.first_name} {viewingSchedules?.truck?.user?.middle_name} {viewingSchedules?.truck?.user?.last_name}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Gender:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingSchedules?.user?.gender}
+                                            {viewingSchedules?.truck?.user?.gender}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formatRole(viewingSchedules?.user?.role)}
+                                            {formatRole(viewingSchedules?.truck?.user?.role)}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Contact Number:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingSchedules?.user?.contact_number}
+                                            {viewingSchedules?.truck?.user?.contact_number}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Email Address:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingSchedules?.user?.email}
+                                            {viewingSchedules?.truck?.user?.email}
                                         </p>
                                     </div>
                                 </div>
