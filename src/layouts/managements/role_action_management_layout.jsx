@@ -27,6 +27,7 @@ const RoleActionManagementLayout = () => {
     const [editingUsers, setEditingUser] = useState(null);
     const [formData, setFormData] = useState({
         action_name: '',
+        role: '',
         permission: []
     });
 
@@ -74,10 +75,12 @@ const RoleActionManagementLayout = () => {
         ) : [];
 
         const input_data = {
+            role: formData.role,
             action_name: formData.action_name,
             permission: permissionValues
         };
 
+        console.log(input_data)
         if (editingUsers) {
             try {
                 const { data, success } = await updateRoleAction(editingUsers._id, input_data);
@@ -126,6 +129,7 @@ const RoleActionManagementLayout = () => {
     const handleEdit = (user) => {
         setEditingUser(user);
         setFormData({
+            role: user.role,
             action_name: user.action_name,
             permission: user.permission || []
         });
@@ -154,6 +158,7 @@ const RoleActionManagementLayout = () => {
     const resetForm = () => {
         setFormData({
             action_name: '',
+            role: '',
             permission: []
         });
 
@@ -206,6 +211,20 @@ const RoleActionManagementLayout = () => {
     };
 
 
+      const formatRole = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'enro_staff_head': 'ENRO Staff Head',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+
+        return roleMap[role] || role; // Return formatted role or original if not found
+    };
+
+
     return (
         <>
             <div className="space-y-6">
@@ -248,6 +267,9 @@ const RoleActionManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Role Action Name
                                     </th>
+                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Role Name
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -256,9 +278,12 @@ const RoleActionManagementLayout = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-gray-50 transition-colors">
-
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.action_name}</span>
+                                        </td>
+                                          <td className="px-6 py-4">
+                                            {console.log(user)}
+                                            <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
@@ -322,6 +347,28 @@ const RoleActionManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Role
+                                        </label>
+                                        <select
+                                            name="role"
+                                            value={formData.role}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Role</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="enro_staff">ENRO Staff</option>
+                                            <option value="enro_staff_head">ENRO Staff Head</option>
+                                            <option value="barangay_official">Barangay Official</option>
+                                            <option value="garbage_collector">Garbage Collector</option>
+                                            {/* {editingUsers && <option value="resident">Resident</option>} */}
+                                        </select>
+                                    </div>
+
+
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Role Action Name

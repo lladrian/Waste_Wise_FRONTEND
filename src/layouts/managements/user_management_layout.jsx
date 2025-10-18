@@ -586,7 +586,7 @@ const UserManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Role Action</option>
-                                            {roleActions?.filter(role => role?._id && role?.action_name)
+                                            {roleActions?.filter(role => role?._id && role?.action_name && role?.role == formData.role)
                                                 .map((role) => (
                                                     <option key={role._id} value={role._id}>
                                                         {role.action_name}
