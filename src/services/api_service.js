@@ -46,7 +46,11 @@ export const getAllComplain = () => axios.get(`/complains/get_all_complain`);
 export const getSpecificComplain = (id) => axios.get(`/complains/get_specific_complain/${id}`);
 export const deleteComplain= (id) => axios.delete(`/complains/delete_complain/${id}`);
 export const updateComplain = (id, data) => axios.put(`/complains/update_complain/${id}`, data);
-
+export const createBarangay = (data) => axios.post(`/barangays/add_barangay`,data);
+export const getAllBarangay = () => axios.get(`/barangays/get_all_barangay`);
+export const getSpecificBarangay = (id) => axios.get(`/barangays/get_specific_barangay/${id}`);
+export const deleteBarangay = (id) => axios.delete(`/barangays/delete_barangay/${id}`);
+export const updateBarangay = (id, data) => axios.put(`/barangays/update_barangay/${id}`, data);
 
 
 
@@ -60,9 +64,3 @@ export const getSpecificResidentUser = (id) => axios.get(`/residents/get_specifi
 export const loginResidentUser = (data) => axios.post('/residents/login_user', data);
 
 
-
-export const createBarangay = (data) => axios.post(`/barangays/add_barangay`,data);
-export const getAllBarangay = () => axios.get(`/barangays/get_all_barangay`);
-export const getSpecificBarangay = (id) => axios.get(`/barangays/get_specific_barangay/${id}`);
-export const deleteBarangay = (id) => axios.delete(`/barangays/delete_barangay/${id}`);
-export const updateBarangay = (id, data) => axios.put(`/barangays/update_barangay/${id}`, data);

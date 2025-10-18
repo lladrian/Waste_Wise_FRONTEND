@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -20,15 +20,16 @@ import BeautifulCalendar from "../../components/BeautifulCalendar";
 import { toast } from "react-toastify";
 
 import DateRangeFilter from '../../components/DateRangeFilter';
+import { AuthContext } from '../../context/AuthContext';
 
-
-const ScheduleManagementLayout = () => {
+const ScheduleApprovalLayout = () => {
     const [schedules, setSchedules] = useState([]);
     const [trucks, setTrucks] = useState([]);
     const [barangays, setBarangays] = useState([]);
     const [routes, setRoutes] = useState([]);
     const [filteredSchedules, setFilteredSchedules] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [approvalFilter, setApprovalFilter] = useState('need_approval'); // Default to need approval
     const [showModal, setShowModal] = useState(false);
     const [showModalData, setShowModalData] = useState(false);
     const [showModalPassword, setShowModalPassword] = useState(false);
@@ -38,6 +39,7 @@ const ScheduleManagementLayout = () => {
     const [showCalendarModal, setShowCalendarModal] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const { user } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         route: '',
@@ -53,7 +55,6 @@ const ScheduleManagementLayout = () => {
     useEffect(() => {
         fetchData();
     }, []);
-
 
     const fetchData = async () => {
         try {
@@ -73,35 +74,42 @@ const ScheduleManagementLayout = () => {
 
     useEffect(() => {
         filterSchedules();
-    }, [searchTerm, schedules, startDate, endDate]);
-
+    }, [searchTerm, schedules, startDate, endDate, approvalFilter]);
 
     const filterSchedules = () => {
         let filtered = schedules;
 
+        // Approval filter - default to show schedules that need approval
+        if (approvalFilter === 'need_approval') {
+            filtered = filtered.filter(schedule =>
+                !schedule.approved_by // Show schedules where approved_by is empty/null
+            );
+        } else if (approvalFilter === 'approved') {
+            filtered = filtered.filter(schedule =>
+                schedule.approved_by // Show schedules where approved_by has value
+            );
+        } else if (approvalFilter === 'cancelled') {
+            filtered = filtered.filter(schedule =>
+                schedule.cancelled_by // Show schedules where approved_by has value
+            );
+        }
+        // If 'all' is selected, show all schedules
+
         // Search filter
         if (searchTerm) {
             filtered = filtered.filter(schedule =>
-                schedule?.truck?.user?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                schedule?.truck?.user?.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                schedule?.truck?.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+                schedule?.truck?.user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                schedule?.truck?.user?.middle_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                schedule?.truck?.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
         if (startDate && endDate) {
-            //  const startDateStr = `${startDate} 00:00:00`;
-            // const endDateStr = `${endDate} 23:59:59`;
-
-            // filtered = filtered.filter(schedule => {
-            //     const createdAt = schedule.created_at || ''; // try both places
-            //     return createdAt >= startDateStr && createdAt <= endDateStr;
-            // });
-
             const startDateStr = `${startDate}`;
             const endDateStr = `${endDate}`;
 
             filtered = filtered.filter(schedule => {
-                const createdAt = schedule.scheduled_collection || ''; // try both places
+                const createdAt = schedule.scheduled_collection || '';
                 return createdAt >= startDateStr && createdAt <= endDateStr;
             });
         }
@@ -109,17 +117,19 @@ const ScheduleManagementLayout = () => {
         setFilteredSchedules(filtered);
     };
 
+    // Count schedules that need approval
+    const schedulesNeedingApproval = schedules.filter(schedule => !schedule.approved_by).length;
+    const approvedSchedulesCount = schedules.filter(schedule => schedule.approved_by).length;
+    const cancelledSchedulesCount = schedules.filter(schedule => schedule.cancelled_by).length;
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-
-
         const input_data = {
+            user: user?._id,
             route: formData?.route,
             truck: formData?.truck,
-            user: formData?.user,
             garbage_type: formData?.garbage_type,
             status: formData?.status,
             remark: formData?.remark,
@@ -148,11 +158,10 @@ const ScheduleManagementLayout = () => {
             }
         } else {
             try {
-
                 const { data, success } = await createSchedule(input_data);
 
                 const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
-                if (selectedTruck?.status !== 'Active' && selectedTruck?.status !== 'On Route') { // Change 'active' to your "ready" status
+                if (selectedTruck?.status !== 'Active' && selectedTruck?.status !== 'On Route') {
                     alert('Cannot schedule: Selected truck is not ready. Please select an active truck.');
                     return;
                 }
@@ -200,15 +209,11 @@ const ScheduleManagementLayout = () => {
         setShowModalData(true);
     };
 
-
-
-
     const getSelectedTruckStatus = () => {
         if (!formData.truck) return null;
         const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
         return selectedTruck?.status;
     };
-
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this route?')) {
@@ -225,7 +230,6 @@ const ScheduleManagementLayout = () => {
             }
         }
     };
-
 
     const resetForm = () => {
         setFormData({
@@ -263,14 +267,6 @@ const ScheduleManagementLayout = () => {
         }
     };
 
-    // const handleInputChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData(prev => ({
-    //         ...prev,
-    //         [name]: value
-    //     }));
-    // };
-
     const formatDate = (dateString) => {
         const months = [
             'January', 'February', 'March', 'April', 'May', 'June',
@@ -290,15 +286,16 @@ const ScheduleManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
 
-        return roleMap[role] || role; // Return formatted role or original if not found
+        return roleMap[role] || role;
     };
-
-
 
     const downloadGeneratedReport = async () => {
         try {
@@ -324,48 +321,34 @@ const ScheduleManagementLayout = () => {
         }
     };
 
-
     const scheduleStatusOptions = [
         'Pending',
         'Scheduled',
-        // 'In Progress',
-        // 'Completed',
-        // 'Delayed',
         'Cancelled',
     ];
 
-
     const commonRemarks = [
-        // 'None',
         'Pending',
         'Approved',
-        // 'In Progress',
-        // 'Completed',
         'Delayed',
         'Cancelled',
     ];
-
 
     const getBarangayName = (barangayId) => {
         const barangay = barangays.find(b => b._id === barangayId);
         return barangay?.barangay_name || 'Unknown Barangay';
     };
 
+    const approvalFilterOptions = [
+        { value: 'need_approval', label: `Need Approval (${schedulesNeedingApproval})` },
+        { value: 'approved', label: `Approved (${approvedSchedulesCount})` },
+        { value: 'cancelled', label: `Cancelled (${cancelledSchedulesCount})` },
+        { value: 'all', label: 'All Schedules' }
+    ];
+
     return (
         <>
             <div className="space-y-6">
-                {/* Header Section */}
-                {/* <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Schedule</span>
-                    </button>
-                </div> */}
-
-
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col gap-4">
@@ -380,20 +363,93 @@ const ScheduleManagementLayout = () => {
                             />
                         </div>
 
-                        {/* Second Row: Search Input */}
-                        <div className="relative w-full">
-                            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            <input
-                                type="text"
-                                placeholder="search user"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                            />
+                        {/* Second Row: Search and Filter Controls */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Search Input */}
+                            <div className="relative">
+                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Search user..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+
+                            {/* Approval Filter */}
+                            <div>
+                                <select
+                                    value={approvalFilter}
+                                    onChange={(e) => setApprovalFilter(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                >
+                                    {approvalFilterOptions.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Reset Filters Button */}
+                            <div>
+                                <button
+                                    onClick={() => {
+                                        setSearchTerm('');
+                                        setApprovalFilter('need_approval');
+                                        setStartDate('');
+                                        setEndDate('');
+                                    }}
+                                    className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    <FiFilter className="w-4 h-4" />
+                                    <span>Reset Filters</span>
+                                </button>
+                            </div>
                         </div>
+
+                        {/* Active Filters Display */}
+                        {(searchTerm || approvalFilter !== 'need_approval' || startDate || endDate) && (
+                            <div className="flex flex-wrap gap-2 items-center text-sm">
+                                <span className="text-gray-500">Active filters:</span>
+                                {approvalFilter !== 'need_approval' && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                                        {approvalFilter === 'approved' ? 'Approved Only' : 'All Schedules'}
+                                        <button
+                                            onClick={() => setApprovalFilter('need_approval')}
+                                            className="ml-1 text-blue-500 hover:text-blue-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {searchTerm && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                                        Search: {searchTerm}
+                                        <button
+                                            onClick={() => setSearchTerm('')}
+                                            className="ml-1 text-purple-500 hover:text-purple-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {(startDate || endDate) && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                                        Date: {startDate} to {endDate}
+                                        <button
+                                            onClick={() => { setStartDate(''); setEndDate(''); }}
+                                            className="ml-1 text-orange-500 hover:text-orange-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="overflow-x-auto">
@@ -421,9 +477,9 @@ const ScheduleManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
-                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Truck Status
-                                    </th> */}
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Approval Status
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -453,9 +509,21 @@ const ScheduleManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.status || "Not Yet"}</span>
                                         </td>
-                                        {/* <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{schedule?.truck?.status || "None"}</span>
-                                        </td> */}
+                                        <td className="px-6 py-4">
+                                            {schedule.cancelled_by ? (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    Cancelled
+                                                </span>
+                                            ) : schedule.approved_by ? (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Approved
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    Needs Approval
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
@@ -473,14 +541,6 @@ const ScheduleManagementLayout = () => {
                                                 >
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
-
-                                                {/* <button
-                                                    onClick={() => handleDelete(schedule._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
-                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -493,11 +553,22 @@ const ScheduleManagementLayout = () => {
                     {filteredSchedules.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No schedule found</p>
+                            <p className="text-gray-500 text-lg">
+                                {approvalFilter === 'need_approval'
+                                    ? 'No schedules need approval'
+                                    : approvalFilter === 'approved'
+                                        ? 'No approved schedules found'
+                                        : 'No schedules found'
+                                }
+                            </p>
                             <p className="text-gray-400 text-sm mt-1">
-                                {searchTerm
+                                {searchTerm || startDate || endDate
                                     ? 'Try adjusting your search or filters'
-                                    : 'Get started by adding your first schedule'
+                                    : approvalFilter === 'need_approval'
+                                        ? 'All schedules have been approved'
+                                        : approvalFilter === 'approved'
+                                            ? 'No schedules have been approved yet'
+                                            : 'No schedules available'
                                 }
                             </p>
                         </div>
@@ -505,6 +576,7 @@ const ScheduleManagementLayout = () => {
                 </div>
             </div>
 
+            {/* Rest of your modal code remains exactly the same */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -527,27 +599,6 @@ const ScheduleManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Route
-                                        </label>
-                                        <select
-                                            name="route"
-                                            value={formData.route}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Route</option>
-                                            {routes?.filter(route => route?._id && route?.route_name)
-                                                .map((route) => (
-                                                    <option key={route?._id} value={route?._id}>
-                                                        {route?.route_name}
-                                                    </option>
-                                                ))}
-                                        </select>
-                                    </div> */}
-
                                     {editingSchedules && (
                                         <>
                                             {/* Remark Field */}
@@ -555,37 +606,20 @@ const ScheduleManagementLayout = () => {
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                                     Remark
                                                 </label>
-
-                                                {/* Combined approach */}
-                                                <div className="space-y-2">
-                                                    {/* <input
-                                                        list="remark-suggestions"
-                                                        name="remark"
-                                                        value={formData.remark}
-                                                        onChange={handleInputChange}
-                                                        placeholder="Type or select a remark..."
-                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                    /> */}
-                                                    {/* <datalist id="remark-suggestions">
-                                                        {commonRemarks.map((remark) => (
-                                                            <option key={remark} value={remark} />
-                                                        ))}
-                                                    </datalist> */}
-                                                    <select
-                                                        name="remark"
-                                                        value={formData.remark}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                    >
-                                                        <option value="" disabled>Select Remark</option>
-                                                        {commonRemarks.map((remark) => (
-                                                            <option key={remark} value={remark}>
-                                                                {remark}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
+                                                <select
+                                                    name="remark"
+                                                    value={formData.remark}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                >
+                                                    <option value="" disabled>Select Remark</option>
+                                                    {commonRemarks.map((remark) => (
+                                                        <option key={remark} value={remark}>
+                                                            {remark}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
 
                                             {/* Status Field */}
@@ -625,142 +659,8 @@ const ScheduleManagementLayout = () => {
                                                     <option value="false">False</option>
                                                 </select>
                                             </div>
-
                                         </>
                                     )}
-
-                                    {/* 
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Garbage Collector
-                                        </label>
-                                        <select
-                                            name="truck"
-                                            value={formData.truck}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Garbage Collector</option>
-                                            {trucks?.filter(truck => truck?.status === 'Active' || truck?.status === 'On Route')
-                                                .map((truck) => (
-                                                    <option key={truck?._id} value={truck?._id}>
-                                                        {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ✓
-                                                    </option>
-                                                ))}
-
-                                            {trucks?.filter(truck => truck?.status !== 'Active' && truck?.status !== 'On Route' )
-                                                .map((truck) => (
-                                                    <option key={truck?._id} value={truck?._id} disabled>
-                                                        {truck?.user?.first_name} {truck?.user?.middle_name} {truck?.user?.last_name} - {truck?.truck_id} ({truck?.status}) ❌
-                                                    </option>
-                                                ))}
-                                        </select>
-                                    </div> */}
-
-                                    {/*                                     
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Truck Status
-                                        </label>
-                                        <div className={`w-full border rounded-lg px-4 py-3 ${formData.truck && getSelectedTruckStatus() !== 'Active' && getSelectedTruckStatus() !== 'On Route'
-                                            ? 'border-amber-300 bg-amber-50'
-                                            : 'border-gray-300 bg-gray-50'
-                                            }`}>
-                                            {formData.truck ? (
-                                                (() => {
-                                                    const selectedTruck = trucks?.find(truck => truck._id === formData.truck);
-                                                    const status = selectedTruck?.status;
-                                                    const isReady = status === 'Active' || status === 'On Route';
-
-                                                    return (
-                                                        <div className="space-y-2">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-sm font-medium text-gray-700">Status:</span>
-                                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${isReady
-                                                                    ? 'bg-green-100 text-green-800 border border-green-200'
-                                                                    : 'bg-amber-100 text-amber-800 border border-amber-200'
-                                                                    }`}>
-                                                                    {status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown'}
-
-                                                                </span>
-                                                            </div>
-                                                            {!isReady && (
-                                                                <div className="flex items-start space-x-2 text-amber-600 text-sm">
-                                                                    <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                                    </svg>
-                                                                    <span>This truck cannot be scheduled in its current status.</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })()
-                                            ) : (
-                                                <span className="text-gray-500 text-sm">Select a garbage collector to view status</span>
-                                            )}
-                                        </div>
-                                    </div>
- */}
-                                    {/* 
-                                       <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Garbage Type
-                                        </label>
-                                        <select
-                                            name="garbage_type"
-                                            value={formData.garbage_type}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Garbage Type</option>
-                                            <option value="Biodegradable">Biodegradable</option>
-                                            <option value="Non Biodegradable">Non Biodegradable</option>
-                                            <option value="Recyclable">Recyclable</option>
-                                            //  <option value="Pending">Pending</option>
-                                            // <option value="In Progress">In Progress</option>
-                                            // <option value="Under Review">Under Review</option>
-                                            // <option value="Cancelled">Resolved</option> 
-                                            // <option value="Invalid">Invalid</option> 
-                                            //
-                                        </select>
-                                    </div> */}
-
-                                    {/* <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Collection Date
-                                        </label>
-
-                                        <div
-                                            onClick={() => setShowCalendarModal(true)}
-                                            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 cursor-pointer bg-white hover:border-gray-400 flex items-center justify-between"
-                                        >
-                                            <span className={formData.scheduled_collection ? "text-gray-700" : "text-gray-400"}>
-                                                {formData.scheduled_collection
-                                                    ? new Date(formData.scheduled_collection).toLocaleDateString('en-US', {
-                                                        weekday: 'long',
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    })
-                                                    : 'Select a collection date'
-                                                }
-                                            </span>
-                                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-
-                                        <BeautifulCalendar
-                                            name="scheduled_collection"
-                                            value={formData.scheduled_collection}
-                                            onChange={handleInputChange}
-                                            minDate={new Date().toISOString().split('T')[0]}
-                                            isOpen={showCalendarModal}
-                                            onClose={() => setShowCalendarModal(false)}
-                                        />
-                                    </div> */}
                                 </div>
 
                                 {/* Action Buttons */}
@@ -796,7 +696,7 @@ const ScheduleManagementLayout = () => {
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);
-                                        setViewingComplain(null);
+                                        setViewingSchedule(null);
                                         resetForm();
                                     }}
                                     className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -809,7 +709,6 @@ const ScheduleManagementLayout = () => {
                                 <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
-                                        {console.log(viewingSchedules)}
                                         <span className="text-gray-500">Complete Name:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {viewingSchedules?.truck?.user?.first_name} {viewingSchedules?.truck?.user?.middle_name} {viewingSchedules?.truck?.user?.last_name}
@@ -882,10 +781,9 @@ const ScheduleManagementLayout = () => {
                                         </p>
                                     </div>
                                 </div>
-
                             </div>
 
-                              <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Route Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                     <div>
@@ -940,7 +838,6 @@ const ScheduleManagementLayout = () => {
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -949,4 +846,4 @@ const ScheduleManagementLayout = () => {
     );
 };
 
-export default ScheduleManagementLayout;
+export default ScheduleApprovalLayout;

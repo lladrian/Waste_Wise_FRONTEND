@@ -165,7 +165,7 @@ const ComplainManagementLayout = () => {
     const handleEdit = (complain) => {
         setEditingComplain(complain);
         setFormData({
-            route: complain.route._id,
+            route: complain?.route?._id,
             archived: String(complain.archived),
             user: complain.user._id,
             complain_content: complain.complain_content,
@@ -235,7 +235,10 @@ const ComplainManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
@@ -263,7 +266,10 @@ const ComplainManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
@@ -462,7 +468,7 @@ const ComplainManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{formatRole(complain.user.role)}</span>
                                         </td> */}
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{complain.route.route_name}</span>
+                                            <span className="text-sm text-gray-900">{complain?.route?.route_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4 max-w-[200px]">
                                             <span className="text-sm text-gray-900 truncate block">
@@ -620,8 +626,8 @@ const ComplainManagementLayout = () => {
                                             <option value="Pending">Pending</option>
                                             <option value="In Progress">In Progress</option>
                                             <option value="Under Review">Under Review</option>
-                                            <option value="Cancelled">Resolved</option> 
-                                            <option value="Invalid">Invalid</option> 
+                                            <option value="Cancelled">Resolved</option>
+                                            <option value="Invalid">Invalid</option>
                                         </select>
                                     </div>
 
@@ -645,7 +651,7 @@ const ComplainManagementLayout = () => {
                                             <option value="Missed Pickup">Missed Pickup</option>
                                             <option value="Delayed Collection">Delayed Collection</option>
                                             <option value="Uncollected Area">Uncollected Area</option>
-                                            <option value="Illegal Dumping">Illegal Dumping</option> 
+                                            <option value="Illegal Dumping">Illegal Dumping</option>
                                         </select>
                                     </div>
 
@@ -786,7 +792,7 @@ const ComplainManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Route:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingComplains?.route.route_name}
+                                            {viewingComplains?.route?.route_name || "None"}
                                         </p>
                                     </div>
                                     <div>
