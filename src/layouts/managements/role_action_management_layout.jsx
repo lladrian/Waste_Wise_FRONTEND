@@ -211,12 +211,15 @@ const RoleActionManagementLayout = () => {
     };
 
 
-      const formatRole = (role) => {
+    const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
@@ -267,7 +270,7 @@ const RoleActionManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Role Action Name
                                     </th>
-                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Role Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -281,7 +284,7 @@ const RoleActionManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.action_name}</span>
                                         </td>
-                                          <td className="px-6 py-4">
+                                        <td className="px-6 py-4">
                                             {console.log(user)}
                                             <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
                                         </td>
@@ -347,7 +350,7 @@ const RoleActionManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                      <div className="md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Role
                                         </label>
@@ -360,8 +363,10 @@ const RoleActionManagementLayout = () => {
                                         >
                                             <option value="" disabled>Select Role</option>
                                             <option value="admin">Admin</option>
-                                            <option value="enro_staff">ENRO Staff</option>
+                                            <option value="enro_staff_monitoring">ENRO Staff Monitoring</option>
+                                            <option value="enro_staff_scheduler">ENRO Staff Scheduler</option>
                                             <option value="enro_staff_head">ENRO Staff Head</option>
+                                            <option value="enro_staff_eswm_section_head">ENRO Staff ESWM Section Head</option>
                                             <option value="barangay_official">Barangay Official</option>
                                             <option value="garbage_collector">Garbage Collector</option>
                                             {/* {editingUsers && <option value="resident">Resident</option>} */}
@@ -386,7 +391,7 @@ const RoleActionManagementLayout = () => {
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                             Select Permission
+                                            Select Permission
                                         </label>
                                         <Select
                                             id="permission-select"

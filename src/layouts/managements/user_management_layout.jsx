@@ -85,10 +85,20 @@ const UserManagementLayout = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+
+        // If role is changing, reset role_action
+        if (name === 'role') {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value,
+                role_action: '' // Reset role_action when role changes
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -254,11 +264,13 @@ const UserManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
-
         return roleMap[role] || role; // Return formatted role or original if not found
     };
 
@@ -566,11 +578,12 @@ const UserManagementLayout = () => {
                                         >
                                             <option value="" disabled>Select Role</option>
                                             <option value="admin">Admin</option>
-                                            <option value="enro_staff">ENRO Staff</option>
+                                            <option value="enro_staff_monitoring">ENRO Staff Monitoring</option>
+                                            <option value="enro_staff_scheduler">ENRO Staff Scheduler</option>
                                             <option value="enro_staff_head">ENRO Staff Head</option>
+                                            <option value="enro_staff_eswm_section_head">ENRO Staff ESWM Section Head</option>
                                             <option value="barangay_official">Barangay Official</option>
                                             <option value="garbage_collector">Garbage Collector</option>
-                                            {/* {editingUsers && <option value="resident">Resident</option>} */}
                                         </select>
                                     </div>
 

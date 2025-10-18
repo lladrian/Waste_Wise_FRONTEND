@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fi';
 
 //import { getAllResidentUser, updateResidentUserPasswordAdmin, deleteResidentUser, updateResidentUser, createResidentUser } from "../../hooks/resident_user_management_hook";
-import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident} from "../../hooks/user_management_hook";
+import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident } from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
 
@@ -258,7 +258,10 @@ const ResidentManagementLayout = () => {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
@@ -529,7 +532,7 @@ const ResidentManagementLayout = () => {
                                     </div>
 
 
-                                      <div className="md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Role Action
                                         </label>
@@ -546,7 +549,7 @@ const ResidentManagementLayout = () => {
                                                     <option key={route._id} value={route._id}>
                                                         {route.route_name}
                                                     </option>
-                                            ))}
+                                                ))}
                                         </select>
                                     </div>
 
@@ -572,7 +575,7 @@ const ResidentManagementLayout = () => {
                                         </select>
                                     </div>
 
-                                       {editingUsers && (
+                                    {editingUsers && (
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Account State
@@ -650,7 +653,7 @@ const ResidentManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                           {formatRole(formData?.role)}
+                                            {formatRole(formData?.role)}
                                         </p>
                                     </div>
                                     <div>
@@ -671,7 +674,7 @@ const ResidentManagementLayout = () => {
                                             {formData?.email || 'None'}
                                         </p>
                                     </div>
-                                     <div>
+                                    <div>
                                         <span className="text-gray-500">Route Name:</span>
                                         <p className="font-medium text-gray-800">
                                             {formData?.route_name || 'None'}

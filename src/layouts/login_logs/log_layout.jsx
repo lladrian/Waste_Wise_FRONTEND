@@ -21,11 +21,11 @@ import { toast } from "react-toastify";
 
 import DateRangeFilter from '../../components/DateRangeFilter';
 
-
 const LogLayout = () => {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedRemark, setSelectedRemark] = useState('');
     const [showModalData, setShowModalData] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -51,11 +51,9 @@ const LogLayout = () => {
         os: ''
     });
 
-
     useEffect(() => {
         fetchData();
     }, []);
-
 
     const fetchData = async () => {
         try {
@@ -71,29 +69,28 @@ const LogLayout = () => {
         }
     };
 
-
-const decryptData = (encryptedData, key) => {
-    try {
-        const decoded = atob(encryptedData);
-        let decrypted = '';
-        
-        for (let i = 0; i < decoded.length; i++) {
-            const keyChar = key.charCodeAt(i % key.length);
-            const dataChar = decoded.charCodeAt(i);
-            decrypted += String.fromCharCode(dataChar ^ keyChar);
+    const decryptData = (encryptedData, key) => {
+        try {
+            const decoded = atob(encryptedData);
+            let decrypted = '';
+            
+            for (let i = 0; i < decoded.length; i++) {
+                const keyChar = key.charCodeAt(i % key.length);
+                const dataChar = decoded.charCodeAt(i);
+                decrypted += String.fromCharCode(dataChar ^ keyChar);
+            }
+            
+            // Extract IV (first 16 bytes) and actual data
+            const bytes = new Uint8Array(decrypted.split('').map(c => c.charCodeAt(0)));
+            const dataBytes = bytes.slice(16);
+            const originalData = new TextDecoder().decode(dataBytes);
+            
+            return JSON.parse(originalData);
+        } catch (error) {
+            console.error('Decryption failed:', error);
+            return null;
         }
-        
-        // Extract IV (first 16 bytes) and actual data
-        const bytes = new Uint8Array(decrypted.split('').map(c => c.charCodeAt(0)));
-        const dataBytes = bytes.slice(16);
-        const originalData = new TextDecoder().decode(dataBytes);
-        
-        return JSON.parse(originalData);
-    } catch (error) {
-        console.error('Decryption failed:', error);
-        return null;
-    }
-};
+    };
 
     const downloadGeneratedReport = async () => {
         try {
@@ -120,10 +117,9 @@ const decryptData = (encryptedData, key) => {
         }
     };
 
-
     useEffect(() => {
         filterUsers();
-    }, [searchTerm, users, startDate, endDate]);
+    }, [searchTerm, users, startDate, endDate, selectedRemark]);
 
     const filterUsers = () => {
         let filtered = users;
@@ -140,6 +136,13 @@ const decryptData = (encryptedData, key) => {
             );
         }
 
+        // Remark filter
+        if (selectedRemark) {
+            filtered = filtered.filter(user => 
+                user.remark === selectedRemark
+            );
+        }
+
         // Date range filter on created_at string inside each user object (assumed format "YYYY-MM-DD HH:mm:ss")
         if (startDate && endDate) {
             const startDateStr = `${startDate} 00:00:00`;
@@ -152,6 +155,19 @@ const decryptData = (encryptedData, key) => {
         }
 
         setFilteredUsers(filtered);
+    };
+
+    // Get unique remarks for filter dropdown
+    const getUniqueRemarks = () => {
+        const remarks = users.map(user => user.remark).filter(Boolean);
+        return [...new Set(remarks)];
+    };
+
+    const resetFilters = () => {
+        setSelectedRemark('');
+        setSearchTerm('');
+        setStartDate('');
+        setEndDate('');
     };
 
     const handleEdit = (user, log) => {
@@ -199,7 +215,6 @@ const decryptData = (encryptedData, key) => {
 
     };
 
-
     const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
@@ -225,13 +240,9 @@ const decryptData = (encryptedData, key) => {
         });
     }
 
-
     return (
         <>
             <div className="space-y-6">
-                {/* Header Section */}
-
-
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col gap-4">
@@ -246,22 +257,89 @@ const decryptData = (encryptedData, key) => {
                             />
                         </div>
 
-                        {/* Second Row: Search Input */}
-                        <div className="relative w-full">
-                            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            <input
-                                type="text"
-                                placeholder="search user"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                            />
+                        {/* Second Row: Search and Filter Controls */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Search Input */}
+                            <div className="relative">
+                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Search user..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+
+                            {/* Remark Filter */}
+                            <div>
+                                <select
+                                    value={selectedRemark}
+                                    onChange={(e) => setSelectedRemark(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                >
+                                    <option value="">All Remarks</option>
+                                    {getUniqueRemarks().map(remark => (
+                                        <option key={remark} value={remark}>
+                                            {remark}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Reset Filters Button */}
+                            <div>
+                                <button
+                                    onClick={resetFilters}
+                                    className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    <FiFilter className="w-4 h-4" />
+                                    <span>Reset Filters</span>
+                                </button>
+                            </div>
                         </div>
+
+                        {/* Active Filters Display */}
+                        {(selectedRemark || searchTerm || startDate || endDate) && (
+                            <div className="flex flex-wrap gap-2 items-center text-sm">
+                                <span className="text-gray-500">Active filters:</span>
+                                {selectedRemark && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                                        Remark: {selectedRemark}
+                                        <button 
+                                            onClick={() => setSelectedRemark('')}
+                                            className="ml-1 text-green-500 hover:text-green-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {searchTerm && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                                        Search: {searchTerm}
+                                        <button 
+                                            onClick={() => setSearchTerm('')}
+                                            className="ml-1 text-purple-500 hover:text-purple-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {(startDate || endDate) && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                                        Date: {startDate} to {endDate}
+                                        <button 
+                                            onClick={() => { setStartDate(''); setEndDate(''); }}
+                                            className="ml-1 text-orange-500 hover:text-orange-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-
-
-
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="overflow-x-auto">
@@ -283,7 +361,7 @@ const decryptData = (encryptedData, key) => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Platform
                                     </th>
-                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Operating System
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -315,7 +393,7 @@ const decryptData = (encryptedData, key) => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.platform}</span>
                                         </td>
-                                          <td className="px-6 py-4">
+                                        <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.os}</span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -345,19 +423,17 @@ const decryptData = (encryptedData, key) => {
                     {filteredUsers.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No user found</p>
+                            <p className="text-gray-500 text-lg">No logs found</p>
                             <p className="text-gray-400 text-sm mt-1">
-                                {searchTerm
+                                {searchTerm || selectedRemark || startDate || endDate
                                     ? 'Try adjusting your search or filters'
-                                    : 'Get started by adding your first user'
+                                    : 'No login logs available'
                                 }
                             </p>
                         </div>
                     )}
                 </div>
             </div>
-
-
 
             {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -445,7 +521,7 @@ const decryptData = (encryptedData, key) => {
                                     <div>
                                         <span className="text-gray-500">Remark:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {formatRole(formData?.remark)}
+                                            {formData?.remark}
                                         </p>
                                     </div>
 

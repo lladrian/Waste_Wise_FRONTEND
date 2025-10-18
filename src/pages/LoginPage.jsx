@@ -135,7 +135,7 @@ const LoginPage = () => {
         if (role == 'admin') {
           navigate('/admin/dashboard');
         }
-        if (role == 'enro_staff' || role == 'enro_staff_head') {
+        if (role == 'enro_staff_scheduler' || role == 'enro_staff_head') {
           navigate('/staff/dashboard');
         }
         if (role == 'barangay_official') {
@@ -358,7 +358,7 @@ const LoginPage = () => {
                     No account?{" "}
                     <button
                       type="button"
-                      onClick={() => navigate('/request')}
+                      onClick={() => navigate('/account_request')}
                       className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200"
                     >
                       Request access from admin

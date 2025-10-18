@@ -10,7 +10,11 @@ import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AccountDisabledPage from './pages/AccountDisabledPage';
 import AccountVerificationPage from './pages/AccountVerificationPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import AccountRequestPage from './pages/AccountRequestPage';
 
+
+
+import AdminDashboardPage from './pages/dashboards/admin/AdminDashboardPage';
 import AdminUserManagementPage from './pages/managements/admin/AdminUserManagementPage';
 import AdminResidentManagementPage from './pages/managements/admin/AdminResidentManagementPage';
 import AdminRoleActionManagementPage from './pages/managements/admin/AdminRoleActionManagementPage';
@@ -22,8 +26,7 @@ import AdminBarangayManagementPage from './pages/managements/admin/AdminBarangay
 
 
 
-
-
+import StaffDashboardPage from './pages/dashboards/staff/StaffDashboardPage';
 import StaffLogManagementPage from './pages/managements/staff/StaffLogManagementPage';
 import StaffScheduleManagementPage from './pages/managements/staff/StaffScheduleManagementPage';
 import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManagementPage';
@@ -37,12 +40,7 @@ import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleAppr
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
 
 
-
-
-import AdminLayout from './layouts/admin_layout';
-import StaffLayout from './layouts/staff_layout';
 import OfficialLayout from './layouts/official_layout';
-
 
 import OfficialLogPage from './pages/official/OfficialLogPage';
 import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
@@ -66,6 +64,8 @@ function App() {
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/account_request" element={<AccountRequestPage />} />
+
 
 
      
@@ -93,7 +93,7 @@ function App() {
           path="/admin/dashboard"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout />
+              <AdminDashboardPage />
             </ProtectedRoute>
           }
         />
@@ -179,7 +179,7 @@ function App() {
         <Route
           path="/staff/update_profile"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
               <StaffUpdateProfilePage />
             </ProtectedRoute>
           }
@@ -187,23 +187,25 @@ function App() {
         <Route
           path="/staff/login_history"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
               <StaffLogPage />
             </ProtectedRoute>
           }
         />
+
+        {/* StaffDashboardPage */}
         <Route
           path="/staff/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
-              <StaffLayout />
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+              <StaffDashboardPage />
             </ProtectedRoute>
           }
         />
         <Route
           path="/staff/management/logs"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
               <StaffLogManagementPage />
             </ProtectedRoute>
           }
@@ -211,7 +213,7 @@ function App() {
         <Route
           path="/staff/management/routes"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
               <StaffRouteManagementPage />
             </ProtectedRoute>
           }
@@ -219,7 +221,7 @@ function App() {
         <Route
           path="/staff/management/barangays"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
               <StaffBarangayManagementPage />
             </ProtectedRoute>
           }
@@ -227,7 +229,7 @@ function App() {
         <Route
           path="/staff/management/schedules"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
               <StaffScheduleManagementPage />
             </ProtectedRoute>
           }
@@ -235,7 +237,7 @@ function App() {
         <Route
           path="/staff/management/trucks"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
               <StaffTruckManagementPage />
             </ProtectedRoute>
           }
@@ -243,7 +245,7 @@ function App() {
         <Route
           path="/staff/management/complains"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
               <StaffComplainManagementPage />
             </ProtectedRoute>
           }
@@ -252,7 +254,7 @@ function App() {
         <Route
           path="/staff/approval/schedules"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
               <StaffScheduleApprovalPage />
             </ProtectedRoute>
           }
