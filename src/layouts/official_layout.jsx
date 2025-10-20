@@ -300,7 +300,7 @@ const OfficialLayout = ({ children }) => {
                   <p className="text-xs font-semibold text-gray-800 truncate">
                     {adminFirstName} {adminLastName}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">Official</p>
+                  <p className="text-xs text-gray-500 truncate">Barangay Official</p>
                 </div>
               )}
             </div>
