@@ -215,18 +215,21 @@ const LogLayout = () => {
 
     };
 
-    const formatRole = (role) => {
+      const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
             'resident': 'Resident',
             'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
             'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
-
         return roleMap[role] || role; // Return formatted role or original if not found
     };
+
 
     function formatDate(datetimeString) {
         const date = new Date(datetimeString.replace(' ', 'T')); // Ensure proper parsing
@@ -254,6 +257,7 @@ const LogLayout = () => {
                                     setEndDate(endDate);
                                 }}
                                 downloadHandler={downloadGeneratedReport}
+                                hideDownload={true}
                             />
                         </div>
 

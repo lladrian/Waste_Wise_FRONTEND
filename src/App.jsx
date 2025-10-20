@@ -4,7 +4,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
-
 import LoginPage from './pages/LoginPage';
 import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AccountDisabledPage from './pages/AccountDisabledPage';
@@ -12,9 +11,7 @@ import AccountVerificationPage from './pages/AccountVerificationPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import AccountRequestPage from './pages/AccountRequestPage';
 
-
-
-import AdminDashboardPage from './pages/dashboards/admin/AdminDashboardPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminUserManagementPage from './pages/managements/admin/AdminUserManagementPage';
 import AdminResidentManagementPage from './pages/managements/admin/AdminResidentManagementPage';
 import AdminRoleActionManagementPage from './pages/managements/admin/AdminRoleActionManagementPage';
@@ -24,9 +21,13 @@ import AdminTruckManagementPage from './pages/managements/admin/AdminTruckManage
 import AdminComplainManagementPage from './pages/managements/admin/AdminComplainManagementPage';
 import AdminBarangayManagementPage from './pages/managements/admin/AdminBarangayManagementPage';
 
+import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
+import AdminUserRequestApprovalPage from './pages/approvals/admin/AdminUserRequestApprovalPage';
 
+import AdminLogPage from './pages/admin/AdminLogPage';
+import AdminUpdateProfilePage from './pages/admin/AdminUpdateProfilePage';
 
-import StaffDashboardPage from './pages/dashboards/staff/StaffDashboardPage';
+import StaffDashboardPage from './pages/staff/StaffDashboardPage';
 import StaffLogManagementPage from './pages/managements/staff/StaffLogManagementPage';
 import StaffScheduleManagementPage from './pages/managements/staff/StaffScheduleManagementPage';
 import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManagementPage';
@@ -34,24 +35,19 @@ import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManage
 import StaffComplainManagementPage from './pages/managements/staff/StaffComplainManagementPage';
 import StaffBarangayManagementPage from './pages/managements/staff/StaffBarangayManagementPage';
 
-
-import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
-
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
-
-
-import OfficialLayout from './layouts/official_layout';
-
-import OfficialLogPage from './pages/official/OfficialLogPage';
-import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
-
 
 import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
 
-import AdminLogPage from './pages/admin/AdminLogPage';
-import AdminUpdateProfilePage from './pages/admin/AdminUpdateProfilePage';
+import OfficialDashboardPage from './pages/official/OfficialDashboardPage';
+import OfficialScheduleManagementPage from './pages/managements/official/OfficialScheduleManagementPage';
+import OfficialComplainManagementPage from './pages/managements/official/OfficialComplainManagementPage';
 
+
+
+import OfficialLogPage from './pages/official/OfficialLogPage';
+import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
 
 function App() {
   return (
@@ -171,15 +167,25 @@ function App() {
           }
         />
 
+  
+        
+         <Route
+          path="/admin/approval/requests"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminUserRequestApprovalPage />
+            </ProtectedRoute>
+          }
+        />
 
-
+        
 
 
         {/* Staff Routes */}
         <Route
           path="/staff/update_profile"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffUpdateProfilePage />
             </ProtectedRoute>
           }
@@ -187,7 +193,7 @@ function App() {
         <Route
           path="/staff/login_history"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffLogPage />
             </ProtectedRoute>
           }
@@ -197,7 +203,7 @@ function App() {
         <Route
           path="/staff/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffDashboardPage />
             </ProtectedRoute>
           }
@@ -205,7 +211,7 @@ function App() {
         <Route
           path="/staff/management/logs"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffLogManagementPage />
             </ProtectedRoute>
           }
@@ -229,11 +235,12 @@ function App() {
         <Route
           path="/staff/management/schedules"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffScheduleManagementPage />
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/staff/management/trucks"
           element={
@@ -245,7 +252,7 @@ function App() {
         <Route
           path="/staff/management/complains"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffComplainManagementPage />
             </ProtectedRoute>
           }
@@ -264,7 +271,34 @@ function App() {
 
 
 
-       <Route
+        <Route
+          path="/official/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/official/management/schedules"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialScheduleManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+          <Route
+          path="/official/management/complains"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialComplainManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+           <Route
           path="/official/update_profile"
           element={
             <ProtectedRoute allowedRoles={['barangay_official']}>
@@ -281,22 +315,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/official/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['barangay_official']}>
-              <OfficialLayout />
-            </ProtectedRoute>
-          }
-        />
-
-
-
-
-
-
-
       </Routes>
     </Router>
   );

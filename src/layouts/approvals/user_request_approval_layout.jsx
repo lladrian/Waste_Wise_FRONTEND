@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     FiPlus,
     FiEdit,
@@ -10,23 +10,29 @@ import {
     FiUser,
     FiClock,
     FiCheckCircle,
-    FiXCircle
+    FiXCircle,
+    FiCheck,
+    FiX,
+    FiEye
 } from 'react-icons/fi';
 
-import { getAllUserNoResident, deleteUser, updateUser, createUser, updateUserPasswordAdmin } from "../../hooks/user_management_hook";
 
+import { getAllRequest, updateRequestApproval, createUser } from "../../hooks/request_hook";
 import { toast } from "react-toastify";
 
-const UserManagementLayout = () => {
+import { AuthContext } from '../../context/AuthContext';
+
+const UserRequestApprovalLayout = () => {
+    const { user } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const [barangays, setBarangays] = useState([]);
     const [roleActions, setRoleActions] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingUsers, setEditingUser] = useState(null);
-    const [editingUserPassword, setEditingUserPassword] = useState(null);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -36,28 +42,25 @@ const UserManagementLayout = () => {
         last_name: '',
         gender: '',
         contact_number: '',
-        is_disabled: '',
         role: '',
         barangay: '',
-        barangay_name: '',
         role_action: '',
         role_action_name: '',
+        status: '',
     });
-
 
     useEffect(() => {
         fetchData();
     }, []);
 
-
     const fetchData = async () => {
         try {
-            const { data, data2, data3, success } = await getAllUserNoResident();
+            const { data, success } = await getAllRequest();
             if (success === true) {
-                setBarangays(data3);
-                setRoleActions(data2)
-                setUsers(data)
-                setFilteredUsers(data)
+                setRoleActions(data.role_actions?.data || [])
+                setUsers(data.requests?.data || [])
+                setBarangays(data.barangays?.data || [])
+                setFilteredUsers(data.requests?.data || [])
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -67,35 +70,171 @@ const UserManagementLayout = () => {
 
     useEffect(() => {
         filterUsers();
-    }, [searchTerm, users]);
+    }, [searchTerm, statusFilter, users]);
 
     const filterUsers = () => {
         let filtered = users;
 
+        // Status filter
+        if (statusFilter !== 'all') {
+            filtered = filtered.filter(user =>
+                user.status?.toLowerCase() === statusFilter.toLowerCase()
+            );
+        }
+
         // Search filter
         if (searchTerm) {
             filtered = filtered.filter(user =>
-                user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.role.toLowerCase().includes(searchTerm.toLowerCase())
+                user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.middle_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.gender?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.contact_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.role?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
         setFilteredUsers(filtered);
     };
 
+    const handleApprove = async (userId) => {
+        if (window.confirm('Are you sure you want to approve this user request?')) {
+            try {
+                const input_data = {
+                    status: 'Approved',
+                    user: user._id
+                };
+
+                const { data, success } = await updateRequestApproval(userId, input_data);
+                if (success === true) {
+                    toast.success("User request approved successfully");
+                    fetchData();
+                } else {
+                    toast.error(data?.message || "Failed to approve request");
+                }
+            } catch (error) {
+                console.error('Approve failed:', error);
+                toast.error('Failed to approve user request');
+            }
+        }
+    };
+
+    const handleCancel = async (userId) => {
+        if (window.confirm('Are you sure you want to cancel this user request?')) {
+            try {
+                const input_data = {
+                    status: 'Cancelled',
+                    user: user._id
+                };
+
+                const { data, success } = await updateRequestApproval(userId, input_data);
+                if (success === true) {
+                    toast.success("User request cancelled successfully");
+                    fetchData();
+                } else {
+                    toast.error(data?.message || "Failed to cancel request");
+                }
+            } catch (error) {
+                console.error('Cancel failed:', error);
+                toast.error('Failed to cancel user request');
+            }
+        }
+    };
+
+
+
+    const getStatusBadge = (user) => {
+        const status = user.status?.toLowerCase();
+        const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
+
+        switch (status) {
+            case 'approved':
+                return (
+                    <span className={`${baseClasses} bg-green-100 text-green-800 border border-green-200`}>
+                        <FiCheck className="inline w-3 h-3 mr-1" />
+                        Approved
+                    </span>
+                );
+            case 'cancelled':
+                return (
+                    <span className={`${baseClasses} bg-red-100 text-red-800 border border-red-200`}>
+                        <FiX className="inline w-3 h-3 mr-1" />
+                        Cancelled
+                    </span>
+                );
+            case 'pending':
+            default:
+                return (
+                    <span className={`${baseClasses} bg-yellow-100 text-yellow-800 border border-yellow-200`}>
+                        <FiClock className="inline w-3 h-3 mr-1" />
+                        Pending
+                    </span>
+                );
+        }
+    };
+
+    const getActionButtons = (user) => {
+        const status = user.status?.toLowerCase();
+
+        switch (status) {
+            case 'pending':
+            case 'approved':
+            case 'cancelled':
+                return (
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => handleApprove(user._id)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Approve Request"
+                        >
+                            <FiCheck className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handleCancel(user._id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Cancel Request"
+                        >
+                            <FiX className="w-4 h-4" />
+                        </button>
+                        {/* <button
+                            onClick={() => handleCancel(user._id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Cancel Request"
+                        >
+                            <FiClock className="w-4 h-4"  />
+                        </button> */}
+                        <button
+                            onClick={() => handleEdit(user)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View Details"
+                        >
+                            <FiEye className="w-4 h-4" />
+                        </button>
+                    </div>
+                );
+            default:
+                return (
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => handleEdit(user)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View Details"
+                        >
+                            <FiEye className="w-4 h-4" />
+                        </button>
+                    </div>
+                );
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
-        // If role is changing, reset role_action
         if (name === 'role') {
             setFormData(prev => ({
                 ...prev,
                 [name]: value,
-                role_action: '' // Reset role_action when role changes
+                role_action: ''
             }));
         } else {
             setFormData(prev => ({
@@ -117,74 +256,28 @@ const UserManagementLayout = () => {
             gender: formData.gender,
             contact_number: formData.contact_number,
             role: formData.role,
-            barangay: formData.barangay,
             role_action: formData.role_action,
-            is_disabled: formData.is_disabled
+            barangay: formData.barangay,
+            status: formData.status,
         };
 
-        console.log(input_data)
 
+        try {
+            const { data, success } = await createUser(input_data);
 
-        if (editingUserPassword) {
-            try {
-                const input_data2 = {
-                    password: formData.update_password,
-                };
-
-                const { data, success } = await updateUserPasswordAdmin(editingUserPassword._id, input_data2);
-
-                if (data && success === false) {
-                    toast.error(data.message || "Failed to update user password");
-                }
-
-                if (success === true) {
-                    toast.success(data.data);
-                    fetchData();
-                }
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    toast.error(error.response.data.message || error.message || "Failed to update user password");
-                } else {
-                    toast.error("Failed to update user password");
-                }
+            if (data && success === false) {
+                toast.error(data.message || "Failed to create user");
             }
-        } else if (editingUsers) {
-            try {
-                const { data, success } = await updateUser(editingUsers._id, input_data);
 
-                if (data && success === false) {
-                    toast.error(data.message || "Failed to create user");
-                }
-
-                if (success === true) {
-                    toast.success(data.data);
-                    fetchData();
-                }
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    toast.error(error.response.data.message || error.message || "Failed to update user");
-                } else {
-                    toast.error("Failed to update user");
-                }
+            if (success === true) {
+                toast.success(data.data);
+                fetchData();
             }
-        } else {
-            try {
-                const { data, success } = await createUser(input_data);
-
-                if (data && success === false) {
-                    toast.error(data.message || "Failed to create user");
-                }
-
-                if (success === true) {
-                    toast.success(data.data);
-                    fetchData();
-                }
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    toast.error(error.response.data.message || error.message || "Failed to create user");
-                } else {
-                    toast.error("Failed to create user");
-                }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message || error.message || "Failed to create user");
+            } else {
+                toast.error("Failed to create user");
             }
         }
 
@@ -200,55 +293,17 @@ const UserManagementLayout = () => {
             first_name: user.first_name,
             middle_name: user.middle_name,
             last_name: user.last_name,
+            password: user.password,
             gender: user.gender,
-            barangay_name: user?.barangay?.barangay_name,
-            barangay: user?.barangay?._id,
             contact_number: user.contact_number,
             role: user.role,
-            role_action: user?.role_action?._id || "", // Use optional chaining
-            is_disabled: String(user.is_disabled)
+            barangay: user.barangay,
+            status: user.status,
+            role_action: user?.role_action?._id || "",
         });
-
         setShowModal(true);
     };
 
-    const handleEditPassword = (user) => {
-        setEditingUserPassword(user)
-        setFormData({
-            email: user.email,
-            first_name: user.first_name,
-            middle_name: user.middle_name,
-            last_name: user.last_name,
-            gender: user.gender,
-            contact_number: user.contact_number,
-            role: user.role,
-            barangay_name:  user?.barangay?.barangay_name,
-            barangay: user?.barangay?._id,
-            role_action: user.role_action || '',
-            role_action_name: user?.role_action?.action_name || "None",
-            is_disabled: user.is_disabled || 'false',
-        });
-
-        setShowModalPassword(true);
-    };
-
-
-
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
-            try {
-                const { data, success } = await deleteUser(id);
-
-                if (success === true) {
-                    toast.success(data.data);
-                    fetchData();
-                }
-            } catch (error) {
-                console.error('Delete failed:', error);
-                toast.error('Failed to delete user');
-            }
-        }
-    };
 
 
     const resetForm = () => {
@@ -262,15 +317,11 @@ const UserManagementLayout = () => {
             contact_number: '',
             role: '',
             barangay: '',
-            barangay_name: '',
-            is_disabled: '',
+            status: '',
             role_action: ''
         });
-
         setEditingUser(null);
-        setEditingUserPassword(null);
     };
-
 
     const formatRole = (role) => {
         const roleMap = {
@@ -284,14 +335,14 @@ const UserManagementLayout = () => {
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
-        return roleMap[role] || role; // Return formatted role or original if not found
+        return roleMap[role] || role;
     };
 
     return (
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end items-center">
                     <button
                         onClick={() => setShowModal(true)}
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -299,8 +350,7 @@ const UserManagementLayout = () => {
                         <FiPlus className="w-4 h-4" />
                         <span>Add New User</span>
                     </button>
-                </div>
-
+                </div> */}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -310,14 +360,26 @@ const UserManagementLayout = () => {
                             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="search user"
+                                placeholder="Search users..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
 
-
+                        {/* Status Filter */}
+                        <div className="sm:w-48">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            >
+                                <option value="all">All Status ({users.length})</option>
+                                <option value="pending">Pending ({users.filter(user => user.status === 'Pending').length})</option>
+                                <option value="approved">Approved ({users.filter(user => user.status === 'Approved').length})</option>
+                                <option value="cancelled">Cancelled ({users.filter(user => user.status === 'Cancelled').length})</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -333,7 +395,7 @@ const UserManagementLayout = () => {
                                         Role
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Role Action
+                                        Status
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Gender
@@ -359,10 +421,12 @@ const UserManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user?.role_action?.action_name || "None"}</span>
+                                            {getStatusBadge(user)}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1).toLowerCase() : ''}</span>
+                                            <span className="text-sm text-gray-900 capitalize">
+                                                {user.gender}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user.contact_number}</span>
@@ -371,29 +435,7 @@ const UserManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{user.email}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(user)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEditPassword(user)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                                    title="Change Password"
-                                                >
-                                                    <FiLock className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(user._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
+                                            {getActionButtons(user)}
                                         </td>
                                     </tr>
                                 ))}
@@ -405,11 +447,11 @@ const UserManagementLayout = () => {
                     {filteredUsers.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No user found</p>
+                            <p className="text-gray-500 text-lg">No user requests found</p>
                             <p className="text-gray-400 text-sm mt-1">
-                                {searchTerm
+                                {searchTerm || statusFilter !== 'all'
                                     ? 'Try adjusting your search or filters'
-                                    : 'Get started by adding your first user'
+                                    : 'No user requests pending approval'
                                 }
                             </p>
                         </div>
@@ -417,13 +459,14 @@ const UserManagementLayout = () => {
                 </div>
             </div>
 
+            {/* Edit/Add User Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {editingUsers ? 'Edit User' : 'Add New User'}
+                                    {editingUsers ? 'User Request Information' : 'Add New User'}
                                 </h2>
                                 <button
                                     onClick={() => {
@@ -437,7 +480,6 @@ const UserManagementLayout = () => {
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* First Name */}
                                     <div>
@@ -450,6 +492,7 @@ const UserManagementLayout = () => {
                                             value={formData.first_name}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter First Name"
                                         />
@@ -466,6 +509,7 @@ const UserManagementLayout = () => {
                                             value={formData.middle_name}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Middle Name"
                                         />
@@ -482,6 +526,7 @@ const UserManagementLayout = () => {
                                             value={formData.last_name}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Last Name"
                                         />
@@ -499,16 +544,13 @@ const UserManagementLayout = () => {
                                             <input
                                                 type="tel"
                                                 name="contact_number"
+                                                disabled
                                                 value={formData.contact_number}
                                                 onChange={(e) => {
-                                                    // Remove any non-digit characters
                                                     let value = e.target.value.replace(/\D/g, '');
-
-                                                    // Limit to 10 digits (after +63)
                                                     if (value.length > 10) {
                                                         value = value.slice(0, 10);
                                                     }
-
                                                     handleInputChange({
                                                         target: {
                                                             name: 'contact_number',
@@ -526,7 +568,7 @@ const UserManagementLayout = () => {
                                         <p className="text-xs text-gray-500 mt-1">Enter 10-digit number (e.g., 9123456789)</p>
                                     </div>
 
-                                    {/* Email Address - Full Width */}
+                                    {/* Email Address */}
                                     <div className="md:col-span-1">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Email Address
@@ -537,13 +579,13 @@ const UserManagementLayout = () => {
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Email Address"
                                         />
                                     </div>
 
-
-                                    {/* Only show password field when NOT editing (creating new user) */}
+                                    {/* Only show password field when NOT editing */}
                                     {!editingUsers && (
                                         <div className="md:col-span-1">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -552,9 +594,10 @@ const UserManagementLayout = () => {
                                             <input
                                                 type="password"
                                                 name="password"
+                                                disabled
                                                 value={formData.password}
                                                 onChange={handleInputChange}
-                                                required={!editingUsers} // Only required for new users
+                                                required={!editingUsers}
                                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                                 placeholder="Enter Password"
                                             />
@@ -570,33 +613,12 @@ const UserManagementLayout = () => {
                                             value={formData.gender}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Gender</option>
                                             <option value="male">Male</option>
                                             <option value="female">Female</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Role
-                                        </label>
-                                        <select
-                                            name="role"
-                                            value={formData.role}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Role</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="enro_staff_monitoring">ENRO Staff Monitoring</option>
-                                            <option value="enro_staff_scheduler">ENRO Staff Scheduler</option>
-                                            <option value="enro_staff_head">ENRO Staff Head</option>
-                                            <option value="enro_staff_eswm_section_head">ENRO Staff ESWM Section Head</option>
-                                            <option value="barangay_official">Barangay Official</option>
-                                            <option value="garbage_collector">Garbage Collector</option>
                                         </select>
                                     </div>
 
@@ -609,6 +631,7 @@ const UserManagementLayout = () => {
                                             value={formData.barangay}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Barangay</option>
@@ -618,6 +641,29 @@ const UserManagementLayout = () => {
                                                         {barangay.barangay_name}
                                                     </option>
                                                 ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Role
+                                        </label>
+                                        <select
+                                            name="role"
+                                            value={formData.role}
+                                            onChange={handleInputChange}
+                                            required
+                                            disabled
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Role</option>
+                                            <option value="admin">Admin</option>
+                                            <option value="enro_staff_monitoring">ENRO Staff Monitoring</option>
+                                            <option value="enro_staff_scheduler">ENRO Staff Scheduler</option>
+                                            <option value="enro_staff_head">ENRO Staff Head</option>
+                                            <option value="enro_staff_eswm_section_head">ENRO Staff ESWM Section Head</option>
+                                            <option value="barangay_official">Barangay Official</option>
+                                            <option value="garbage_collector">Garbage Collector</option>
                                         </select>
                                     </div>
 
@@ -641,26 +687,6 @@ const UserManagementLayout = () => {
                                                 ))}
                                         </select>
                                     </div>
-
-
-                                    {editingUsers && (
-                                        <div className="md:col-span-2">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Account State
-                                            </label>
-                                            <select
-                                                name="is_disabled"
-                                                value={formData.is_disabled}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                            >
-                                                <option value="" disabled>Select Status</option>
-                                                <option value="false">Enabled</option>
-                                                <option value="true">Disabled</option>
-                                            </select>
-                                        </div>
-                                    )}
                                 </div>
 
                                 {/* Action Buttons */}
@@ -677,9 +703,13 @@ const UserManagementLayout = () => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                                        disabled={formData.status !== 'Approved'}
+                                        className={`px-6 py-2 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md ${formData.status !== 'Approved'
+                                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                            }`}
                                     >
-                                        {editingUsers ? 'Update User' : 'Add User'}
+                                        {editingUsers ? 'Create User' : 'Add User'}
                                     </button>
                                 </div>
                             </form>
@@ -688,7 +718,7 @@ const UserManagementLayout = () => {
                 </div>
             )}
 
-
+            {/* Change Password Modal */}
             {showModalPassword && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto">
@@ -722,12 +752,6 @@ const UserManagementLayout = () => {
                                         <span className="text-gray-500">Gender:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {formData?.gender}
-                                        </p>
-                                    </div>
-                                          <div>
-                                        <span className="text-gray-500">Barangay:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {formData?.barangay_name}
                                         </p>
                                     </div>
                                     <div>
@@ -778,16 +802,6 @@ const UserManagementLayout = () => {
                                     </div>
                                 </div>
 
-                                {/* Password Requirements */}
-                                {/* <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                                    <h4 className="text-sm font-medium text-blue-800 mb-2">Password Requirements:</h4>
-                                    <ul className="text-xs text-blue-700 space-y-1">
-                                        <li>• At least 6 characters long</li>
-                                        <li>• Include uppercase and lowercase letters</li>
-                                        <li>• Include numbers and special characters</li>
-                                    </ul>
-                                </div> */}
-
                                 {/* Action Buttons */}
                                 <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                                     <button
@@ -816,4 +830,4 @@ const UserManagementLayout = () => {
     );
 };
 
-export default UserManagementLayout;
+export default UserRequestApprovalLayout;

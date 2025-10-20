@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -7,6 +7,7 @@ import {
     FiSearch,
     FiFilter,
     FiBook,
+    FiCheck,
     FiInfo,
     FiLock,
     FiUser,
@@ -16,14 +17,18 @@ import {
     FiArchive
 } from 'react-icons/fi';
 
-import { getSpecificComplain, createComplain, getAllComplain, deleteComplain, updateComplain } from "../../hooks/complain_hook";
+import { getSpecificComplain, updateComplainVerification, createComplain, getAllComplain, deleteComplain, updateComplain } from "../../hooks/complain_hook";
 
 import { toast } from "react-toastify";
+import { AuthContext } from '../../context/AuthContext';
+import DateRangeFilter from '../../components/DateRangeFilter';
+
 
 const ComplainManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [complains, setComplains] = useState([]);
     const [users, setUsers] = useState([]);
-    const [routes, setRoutes] = useState([]);
+    const [barangays, setBarangays] = useState([]);
     const [filteredComplains, setFilteredComplains] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [complainTypeFilter, setComplainTypeFilter] = useState('');
@@ -33,9 +38,11 @@ const ComplainManagementLayout = () => {
     const [showModalData, setShowModalData] = useState(false);
     const [editingComplains, setEditingComplain] = useState(null);
     const [viewingComplains, setViewingComplain] = useState(null);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     const [formData, setFormData] = useState({
-        route: '',
+        barangay: '',
         user: '',
         complain_content: '',
         complain_type: '',
@@ -49,12 +56,17 @@ const ComplainManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllComplain();
+            const { data, success } = await getAllComplain(user.barangay);
             if (success === true) {
                 setUsers(data.users.data)
-                setRoutes(data.routes.data)
-                setComplains(data.complains.data)
-                setFilteredComplains(data.complains.data)
+                setBarangays(data.barangays.data)
+                if (user.role === 'barangay_official') {
+                    setComplains(data.complains2.data)
+                    setFilteredComplains(data.complains2.data)
+                } else {
+                    setComplains(data.complains.data)
+                    setFilteredComplains(data.complains.data)
+                }
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -64,7 +76,8 @@ const ComplainManagementLayout = () => {
 
     useEffect(() => {
         filterComplains();
-    }, [searchTerm, complainTypeFilter, userRoleFilter, archiveFilter, complains]); // Added archiveFilter dependency
+    }, [searchTerm, complainTypeFilter, userRoleFilter, archiveFilter, complains, startDate, endDate]); // Added archiveFilter dependency
+
 
     const filterComplains = () => {
         let filtered = complains;
@@ -75,7 +88,7 @@ const ComplainManagementLayout = () => {
                 complain.complain_content.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 complain.user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 complain.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                complain.route.route_name.toLowerCase().includes(searchTerm.toLowerCase())
+                complain.barangay.barangay_name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -102,6 +115,24 @@ const ComplainManagementLayout = () => {
             }
         }
 
+        if (startDate && endDate) {
+            const startDateStr = `${startDate} 00:00:00`;
+            const endDateStr = `${endDate} 23:59:59`;
+
+            // filtered = filtered.filter(schedule => {
+            //     const createdAt = schedule.created_at || ''; // try both places
+            //     return createdAt >= startDateStr && createdAt <= endDateStr;
+            // });
+
+            // const startDateStr = `${startDate}`;
+            // const endDateStr = `${endDate}`;
+
+            filtered = filtered.filter(complain => {
+                const createdAt = complain.created_at || ''; // try both places
+                return createdAt >= startDateStr && createdAt <= endDateStr;
+            });
+        }
+
         setFilteredComplains(filtered);
     };
 
@@ -109,7 +140,7 @@ const ComplainManagementLayout = () => {
         e.preventDefault();
 
         const input_data = {
-            route: formData.route,
+            barangay: formData.barangay,
             user: formData.user,
             complain_content: formData.complain_content,
             complain_type: formData.complain_type,
@@ -165,7 +196,7 @@ const ComplainManagementLayout = () => {
     const handleEdit = (complain) => {
         setEditingComplain(complain);
         setFormData({
-            route: complain?.route?._id,
+            barangay: complain?.barangay?._id,
             archived: String(complain.archived),
             user: complain.user._id,
             complain_content: complain.complain_content,
@@ -180,6 +211,40 @@ const ComplainManagementLayout = () => {
         setViewingComplain(complain);
         setShowModalData(true);
     };
+
+    const handleComplainVerification = async (id, status) => {
+        const input_data = {
+            status: status,
+            user: user,
+        };
+
+        try {
+            const { data, success } = await updateComplainVerification(id, input_data);
+
+            if (data && success === false) {
+                toast.error(data.message || "Failed to update complain");
+            }
+
+            if (success === true) {
+                toast.success(data.data);
+                fetchData();
+
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message || error.message || "Failed to update complain");
+            } else {
+                toast.error("Failed to update complain");
+            }
+        }
+        resetForm();
+        setShowModal(false);
+        setShowModalData(false);
+        setViewingComplain(null);
+    };
+
+
+
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this complain?')) {
@@ -199,7 +264,7 @@ const ComplainManagementLayout = () => {
 
     const resetForm = () => {
         setFormData({
-            route: '',
+            barangay: '',
             user: '',
             complain_content: '',
             complain_type: '',
@@ -284,7 +349,7 @@ const ComplainManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                     <button
                         onClick={() => setShowModal(true)}
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -292,17 +357,32 @@ const ComplainManagementLayout = () => {
                         <FiPlus className="w-4 h-4" />
                         <span>Add New Complain</span>
                     </button>
-                </div>
+                </div> */}
 
                 {/* Filters and Search */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-6">
+                    {/* Filters and Search */}
+
+                    {/* First Row: Date Range Filter */}
+                    <div className="w-full">
+                        <DateRangeFilter
+                            onChange={({ startDate, endDate }) => {
+                                setStartDate(startDate);
+                                setEndDate(endDate);
+                            }}
+                            downloadHandler={null}
+                            hideDownload={true}
+                        />
+                    </div>
+
+
                     <div className="flex flex-col sm:flex-row gap-4">
                         {/* Search */}
                         <div className="flex-1 relative">
                             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="Search complain by content, name, or route"
+                                placeholder="Search complain by content, name, or barangay"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -436,7 +516,7 @@ const ComplainManagementLayout = () => {
                                         User Role
                                     </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Route Name
+                                        Barangay Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Complain Content
@@ -468,7 +548,7 @@ const ComplainManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{formatRole(complain.user.role)}</span>
                                         </td> */}
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{complain?.route?.route_name || "None"}</span>
+                                            <span className="text-sm text-gray-900">{complain?.barangay?.barangay_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4 max-w-[200px]">
                                             <span className="text-sm text-gray-900 truncate block">
@@ -495,13 +575,15 @@ const ComplainManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(complain)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
+                                                {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleEdit(complain)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
+                                                )}
 
                                                 <button
                                                     onClick={() => handleView(complain)}
@@ -510,13 +592,13 @@ const ComplainManagementLayout = () => {
                                                 >
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleDelete(complain._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Delete"
                                                 >
                                                     <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -573,6 +655,7 @@ const ComplainManagementLayout = () => {
                                             value={formData.user}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select User</option>
@@ -587,22 +670,50 @@ const ComplainManagementLayout = () => {
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Route
+                                            Barangay
                                         </label>
                                         <select
-                                            name="route"
-                                            value={formData.route}
+                                            name="barangay"
+                                            value={formData.barangay}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
-                                            <option value="" disabled>Select Route</option>
-                                            {routes?.filter(route => route?._id && route?.route_name)
-                                                .map((route) => (
-                                                    <option key={route?._id} value={route?._id}>
-                                                        {route?.route_name}
+                                            <option value="" disabled>Select Barangay</option>
+                                            {barangays?.filter(barangay => barangay?._id && barangay?.barangay_name)
+                                                .map((barangay) => (
+                                                    <option key={barangay?._id} value={barangay?._id}>
+                                                        {barangay?.barangay_name}
                                                     </option>
                                                 ))}
+                                        </select>
+                                    </div>
+
+
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Complain Type
+                                        </label>
+                                        <select
+                                            name="complain_type"
+                                            value={formData.complain_type}
+                                            onChange={handleInputChange}
+                                            required
+                                            disabled
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Complain Type</option>
+                                            <option value="Breakdown">Breakdown</option>
+                                            <option value="Roadblock">Roadblock</option>
+                                            <option value="Delay">Delay</option>
+                                            <option value="Other">Other</option>
+                                            <option value="" disabled>Select Complain Type Resident</option>
+                                            <option value="Missed Pickup">Missed Pickup</option>
+                                            <option value="Delayed Collection">Delayed Collection</option>
+                                            <option value="Uncollected Area">Uncollected Area</option>
+                                            <option value="Illegal Dumping">Illegal Dumping</option>
                                         </select>
                                     </div>
 
@@ -631,30 +742,6 @@ const ComplainManagementLayout = () => {
                                         </select>
                                     </div>
 
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Complain Type
-                                        </label>
-                                        <select
-                                            name="complain_type"
-                                            value={formData.complain_type}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Complain Type</option>
-                                            <option value="Breakdown">Breakdown</option>
-                                            <option value="Roadblock">Roadblock</option>
-                                            <option value="Delay">Delay</option>
-                                            <option value="Other">Other</option>
-                                            <option value="" disabled>Select Complain Type Resident</option>
-                                            <option value="Missed Pickup">Missed Pickup</option>
-                                            <option value="Delayed Collection">Delayed Collection</option>
-                                            <option value="Uncollected Area">Uncollected Area</option>
-                                            <option value="Illegal Dumping">Illegal Dumping</option>
-                                        </select>
-                                    </div>
-
                                     {editingComplains && (
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -680,6 +767,7 @@ const ComplainManagementLayout = () => {
                                         </label>
                                         <textarea
                                             name="complain_content"
+                                            disabled
                                             value={formData.complain_content}
                                             onChange={(e) => {
                                                 handleInputChange(e);
@@ -726,12 +814,12 @@ const ComplainManagementLayout = () => {
                 </div>
             )}
 
-            {/* View Modal - remains the same */}
             {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
-                            <div className="flex justify-end items-center mb-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-800">Complain Details</h2>
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);
@@ -750,35 +838,86 @@ const ComplainManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingComplains.user.first_name} {viewingComplains.user.middle_name} {viewingComplains.user.last_name}
+                                            {viewingComplains?.user?.first_name} {viewingComplains?.user?.middle_name} {viewingComplains?.user?.last_name}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Gender:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingComplains.user.gender}
+                                            {viewingComplains?.user?.gender}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formatRole(viewingComplains.user.role)}
+                                            {formatRole(viewingComplains?.user?.role)}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Contact Number:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingComplains.user.contact_number}
+                                            {viewingComplains?.user?.contact_number}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Email Address:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingComplains.user.email}
+                                            {viewingComplains?.user?.email}
                                         </p>
                                     </div>
+                                    {/* <div>
+                                        <span className="text-gray-500">Verification Status:</span>
+                                        <p className={`font-medium ${viewingComplains?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                                            {viewingComplains?.user?.is_verified ? 'Verified' : 'Unverified'}
+                                        </p>
+                                    </div> */}
                                 </div>
                             </div>
+
+                            {viewingComplains?.verified_by && (
+                                <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                            <span className="text-gray-500">Complete Name:</span>
+                                            <p className="font-medium text-gray-800 capitalize">
+                                                {console.log(viewingComplains)}
+                                                {viewingComplains?.verified_by?.first_name} {viewingComplains?.verified_by?.middle_name} {viewingComplains?.verified_by?.last_name}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500">Gender:</span>
+                                            <p className="font-medium text-gray-800 capitalize">
+                                                {viewingComplains?.verified_by?.gender}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500">Role:</span>
+                                            <p className="font-medium text-gray-800">
+                                                {formatRole(viewingComplains?.verified_by?.role)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500">Contact Number:</span>
+                                            <p className="font-medium text-gray-800">
+                                                {viewingComplains?.verified_by?.contact_number}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-500">Email Address:</span>
+                                            <p className="font-medium text-gray-800">
+                                                {viewingComplains?.verified_by?.email}
+                                            </p>
+                                        </div>
+                                        {/* <div>
+                                        <span className="text-gray-500">Verification Status:</span>
+                                        <p className={`font-medium ${viewingComplains?.verified_by?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                                            {viewingComplains?.verified_by?.is_verified ? 'Verified' : 'Unverified'}
+                                        </p>
+                                    </div> */}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Complain Information</h3>
@@ -790,9 +929,9 @@ const ComplainManagementLayout = () => {
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Route:</span>
+                                        <span className="text-gray-500">Barangay:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingComplains?.route?.route_name || "None"}
+                                            {viewingComplains?.barangay?.barangay_name || "None"}
                                         </p>
                                     </div>
                                     <div>
@@ -815,11 +954,58 @@ const ComplainManagementLayout = () => {
                                     </div>
                                 </div>
                                 <div className="mt-4 text-sm">
-                                    <span className="text-gray-500">Complain Content:</span>
+                                    <span className="text-gray-500">Complaint Content:</span>
                                     <p className="font-medium text-gray-800 mt-1 break-words whitespace-pre-wrap overflow-hidden">
                                         {viewingComplains?.complain_content}
                                     </p>
                                 </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                                {user.role === 'barangay_official' && (
+                                    <div className="flex gap-3">
+                                        {/* Verify Button - Show only when verified_by is null */}
+                                        {viewingComplains?.verified_by === null && (
+                                            <button
+                                                onClick={() => handleComplainVerification(viewingComplains?._id, 'Verified')}
+                                                disabled={viewingComplains?.resolution_status === 'Verified'}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingComplains?.resolution_status === 'Verified'
+                                                        ? 'bg-green-100 text-green-600 cursor-not-allowed'
+                                                        : 'bg-green-600 text-white hover:bg-green-700'
+                                                    }`}
+                                            >
+                                                <FiCheckCircle className="w-4 h-4" />
+                                                Mark as Verified
+                                            </button>
+                                        )}
+
+                                        {/* Unverify Button - Show only when verified_by is not null */}
+                                        {viewingComplains?.verified_by !== null && (
+                                            <button
+                                                onClick={() => handleComplainVerification(viewingComplains?._id, 'Unverified')}
+                                                disabled={viewingComplains?.resolution_status === 'Unverified'}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingComplains?.resolution_status === 'Unverified'
+                                                        ? 'bg-red-100 text-red-600 cursor-not-allowed'
+                                                        : 'bg-red-600 text-white hover:bg-red-700'
+                                                    }`}
+                                            >
+                                                <FiXCircle className="w-4 h-4" />
+                                                Mark as Unverified
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        setShowModalData(false);
+                                        setViewingComplain(null);
+                                        resetForm();
+                                    }}
+                                    className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
                     </div>

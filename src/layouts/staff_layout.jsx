@@ -50,12 +50,22 @@ const StaffLayout = ({ children }) => {
       label: "Management",
       subItems: [
         { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
-        ...(user?.role !== 'enro_staff_head' ? [
-         { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
-         { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
-         { path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" },
-         { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
-        ] : []),
+        ...(user?.role !== 'enro_staff_head'
+          ? [{ path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" }]
+          : []
+        ),
+        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head' 
+          ? [{ path: "/staff/management/routes", icon: FiUsers, label: "Route Management" }]
+          : []
+        ),
+        ...(user?.role !== 'enro_staff_head'  && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head' 
+          ? [{ path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" }]
+          : []
+        ),
+        ...(user?.role !== 'enro_staff_head'  && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head' 
+          ? [{ path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" }]
+          : []
+        ),  
         { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
       ]
     },
@@ -174,9 +184,18 @@ const StaffLayout = ({ children }) => {
               <div className="flex items-center space-x-2 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                      WasteWise {user?.role === 'enro_staff_head' ? 'Staff Head' : 'Staff'}
+                    {/* WasteWise  */}
+                    {
+                      user?.role === 'enro_staff_head' ? 'Staff Head' :
+                      user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
+                      user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
+                      user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
+
+                            // user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
+                              'Staff'
+                    }
                   </h1>
-                  <p className="text-xs text-gray-500 truncate">Control Panel</p>
+                  <p className="text-xs text-gray-500 truncate">WasteWise</p>
                 </div>
               </div>
             )}
@@ -319,7 +338,15 @@ const StaffLayout = ({ children }) => {
                   <p className="text-xs font-semibold text-gray-800 truncate">
                     {adminFirstName} {adminLastName}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">{user?.role === 'enro_staff_head' ? 'Staff Head' : 'Staff'}</p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {
+                      user?.role === 'enro_staff_head' ? 'Staff Head' :
+                        user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
+                          user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
+                            user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
+                              'Staff'
+                    }
+                  </p>
                 </div>
               )}
             </div>

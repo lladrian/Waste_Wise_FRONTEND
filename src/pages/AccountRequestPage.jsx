@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png';
 
-// import { requestAccount } from "../hooks/account_request_hook"; // You'll need to create this hook
+import { getAllBarangay, createRequest } from "../hooks/request_hook";
 
 const AccountRequestPage = () => {
     const navigate = useNavigate();
@@ -12,32 +12,38 @@ const AccountRequestPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
     const [capsLockOn, setCapsLockOn] = useState(false);
-
+    const [barangays, setBarangays] = useState([]);
     const initialFormData = {
-        // Step 1: Personal Information
         first_name: "",
         middle_name: "",
         last_name: "",
         gender: "",
         contact_number: "",
-
-        // Step 2: Account Details
         email: "",
         password: "",
-
-        // Step 3: Role & Purpose
         role: "",
-        purpose: "",
         barangay: "",
-
-        // Step 4: Additional Information
-        address: "",
-        id_type: "",
-        id_number: "",
-        id_photo: null
     };
 
     const [formData, setFormData] = useState(initialFormData);
+
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+
+    const fetchData = async () => {
+        try {
+            const { data, success } = await getAllBarangay();
+            if (success === true) {
+                setBarangays(data.data)
+            }
+        } catch (err) {
+            console.error("Error fetching reg data:", err);
+            toast.error("Failed to load registration data");
+        }
+    };
 
     // Caps lock detection
     const handleKeyDown = (e) => {
@@ -89,14 +95,20 @@ const AccountRequestPage = () => {
     const validateStep = (step) => {
         switch (step) {
             case 1:
-                if (!formData.first_name || !formData.last_name || !formData.gender || !formData.contact_number) {
-                    toast.error("Please fill in all required personal information");
+                if (!formData.first_name || !formData.middle_name || !formData.last_name || !formData.gender || !formData.contact_number) {
+                    toast.error("Please provide all fields (first_name, middle_name, last_name, gender, contact_number).");
                     return false;
                 }
                 return true;
             case 2:
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
                 if (!formData.email || !formData.password) {
-                    toast.error("Please fill in all required account details");
+                    toast.error("Please provide all fields (email, password).");
+                    return false;
+                }
+                if (!emailRegex.test(formData.email)) {
+                    toast.error("Please enter a valid email address.");
                     return false;
                 }
                 if (formData.password.length < 6) {
@@ -105,8 +117,9 @@ const AccountRequestPage = () => {
                 }
                 return true;
             case 3:
-                if (!formData.role || !formData.purpose) {
-                    toast.error("Please select your role and purpose");
+                // if (!formData.role || !formData.purpose) {
+                if (!formData.role || !formData.barangay) {
+                    toast.error("Please provide all fields (role, barangay).");
                     return false;
                 }
                 return true;
@@ -121,16 +134,24 @@ const AccountRequestPage = () => {
             setLoading(true);
 
             const input_data = {
-                ...formData,
-                status: "pending" // All requests start as pending
+                first_name: formData.first_name,
+                middle_name: formData.middle_name,
+                last_name: formData.last_name,
+                gender: formData.gender,
+                contact_number: formData.contact_number,
+                role: formData.role,
+                barangay: formData.barangay,
+                password: formData.password,
+                email: formData.email
             };
 
-            const { data, success } = await requestAccount(input_data);
+            const { data, success } = await createRequest(input_data);
 
             if (data && success === false) {
                 toast.error(data.message || "Account request failed");
             } else {
-                toast.success("Account request submitted successfully! Please wait for admin approval.");
+                setFormData(initialFormData);
+                toast.success("Account request submitted successfully!");
                 navigate('/');
             }
         } catch (error) {
@@ -147,7 +168,7 @@ const AccountRequestPage = () => {
     const StepIndicator = () => (
         <div className="flex justify-center mb-8">
             <div className="flex items-center space-x-4">
-                {[1, 2, 3, 4].map((step) => (
+                {[1, 2, 3].map((step) => (
                     <div key={step} className="flex items-center">
                         <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${step === currentStep
                             ? 'bg-blue-600 border-blue-600 text-white'
@@ -157,7 +178,7 @@ const AccountRequestPage = () => {
                             }`}>
                             {step}
                         </div>
-                        {step < 4 && (
+                        {step < 3 && (
                             <div className={`w-12 h-1 ${step < currentStep ? 'bg-green-500' : 'bg-gray-300'
                                 }`} />
                         )}
@@ -170,8 +191,7 @@ const AccountRequestPage = () => {
     const StepTitles = {
         1: "Personal Information",
         2: "Account Details",
-        3: "Role & Purpose",
-        4: "Additional Information"
+        3: "Role & Barangay",
     };
 
     return (
@@ -193,10 +213,14 @@ const AccountRequestPage = () => {
                         </div>
                         <div className="flex items-center space-x-4">
                             <button
+                                onClick={() => navigate('/account_request')}
+                                className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+                                Request
+                            </button>
+                            <button
                                 onClick={() => navigate('/')}
-                                className="px-4 py-2 rounded-lg text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                            >
-                                Back to Login
+                                className="px-4 py-2 rounded-lg text-sm font-medium text-black shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+                                Sign In
                             </button>
                         </div>
                     </div>
@@ -465,102 +489,27 @@ const AccountRequestPage = () => {
                                                 </select>
                                             </div>
 
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Purpose of Request *
-                                                </label>
-                                                <textarea
-                                                    name="purpose"
-                                                    value={formData.purpose}
-                                                    onChange={handleChange}
-                                                    rows="4"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                                                    placeholder="Please describe why you need access to WasteWise..."
-                                                    required
-                                                />
-                                            </div>
 
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Barangay (if applicable)
+
+                                            <div >
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Barangay
                                                 </label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     name="barangay"
                                                     value={formData.barangay}
                                                     onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                                                    placeholder="Enter your barangay"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Step 4: Additional Information */}
-                                    {currentStep === 4 && (
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Complete Address
-                                                </label>
-                                                <textarea
-                                                    name="address"
-                                                    value={formData.address}
-                                                    onChange={handleChange}
-                                                    rows="3"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                                                    placeholder="Enter your complete address"
-                                                />
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                        ID Type
-                                                    </label>
-                                                    <select
-                                                        name="id_type"
-                                                        value={formData.id_type}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                                                    >
-                                                        <option value="">Select ID Type</option>
-                                                        <option value="driver_license">Driver's License</option>
-                                                        <option value="passport">Passport</option>
-                                                        <option value="national_id">National ID</option>
-                                                        <option value="voters_id">Voter's ID</option>
-                                                        <option value="other">Other</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                        ID Number
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        name="id_number"
-                                                        value={formData.id_number}
-                                                        onChange={handleChange}
-                                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                                                        placeholder="Enter ID number"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                    Upload ID (Optional)
-                                                </label>
-                                                <input
-                                                    type="file"
-                                                    name="id_photo"
-                                                    onChange={handleChange}
-                                                    accept="image/*,.pdf"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm"
-                                                />
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    Upload a clear photo of your ID (JPG, PNG, or PDF)
-                                                </p>
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                >
+                                                    <option value="" disabled>Select Barangay</option>
+                                                    {barangays?.filter(barangay => barangay?._id)
+                                                        .map((barangay) => (
+                                                            <option key={barangay._id} value={barangay._id}>
+                                                                {barangay.barangay_name}
+                                                            </option>
+                                                        ))}
+                                                </select>
                                             </div>
                                         </div>
                                     )}
@@ -577,7 +526,7 @@ const AccountRequestPage = () => {
                                             <span>Previous</span>
                                         </button>
 
-                                        {currentStep < 4 ? (
+                                        {currentStep < 3 ? (
                                             <button
                                                 type="button"
                                                 onClick={nextStep}
@@ -587,43 +536,49 @@ const AccountRequestPage = () => {
                                                 <FaArrowRight className="w-4 h-4" />
                                             </button>
                                         ) : (
-                                            <button
-                                                type="submit"
-                                                disabled={loading}
-                                                className="flex items-center space-x-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {loading ? (
-                                                    <>
-                                                        <svg
-                                                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <circle
-                                                                className="opacity-25"
-                                                                cx="12"
-                                                                cy="12"
-                                                                r="10"
-                                                                stroke="currentColor"
-                                                                strokeWidth="4"
-                                                            ></circle>
-                                                            <path
-                                                                className="opacity-75"
-                                                                fill="currentColor"
-                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                            ></path>
-                                                        </svg>
-                                                        Submitting...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <FaRecycle className="mr-2 h-5 w-5" />
-                                                        Submit Request
-                                                    </>
+                                            <>
+                                                {currentStep === 3 && (
+                                                    <button
+                                                        type="submit"
+                                                        disabled={loading}
+                                                        className="flex items-center space-x-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        {loading ? (
+                                                            <>
+                                                                <svg
+                                                                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <circle
+                                                                        className="opacity-25"
+                                                                        cx="12"
+                                                                        cy="12"
+                                                                        r="10"
+                                                                        stroke="currentColor"
+                                                                        strokeWidth="4"
+                                                                    ></circle>
+                                                                    <path
+                                                                        className="opacity-75"
+                                                                        fill="currentColor"
+                                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                                    ></path>
+                                                                </svg>
+                                                                Submitting...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <FaRecycle className="mr-2 h-5 w-5" />
+                                                                Submit Request
+                                                            </>
+                                                        )}
+                                                    </button>
+
                                                 )}
-                                            </button>
+                                            </>
                                         )}
+
                                     </div>
 
                                     <div className="text-center text-sm text-gray-600">

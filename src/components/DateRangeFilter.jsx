@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiCalendar, FiDownload } from 'react-icons/fi';
 
-function DateRangeFilter({ onChange, downloadHandler }) {
+function DateRangeFilter({ onChange, downloadHandler, hideDownload = false }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [error, setError] = useState('');
@@ -93,8 +93,8 @@ function DateRangeFilter({ onChange, downloadHandler }) {
         </button>
       )}
 
-      {/* Download Button */}
-      {canDownload && (
+      {/* Download Button - Conditionally Rendered */}
+      {!hideDownload && canDownload && (
         <button
           onClick={handleDownload}
           className="flex items-center gap-2 ml-auto px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"

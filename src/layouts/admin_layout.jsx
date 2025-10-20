@@ -33,6 +33,9 @@ const AdminLayout = ({ children }) => {
   const [expandedSections, setExpandedSections] = useState({
     management: location.pathname.includes('/admin/management')
   });
+  const [expandedSectionsApproval, setExpandedSectionsApproval] = useState({
+    approval: location.pathname.includes('/admin/approval')
+  });
   const { logout, user, refresh } = useContext(AuthContext);
   const adminFirstName = user?.first_name;
   const adminMiddleName = user?.middle_name;
@@ -48,7 +51,7 @@ const AdminLayout = ({ children }) => {
     {
       path: "/admin/management",
       icon: FiFolder,
-      label: "Waste Management",
+      label: " Management",
       subItems: [
         { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
         { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
@@ -72,6 +75,7 @@ const AdminLayout = ({ children }) => {
       label: "Approval",
       subItems: [
         { path: "/admin/approval/schedules", icon: FiUsers, label: "Schedule Approval" },
+        { path: "/admin/approval/requests", icon: FiUsers, label: "User Request Approval" },
       ]
     },
     // Analytics & Settings
@@ -89,6 +93,10 @@ const AdminLayout = ({ children }) => {
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+    setExpandedSectionsApproval(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
@@ -136,6 +144,8 @@ const AdminLayout = ({ children }) => {
     // Approval section
     'approval': 'Approval Management',
     'approval/schedules': 'Schedule Approval',
+    'approval/requests': 'User Request Approval',
+
 
     // Other pages
     'login_history': 'Login History',
@@ -260,9 +270,9 @@ const AdminLayout = ({ children }) => {
               <div className="flex items-center space-x-2 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                    WasteWise Admin
+                     Admin
                   </h1>
-                  <p className="text-xs text-gray-500 truncate">Control Panel</p>
+                  <p className="text-xs text-gray-500 truncate">WasteWise</p>
                 </div>
               </div>
             )}
@@ -289,7 +299,8 @@ const AdminLayout = ({ children }) => {
             {navItems.map((item) => {
               const isActive = location.pathname.startsWith(item.path);
               const hasSubItems = item.subItems;
-              const isExpanded = expandedSections[item.label.toLowerCase().replace(' ', '')];
+              const isExpanded = expandedSections[item.label.toLowerCase().replace(' ', '')] || expandedSectionsApproval[item.label.toLowerCase().replace(' ', '')];
+
 
               if (hasSubItems) {
                 return (
