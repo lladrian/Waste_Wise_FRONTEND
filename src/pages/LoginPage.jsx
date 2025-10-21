@@ -100,7 +100,7 @@ const LoginPage = () => {
       } else {
 
         if (data.data.user.is_disabled === true) {
-          navigate(`/disabled/${data.data._id}`);
+          navigate(`/disabled/${data.data.user._id}`);
           return;
         }
         const user_id = data.data.user._id;

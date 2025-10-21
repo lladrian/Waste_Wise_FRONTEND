@@ -97,6 +97,14 @@ const UserManagementLayout = () => {
                 [name]: value,
                 role_action: '' // Reset role_action when role changes
             }));
+
+            if (name === 'role' && value != 'barangay_official') {
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: value,
+                    barangay: '',
+                }));
+            }
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -222,7 +230,7 @@ const UserManagementLayout = () => {
             gender: user.gender,
             contact_number: user.contact_number,
             role: user.role,
-            barangay_name:  user?.barangay?.barangay_name,
+            barangay_name: user?.barangay?.barangay_name,
             barangay: user?.barangay?._id,
             role_action: user.role_action || '',
             role_action_name: user?.role_action?.action_name || "None",
@@ -600,15 +608,19 @@ const UserManagementLayout = () => {
                                         </select>
                                     </div>
 
-                                     <div className="md:col-span-2">
+                                    {/* {formData.barangay || formData.role === 'barangay_official' && ( */}
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Barangay
                                         </label>
+
+
                                         <select
                                             name="barangay"
-                                            value={formData.barangay}
+                                            value={formData.barangay || ""}
                                             onChange={handleInputChange}
-                                            required
+                                            required={formData.role === 'barangay_official'}
+                                            disabled={formData.role !== 'barangay_official'}
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Barangay</option>
@@ -620,6 +632,7 @@ const UserManagementLayout = () => {
                                                 ))}
                                         </select>
                                     </div>
+                                    {/* )} */}
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -680,7 +693,7 @@ const UserManagementLayout = () => {
                                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
                                     >
                                         {editingUsers ? 'Update User' : 'Add User'}
-                                    </button>
+                                    </button>"
                                 </div>
                             </form>
                         </div>
@@ -724,12 +737,16 @@ const UserManagementLayout = () => {
                                             {formData?.gender}
                                         </p>
                                     </div>
-                                          <div>
-                                        <span className="text-gray-500">Barangay:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {formData?.barangay_name}
-                                        </p>
-                                    </div>
+
+                                    {formData?.barangay && (
+                                        <div>
+                                            <span className="text-gray-500">Barangay:</span>
+                                            <p className="font-medium text-gray-800 capitalize">
+                                                {formData.barangay_name}
+                                            </p>
+                                        </div>
+                                    )}
+                                    
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800 capitalize">

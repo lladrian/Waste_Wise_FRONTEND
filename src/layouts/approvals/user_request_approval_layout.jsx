@@ -628,7 +628,7 @@ const UserRequestApprovalLayout = () => {
                                         </label>
                                         <select
                                             name="barangay"
-                                            value={formData.barangay}
+                                            value={formData.barangay || ''}
                                             onChange={handleInputChange}
                                             required
                                             disabled
