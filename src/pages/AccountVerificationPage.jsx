@@ -31,7 +31,7 @@ const AccountVerificationPage = () => {
       const { data, success } = await getSpecificUser(id);
 
       if (success === true) {
-        setDataUser(data.data.user);
+        setDataUser(data.data);
         return;
       }
 
@@ -127,7 +127,7 @@ const AccountVerificationPage = () => {
         if (dataUser.user.role == 'admin') {
           navigate('/admin/dashboard');
         }
-        if (dataUser.user.role == 'enro_staff' || dataUser.user.role == 'enro_staff_head') {
+        if (dataUser.user.role === 'enro_staff_scheduler' || dataUser.user.role === 'enro_staff_head' || dataUser.user.role === 'enro_staff_monitoring' || dataUser.user.role === 'enro_staff_eswm_section_head') {
           navigate('/staff/dashboard');
         }
         if (dataUser.user.role == 'barangay_official') {
