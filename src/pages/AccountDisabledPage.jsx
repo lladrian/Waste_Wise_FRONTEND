@@ -23,6 +23,7 @@ const AccountDisabledPage = () => {
                 navigate('/login')
             }
         } catch (err) {
+            console.log(2)
             navigate('/login')
             return;
             console.error("Error fetching reg data:", err);
@@ -64,6 +65,23 @@ const AccountDisabledPage = () => {
             return "Invalid date";
         }
     };
+
+
+     const formatRole = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
+            'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+        return roleMap[role] || role; // Return formatted role or original if not found
+    };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-100 flex flex-col">
@@ -166,12 +184,12 @@ const AccountDisabledPage = () => {
 
                                             <div className="flex justify-between items-center py-2 border-b border-blue-100">
                                                 <span className="text-sm font-medium text-gray-600">Contact Number:</span>
-                                                <span className="text-sm font-semibold text-gray-600">{dataUser.contact_number}</span>
+                                                <span className="text-sm font-semibold text-gray-600">+63{dataUser.contact_number}</span>
                                             </div>
 
                                             <div className="flex justify-between items-center py-2 border-b border-blue-100">
                                                 <span className="text-sm font-medium text-gray-600">Account Type:</span>
-                                                <span className="text-sm font-semibold text-blue-600">{dataUser.role}</span>
+                                                <span className="text-sm font-semibold text-blue-600">{formatRole(dataUser.role)}</span>
                                             </div>
 
 

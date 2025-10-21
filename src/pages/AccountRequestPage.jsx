@@ -71,10 +71,18 @@ const AccountRequestPage = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value, type, files } = e.target;
+        const { name, value } = e.target;
+
+        if(name == 'role' && value != 'barangay_official') {
+            setFormData((prev) => ({
+                ...prev,
+                barangay: '',
+            }));
+        }
+
         setFormData((prev) => ({
             ...prev,
-            [name]: type === 'file' ? files[0] : value,
+            [name]: value,
         }));
     };
 
@@ -117,9 +125,8 @@ const AccountRequestPage = () => {
                 }
                 return true;
             case 3:
-                // if (!formData.role || !formData.purpose) {
-                if (!formData.role || !formData.barangay) {
-                    toast.error("Please provide all fields (role, barangay).");
+                if (!formData.role) {
+                    toast.error("Please provide all fields (role).");
                     return false;
                 }
                 return true;
@@ -489,28 +496,30 @@ const AccountRequestPage = () => {
                                                 </select>
                                             </div>
 
+                                            {formData.role === 'barangay_official' && (
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        Barangay
+                                                    </label>
+                                                    <select
+                                                        name="barangay"
+                                                        value={formData.barangay}
+                                                        onChange={handleChange}
+                                                        required
+                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                    >
+                                                        <option value="" disabled>Select Barangay</option>
+                                                        {barangays?.filter(barangay => barangay?._id)
+                                                            .map((barangay) => (
+                                                                <option key={barangay._id} value={barangay._id}>
+                                                                    {barangay.barangay_name}
+                                                                </option>
+                                                            ))}
+                                                    </select>
+                                                </div>
+                                            )}
 
 
-                                            <div >
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Barangay
-                                                </label>
-                                                <select
-                                                    name="barangay"
-                                                    value={formData.barangay}
-                                                    onChange={handleChange}
-                                                    required
-                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                                >
-                                                    <option value="" disabled>Select Barangay</option>
-                                                    {barangays?.filter(barangay => barangay?._id)
-                                                        .map((barangay) => (
-                                                            <option key={barangay._id} value={barangay._id}>
-                                                                {barangay.barangay_name}
-                                                            </option>
-                                                        ))}
-                                                </select>
-                                            </div>
                                         </div>
                                     )}
 
