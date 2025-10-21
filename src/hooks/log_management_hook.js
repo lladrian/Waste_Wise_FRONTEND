@@ -6,7 +6,7 @@ import * as API from '../services/api_service'; // or axios if used directly
 export const getAllLoginLogSpecificUser = async (id) => {
   try {
     const res = await API.getAllLoginLog();
-    const data = res.data.data.filter(user => user?.user?._id === id || user?.resident_user?._id === id);
+    const data = res.data.data.filter(user => user?.user?._id === id);
     
     return { data: data, success: true };
   } catch (error) {

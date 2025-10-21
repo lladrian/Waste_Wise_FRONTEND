@@ -135,7 +135,7 @@ const LoginPage = () => {
         if (role == 'admin') {
           navigate('/admin/dashboard');
         }
-        if (role == 'enro_staff_scheduler' || role == 'enro_staff_head') {
+        if (role === 'enro_staff_scheduler' || role === 'enro_staff_head' || role === 'enro_staff_monitoring' || role === 'enro_staff_eswm_section_head') {
           navigate('/staff/dashboard');
         }
         if (role == 'barangay_official') {
@@ -170,8 +170,16 @@ const LoginPage = () => {
                 </div>
               </div>
             </div>
+            
             <div className="flex items-center space-x-4">
-              <button className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+             <button 
+                onClick={() => navigate('/account_request')}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-black shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+                Request
+              </button>
+              <button                       
+                onClick={() => navigate('/')}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
                 Sign In
               </button>
             </div>

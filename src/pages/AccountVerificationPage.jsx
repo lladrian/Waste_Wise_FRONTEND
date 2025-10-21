@@ -31,7 +31,7 @@ const AccountVerificationPage = () => {
       const { data, success } = await getSpecificUser(id);
 
       if (success === true) {
-        setDataUser(data.data);
+        setDataUser(data.data.user);
         return;
       }
 

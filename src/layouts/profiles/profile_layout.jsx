@@ -69,7 +69,7 @@ const UpdateProfile = () => {
                 if (success === true) {
                     setIsEditing(false);
                     toast.success(data.data);
-                    await update_profile(data.data)
+                    await update_profile(data.data.user)
                 }
             }
         } catch (error) {

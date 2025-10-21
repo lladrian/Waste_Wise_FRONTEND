@@ -49,8 +49,8 @@ const OfficialLayout = ({ children }) => {
       icon: FiFolder,
       label: "Management",
       subItems: [
-        { path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" },
-        { path: "/official/management/complains", icon: FiUsers, label: "Complain Management" },
+         { path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" },
+         { path: "/official/management/complains", icon: FiUsers, label: "Complain Management" },
       ]
     },
 
@@ -155,9 +155,9 @@ const OfficialLayout = ({ children }) => {
               <div className="flex items-center space-x-2 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                      WasteWise Official
+                    Barangay Official
                   </h1>
-                  <p className="text-xs text-gray-500 truncate">Control Panel</p>
+                  <p className="text-xs text-gray-500 truncate">WasteWise</p>
                 </div>
               </div>
             )}
@@ -367,7 +367,7 @@ const OfficialLayout = ({ children }) => {
                     <div className="px-3 py-2 border-b border-blue-200/40">
                       <p className="font-semibold text-gray-800 truncate text-sm">{adminFirstName} {adminLastName}</p>
                       <p className="text-xs text-gray-500 truncate">{adminEmail}</p>
-                      <p className="text-xs text-blue-600 font-medium mt-1">WasteWise Administrator</p>
+                      <p className="text-xs text-blue-600 font-medium mt-1">WasteWise Official</p>
                     </div>
                     <Link
                       to="/admin/profile"

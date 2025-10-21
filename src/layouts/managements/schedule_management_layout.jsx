@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -20,9 +20,10 @@ import BeautifulCalendar from "../../components/BeautifulCalendar";
 import { toast } from "react-toastify";
 
 import DateRangeFilter from '../../components/DateRangeFilter';
-
+import { AuthContext } from '../../context/AuthContext';
 
 const ScheduleManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [schedules, setSchedules] = useState([]);
     const [trucks, setTrucks] = useState([]);
     const [routes, setRoutes] = useState([]);
@@ -56,13 +57,19 @@ const ScheduleManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllSchedule();
+            const { data, success } = await getAllSchedule(user.barangay);
+
             if (success === true) {
                 setTrucks(data.trucks.data)
                 setBarangays(data.barangays.data)
                 setRoutes(data.routes.data)
-                setSchedules(data.schedules.data)
-                setFilteredSchedules(data.schedules.data)
+                if (user.role === 'barangay_official') {
+                    setSchedules(data.schedules2.data)
+                    setFilteredSchedules(data.schedules2.data)
+                } else {
+                    setSchedules(data.schedules.data)
+                    setFilteredSchedules(data.schedules.data)
+                }
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -352,16 +359,18 @@ const ScheduleManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Schedule</span>
-                    </button>
-                </div>
 
+                {['admin', 'enro_staff_scheduler'].includes(user.role) && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New Schedule</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -374,6 +383,7 @@ const ScheduleManagementLayout = () => {
                                     setEndDate(endDate);
                                 }}
                                 downloadHandler={downloadGeneratedReport}
+                                hideDownload={true}
                             />
                         </div>
 
@@ -455,13 +465,15 @@ const ScheduleManagementLayout = () => {
                                         </td> */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(schedule)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
+                                                {['admin', 'enro_staff_scheduler'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleEdit(schedule)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
+                                                )}
 
                                                 <button
                                                     onClick={() => handleView(schedule)}
@@ -471,13 +483,15 @@ const ScheduleManagementLayout = () => {
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
 
-                                                <button
-                                                    onClick={() => handleDelete(schedule._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                {['admin'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleDelete(schedule._id)}
+                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <FiTrash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -782,7 +796,7 @@ const ScheduleManagementLayout = () => {
                             </div>
 
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Driver Information</h3>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>

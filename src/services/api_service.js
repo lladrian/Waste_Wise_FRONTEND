@@ -33,6 +33,7 @@ export const updateRoute = (id, data) => axios.put(`/routes/update_route/${id}`,
 export const createSchedule = (data) => axios.post(`/schedules/add_schedule`,data);
 export const getAllSchedule = () => axios.get(`/schedules/get_all_schedule`);
 export const getSpecificSchedule = (id) => axios.get(`/schedules/get_specific_schedule/${id}`);
+export const getAllScheduleSpecificBarangay = (id) => axios.get(`/schedules/get_all_schedule_specific_barangay/${id}`);
 export const deleteSchedule= (id) => axios.delete(`/schedules/delete_schedule/${id}`);
 export const updateSchedule = (id, data) => axios.put(`/schedules/update_schedule/${id}`,data);
 export const updateScheduleApproval = (id, data) => axios.put(`/schedules/update_schedule_approval/${id}`,data);
@@ -44,8 +45,10 @@ export const updateTruck = (id, data) => axios.put(`/trucks/update_truck/${id}`,
 export const createComplain = (data) => axios.post(`/complains/add_complain`,data);
 export const getAllComplain = () => axios.get(`/complains/get_all_complain`);
 export const getSpecificComplain = (id) => axios.get(`/complains/get_specific_complain/${id}`);
+export const getAllComplainSpecificBarangay = (id) => axios.get(`/complains/get_all_complain_specific_barangay/${id}`);
 export const deleteComplain= (id) => axios.delete(`/complains/delete_complain/${id}`);
 export const updateComplain = (id, data) => axios.put(`/complains/update_complain/${id}`, data);
+export const updateComplainVerification = (id, data) => axios.put(`/complains/update_complain_verification/${id}`, data);
 export const createBarangay = (data) => axios.post(`/barangays/add_barangay`,data);
 export const getAllBarangay = () => axios.get(`/barangays/get_all_barangay`);
 export const getSpecificBarangay = (id) => axios.get(`/barangays/get_specific_barangay/${id}`);
@@ -62,5 +65,14 @@ export const updateResidentUser = (id, data) => axios.put(`/residents/update_use
 export const createResidentUser = (data) => axios.post(`/residents/add_user`,data);
 export const getSpecificResidentUser = (id) => axios.get(`/residents/get_specific_user/${id}`);
 export const loginResidentUser = (data) => axios.post('/residents/login_user', data);
+
+
+
+export const createRequest = (data) => axios.post(`/requests/add_request`,data);
+export const getAllRequest = () => axios.get(`/requests/get_all_request`);
+export const getSpecificRequest = (id) => axios.get(`/requests/get_specific_request/${id}`);
+export const deleteRequest = (id) => axios.delete(`/requests/delete_request/${id}`);
+export const updateRequest = (id, data) => axios.put(`/requests/update_request/${id}`, data);
+export const updateRequestApproval = (id, data) => axios.put(`/requests/update_request_approval/${id}`, data);
 
 

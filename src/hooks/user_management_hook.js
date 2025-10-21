@@ -55,10 +55,12 @@ export const getAllUserNoResident = async () => {
   try {
     const res = await API.getAllUser();
     const res2 = await API.getAllRoleAction();
+    const res3 = await API.getAllBarangay();
+
     
     const filteredData = res.data.data.filter(user => user.role !== 'resident');
         
-    return { data: filteredData, data2: res2.data.data, success: true };
+    return { data: filteredData, data2: res2.data.data, data3: res3.data.data, success: true };
   } catch (error) {
     console.error("Failed to fetch users:", error);
     throw error;
