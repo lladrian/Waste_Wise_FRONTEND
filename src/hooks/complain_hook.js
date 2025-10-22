@@ -24,7 +24,8 @@ export const createComplain = async (data) => {
 };
 
 
-export const getAllComplain = async (barangay_id) => {
+
+export const getAllComplainBarangay = async (barangay_id) => {
   try {
     const res = await API.getAllComplain();
     const res2 = await API.getAllUser();
@@ -33,8 +34,23 @@ export const getAllComplain = async (barangay_id) => {
     const res5 = await API.getAllComplainSpecificBarangay(barangay_id);
     
 
+    return { data: {complains: res.data, users: res2.data, routes: res3.data, barangays: res4.data, complains2: res5?.data}, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
 
-    return { data: {complains: res.data, users: res2.data, routes: res3.data, barangays: res4.data, complains2: res5.data,}, success: true };
+export const getAllComplain = async () => {
+  try {
+    const res = await API.getAllComplain();
+    const res2 = await API.getAllUser();
+    const res3 = await API.getAllRoute();
+    const res4 = await API.getAllBarangay();
+    
+
+
+    return { data: {complains: res.data, users: res2.data, routes: res3.data, barangays: res4.data }, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
     throw error;

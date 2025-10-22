@@ -17,7 +17,7 @@ import {
     FiArchive
 } from 'react-icons/fi';
 
-import { getSpecificComplain, updateComplainVerification, createComplain, getAllComplain, deleteComplain, updateComplain } from "../../hooks/complain_hook";
+import { getSpecificComplain, getAllComplainBarangay, updateComplainVerification, createComplain, getAllComplain, deleteComplain, updateComplain } from "../../hooks/complain_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
@@ -56,7 +56,12 @@ const ComplainManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllComplain(user.barangay);
+            if (user.role === 'barangay_official') {
+                var { data, success } = await getAllComplainBarangay(user?.barangay);
+            } else {
+                var { data, success } = await getAllComplain();
+            }
+
             if (success === true) {
                 setUsers(data.users.data)
                 setBarangays(data.barangays.data)
