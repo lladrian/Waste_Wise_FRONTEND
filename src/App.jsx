@@ -6,8 +6,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 import TestPage from './pages/TestPage';
 
-import MapMarkingPage from './pages/MapMarkingPage';
-import TestMapPage from './pages/TestMapPage';
 import LoginPage from './pages/LoginPage';
 import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AccountDisabledPage from './pages/AccountDisabledPage';
@@ -59,9 +57,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/test" element={<TestMapPage />} />
-        <Route path="/marking" element={<MapMarkingPage />} />
+        <Route path="/" element={<TestPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verification/:id" element={<AccountVerificationPage />} />
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
@@ -70,8 +66,6 @@ function App() {
         <Route path="/account_request" element={<AccountRequestPage />} />
 
 
-
-     
 
         {/* Admin Routes */}
         <Route
