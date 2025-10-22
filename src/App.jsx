@@ -59,7 +59,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<MapMarkingPage />} />
+        <Route path="/" element={<TestPage />} />
         <Route path="/test" element={<TestMapPage />} />
         <Route path="/marking" element={<MapMarkingPage />} />
         <Route path="/login" element={<LoginPage />} />
