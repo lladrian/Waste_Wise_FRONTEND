@@ -101,7 +101,6 @@ const DashboardLayout = () => {
                     color="bg-indigo-500"
                     // link="/staff/management/barangays"
                 />
-                {console.log(complains)}
                 <StatCard
                     icon={FiAlertCircle}
                     title="Total Complaints"

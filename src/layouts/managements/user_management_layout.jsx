@@ -81,7 +81,9 @@ const UserManagementLayout = () => {
                 user.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.role.toLowerCase().includes(searchTerm.toLowerCase())
+                user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                formatRole(user.role).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.role_action?.action_name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
         setFilteredUsers(filtered);
@@ -130,7 +132,6 @@ const UserManagementLayout = () => {
             is_disabled: formData.is_disabled
         };
 
-        console.log(input_data)
 
 
         if (editingUserPassword) {
@@ -234,7 +235,7 @@ const UserManagementLayout = () => {
             barangay: user?.barangay?._id,
             role_action: user.role_action || '',
             role_action_name: user?.role_action?.action_name || "None",
-            is_disabled: user.is_disabled || 'false',
+            is_disabled: String(user.is_disabled)
         });
 
         setShowModalPassword(true);
@@ -525,10 +526,12 @@ const UserManagementLayout = () => {
                                                     });
                                                 }}
                                                 required
+                                                minLength={10}
+                                                maxLength={10}
                                                 className="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                                 placeholder="9123456789"
                                                 pattern="\d{10}"
-                                                title="Please enter 10-digit Philippine mobile number"
+                                                title="Please enter 10-digit PH mobile number"
                                             />
                                         </div>
                                         <p className="text-xs text-gray-500 mt-1">Enter 10-digit number (e.g., 9123456789)</p>
@@ -746,7 +749,7 @@ const UserManagementLayout = () => {
                                             </p>
                                         </div>
                                     )}
-                                    
+
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800 capitalize">
@@ -758,6 +761,13 @@ const UserManagementLayout = () => {
                                         <span className="text-gray-500">Role Action:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {formData?.role_action_name}
+                                        </p>
+                                    </div>
+
+                                      <div>
+                                        <span className="text-gray-500">Account State:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.is_disabled === 'true' ? 'Disabled' : 'Enabled'}
                                         </p>
                                     </div>
 

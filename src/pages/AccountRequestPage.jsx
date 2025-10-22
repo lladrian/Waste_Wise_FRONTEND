@@ -107,6 +107,10 @@ const AccountRequestPage = () => {
                     toast.error("Please provide all fields (first_name, middle_name, last_name, gender, contact_number).");
                     return false;
                 }
+                if (formData.contact_number.length < 10) {
+                    toast.error("Contact number must be at least 10 characters long");
+                    return false;
+                }
                 return true;
             case 2:
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
