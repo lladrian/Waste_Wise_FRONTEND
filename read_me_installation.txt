@@ -12,3 +12,5 @@ npm install react-icons
 npm install react-select
 npm install lucide-react
 npm install @react-google-maps/api
+npm install @googlemaps/js-api-loader
+

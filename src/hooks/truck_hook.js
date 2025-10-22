@@ -24,6 +24,7 @@ export const createTruck = async (data) => {
 };
 
 
+
 export const getAllTruck = async () => {
   try {
     const res = await API.getAllTruck();

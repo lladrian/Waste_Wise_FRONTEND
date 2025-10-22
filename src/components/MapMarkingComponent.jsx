@@ -6,6 +6,11 @@ const markersData = [
   { id: 3, title: 'Lake Danao', position: { lat: 11.0719, lng: 124.6903 } },
   { id: 4, title: 'Test', position: { lat: 11.0027, lng: 124.6083 } },
   { id: 5, title: 'Test20', position: { lat: 11.0526464, lng: 124.5151232 } },
+   { id: 6, title: 'Test30', position: { lat: 11.0992633, lng: 124.5545646 } },
+      { id: 7, title: 'Test40', position: { lat:  11.0526464, lng: 124.5151232 } },
+
+
+  
 ];
 
 const MapComponent = () => {
