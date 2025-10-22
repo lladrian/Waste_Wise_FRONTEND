@@ -1,52 +1,61 @@
-// React Component (e.g., TestPage.js)
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const TestPage = () => {
+const LocationTracker = () => {
   const [locationInfo, setLocationInfo] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
+    const watchId = navigator.geolocation.watchPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
 
-          try {
-            const res = await axios.post('https://waste-wise-backend-chi.vercel.app/api/location', {
-              latitude,
-              longitude,
-            });
-            setLocationInfo(res.data);
-          } catch (err) {
-            console.error('Error sending location:', err);
-            setError('Failed to fetch location info.');
-          }
-        },
-        (err) => {
-          console.error('Geolocation error:', err);
-          setError('Permission denied or location unavailable.');
+        try {
+          const response = await axios.get(
+            'https://waste-wise-backend-chi.vercel.app/api/location',
+            {
+              params: {
+                lat: latitude,
+                lon: longitude,
+              },
+            }
+          );
+
+          setLocationInfo(response.data);
+        } catch (err) {
+          console.error('Failed to fetch location data:', err);
+          setError('Failed to get location data from server.');
         }
-      );
-    } else {
-      setError('Geolocation is not supported by this browser.');
-    }
+      },
+      (err) => {
+        console.error('Geolocation error:', err);
+        setError('Location access denied or not available.');
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 5000,
+      }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Location Info</h2>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      {!locationInfo && !error && <div>Getting location and sending to server...</div>}
-      {locationInfo && (
-        <div style={{ marginTop: '10px', padding: '10px', border: '1px solid #ccc' }}>
+    <div>
+      <h2>Real-Time Location</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {locationInfo ? (
+        <div>
           <p><strong>Latitude:</strong> {locationInfo.latitude}</p>
           <p><strong>Longitude:</strong> {locationInfo.longitude}</p>
           <p><strong>Address:</strong> {locationInfo.address}</p>
         </div>
+      ) : (
+        !error && <p>Fetching location...</p>
       )}
     </div>
   );
 };
 
-export default TestPage;
+export default LocationTracker;

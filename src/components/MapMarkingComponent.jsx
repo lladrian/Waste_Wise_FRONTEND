@@ -5,6 +5,7 @@ const markersData = [
   { id: 2, title: 'Ormoc Port', position: { lat: 11.0150, lng: 124.6089 } },
   { id: 3, title: 'Lake Danao', position: { lat: 11.0719, lng: 124.6903 } },
   { id: 4, title: 'Test', position: { lat: 11.0027, lng: 124.6083 } },
+  { id: 5, title: 'Test20', position: { lat: 11.0526464, lng: 124.5151232 } },
 ];
 
 const MapComponent = () => {
