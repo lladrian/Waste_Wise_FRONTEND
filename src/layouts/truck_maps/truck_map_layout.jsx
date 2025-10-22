@@ -143,10 +143,11 @@ const TruckMap = () => {
     const s = (status || "").toLowerCase();
     let iconUrl;
     if (s === "active" || s === "on route")
-      iconUrl = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+      iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
     else if (s === "inactive" || s === "under maintenance" || s === "unavailable")
-      iconUrl = "http://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-    else iconUrl = "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
+      iconUrl = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+    else
+      iconUrl = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
 
     const img = document.createElement("img");
     img.src = iconUrl;
