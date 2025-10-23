@@ -1,65 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
 
-const LocationTracker = () => {
-  const [locationInfo, setLocationInfo] = useState(null);
-  const [error, setError] = useState('');
-  const [data, setData] = useState('');
-
+function WebSocketTest() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [ws, setWs] = useState(null);
 
   useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setData({ latitude, longitude })
-        try {
-          const response = await axios.get(
-            'https://waste-wise-backend-chi.vercel.app/api/location',
-            {
-              params: {
-                lat: latitude,
-                lon: longitude,
-              },
-            }
-          );
+    // const socket = new WebSocket("ws://localhost:5000");
+    // const socket = new WebSocket("ws://waste-wise-backend-chi.vercel.app");
+    const socket = new WebSocket("wss://waste-wise-backend-chi.vercel.app");
 
-          setLocationInfo(response.data);
-        } catch (err) {
-          console.error('Failed to fetch location data:', err);
-          setError('Failed to get location data from server.');
-        }
-      },
-      (err) => {
-        console.error('Geolocation error:', err);
-        setError('Location access denied or not available.');
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 5000,
-      }
-    );
 
-    return () => navigator.geolocation.clearWatch(watchId);
+    socket.onopen = () => {
+      console.log("Connected to server");
+    };
+
+    socket.onmessage = (event) => {
+      setMessages((prev) => [...prev, event.data]);
+    };
+
+    socket.onclose = () => {
+      console.log("Disconnected from server");
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    setWs(socket);
+
+    return () => {
+      socket.close();
+    };
   }, []);
+
+  const sendMessage = () => {
+    if (ws && input) {
+      ws.send(input);
+      setInput("");
+    }
+  };
 
   return (
     <div>
-      <h2>Real-Time Location</h2>
-      <p><strong>Latitude:</strong> {data.latitude}</p>
-      <p><strong>Longitude:</strong> {data.longitude}</p>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {locationInfo ? (
-        <div>
-          <p><strong>Latitude:</strong> {locationInfo.latitude}</p>
-          <p><strong>Longitude:</strong> {locationInfo.longitude}</p>
-          <p><strong>Address:</strong> {locationInfo.address}</p>
-        </div>
-      ) : (
-        !error && <p>Fetching location...</p>
-      )}
+      <h2>WebSocket Test</h2>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Message to server"
+      />
+      <button onClick={sendMessage}>Send</button>
+
+      <div style={{ marginTop: 20 }}>
+        <h3>Messages:</h3>
+        {messages.map((msg, i) => (
+          <div key={i} style={{ borderBottom: "1px solid #ccc" }}>
+            {msg}
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
+}
 
-export default LocationTracker;
+export default WebSocketTest;
