@@ -17,7 +17,7 @@ const TruckMap = () => {
   // WebSocket connection
   useEffect(() => {
    // ws.current = new WebSocket("ws://localhost:5000");
-    ws.current = new WebSocket("ws://waste-wise-backend-uzub.onrender.com");
+    ws.current = new WebSocket("wss://waste-wise-backend-uzub.onrender.com");
 
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
