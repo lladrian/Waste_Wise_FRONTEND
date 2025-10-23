@@ -61,12 +61,6 @@ const AdminLayout = ({ children }) => {
         { path: "/admin/management/barangays", icon: FiUsers, label: "Barangay Management" },
         { path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" },
         { path: "/admin/management/complains", icon: FiUsers, label: "Complain Management" },
-        // { path: "/admin/management/requests", icon: FiFileText, label: "Collection Requests" },
-        // { path: "/admin/management/collectors", icon: FiUser, label: "Collector Management" },
-        // { path: "/admin/management/zones", icon: FiList, label: "Zone Management" },
-        // { path: "/admin/management/schedule", icon: FiClock, label: "Schedule Management" },
-        // { path: "/admin/management/vehicles", icon: FiFolder, label: "Vehicle Management" },        
-        // { path: "/admin/management/reports", icon: FiBarChart2, label: "Waste Reports" },
       ]
     },
     {
@@ -80,9 +74,8 @@ const AdminLayout = ({ children }) => {
     },
     // Analytics & Settings
     { path: "/admin/login_history", icon: FiBarChart2, label: "Login History" },
+    { path: "/admin/truck_map", icon: FiBarChart2, label: "Truck Map" },
     { path: "/admin/update_profile", icon: FiBarChart2, label: "Profile" },
-    // { path: "/admin/analytics", icon: FiBarChart2, label: "Analytics" },
-    // { path: "/admin/settings", icon: FiSettings, label: "System Settings" },
   ];
 
 
@@ -108,21 +101,6 @@ const AdminLayout = ({ children }) => {
     localStorage.clear();
   };
 
-  // Management section
-  //     'management': 'Waste Management',
-  //     'requests': 'Collection Requests',
-  //     'users': 'User Management',
-  //     'residents': 'Resident Management',
-  //     'role_actions': 'Role Action Management',
-  //     'logs': 'Log Management',
-  //     'routes': 'Route Management',
-  //     'trucks': 'Truck Management',
-  //     'complains': 'Complain Management',
-
-
-
-  //     'update_profile': 'Profile',
-  //     'login_history': 'Login History',
 
   const customTitles = {
     // Dashboard
@@ -150,6 +128,7 @@ const AdminLayout = ({ children }) => {
     // Other pages
     'login_history': 'Login History',
     'update_profile': 'Profile Management',
+    'truck_map': 'Truck Map',
   };
 
 
@@ -181,71 +160,6 @@ const AdminLayout = ({ children }) => {
       .replace(/^\w/, (c) => c.toUpperCase())
       .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
   };
-
-
-  // const getPageTitle = () => {
-  //   const segments = location.pathname.split("/").filter(Boolean);
-  //   const last = segments[segments.length - 1];
-  //   const secondLast = segments[segments.length - 2];
-
-  //   const isLikelyId = /^[0-9a-fA-F]{8,}$/.test(last) || !isNaN(last);
-  //   const label = isLikelyId ? secondLast : last;
-
-  //   // Enhanced custom titles for WasteWise admin pages
-  //   const customTitles = {
-  //     // Dashboard
-  //     'dashboard': 'Waste Wise Dashboard',
-
-  //     // Management section
-  //     'management': 'Waste Management',
-  //     'requests': 'Collection Requests',
-  //     'users': 'User Management',
-  //     'residents': 'Resident Management',
-  //     'role_actions': 'Role Action Management',
-  //     'logs': 'Log Management',
-  //     'routes': 'Route Management',
-  //     'trucks': 'Truck Management',
-  //     'complains': 'Complain Management',
-
-
-
-  //     'update_profile': 'Profile',
-  //     'login_history': 'Login History',
-
-  //     'schedule': 'Schedule Management',
-  //     'vehicles': 'Vehicle Management',
-  //     'reports': 'Waste Analytics',
-
-  //     // Other pages
-  //     'analytics': 'System Analytics',
-  //     'settings': 'System Settings',
-  //     'profile': 'Admin Profile',
-
-  //     // Fallbacks for common patterns
-  //     'new': 'Create New',
-  //     'edit': 'Edit',
-  //     'view': 'View Details'
-  //   };
-
-  //   const pageKey = label?.toLowerCase() || 'dashboard';
-
-  //   // Check if we have a direct match
-  //   if (customTitles[pageKey]) {
-  //     return customTitles[pageKey];
-  //   }
-
-  //   // Check if it's a management sub-page
-  //   if (secondLast === 'management' && customTitles[last]) {
-  //     return customTitles[last];
-  //   }
-
-  //   // Fallback: format the label nicely
-  //   return label
-  //     ?.replace(/-/g, " ")
-  //     .replace(/_/g, " ")
-  //     .replace(/^\w/, (c) => c.toUpperCase())
-  //     .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
-  // };
 
   // Get pending requests count
   const pendingRequestsCount = 5;

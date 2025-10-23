@@ -56,6 +56,7 @@ const OfficialLayout = ({ children }) => {
 
     // Analytics & Settings
     { path: "/official/login_history", icon: FiBarChart2, label: "Login History" },
+    { path: "/official/truck_map", icon: FiBarChart2, label: "Truck Map" },
     { path: "/official/update_profile", icon: FiBarChart2, label: "Profile" },
     // { path: "/official/analytics", icon: FiBarChart2, label: "Analytics" },
     // { path: "/official/settings", icon: FiSettings, label: "System Settings" },
@@ -102,6 +103,7 @@ const OfficialLayout = ({ children }) => {
     // Other pages
     'login_history': 'Login History',
     'update_profile': 'Profile Management',
+    'truck_map': 'Truck Map',
   };
 
   const getPageTitle = () => {

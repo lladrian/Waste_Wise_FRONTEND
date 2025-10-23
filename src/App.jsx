@@ -8,7 +8,6 @@ import TestPage from './pages/TestPage';
 
 import MapMarkingPage from './pages/MapMarkingPage';
 import TestMapPage from './pages/TestMapPage';
-import WasteManagementPage from './pages/WasteManagementPage';
 import LoginPage from './pages/LoginPage';
 import AccountRecoveryPage from './pages/AccountRecoveryPage';
 import AccountDisabledPage from './pages/AccountDisabledPage';
@@ -25,12 +24,13 @@ import AdminRouteManagementPage from './pages/managements/admin/AdminRouteManage
 import AdminTruckManagementPage from './pages/managements/admin/AdminTruckManagementPage';
 import AdminComplainManagementPage from './pages/managements/admin/AdminComplainManagementPage';
 import AdminBarangayManagementPage from './pages/managements/admin/AdminBarangayManagementPage';
-
 import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
 import AdminUserRequestApprovalPage from './pages/approvals/admin/AdminUserRequestApprovalPage';
 
 import AdminLogPage from './pages/admin/AdminLogPage';
 import AdminUpdateProfilePage from './pages/admin/AdminUpdateProfilePage';
+import AdminTruckMapPage from './pages/admin/AdminTruckMapPage';
+
 
 import StaffDashboardPage from './pages/staff/StaffDashboardPage';
 import StaffLogManagementPage from './pages/managements/staff/StaffLogManagementPage';
@@ -39,18 +39,18 @@ import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManage
 import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManagementPage';
 import StaffComplainManagementPage from './pages/managements/staff/StaffComplainManagementPage';
 import StaffBarangayManagementPage from './pages/managements/staff/StaffBarangayManagementPage';
-
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
 
 import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
+import StaffTruckMapPage from './pages/staff/StaffTruckMapPage';
+
 
 import OfficialDashboardPage from './pages/official/OfficialDashboardPage';
 import OfficialScheduleManagementPage from './pages/managements/official/OfficialScheduleManagementPage';
 import OfficialComplainManagementPage from './pages/managements/official/OfficialComplainManagementPage';
 
-
-
+import OfficialTruckMapPage from './pages/official/OfficialTruckMapPage';
 import OfficialLogPage from './pages/official/OfficialLogPage';
 import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
 
@@ -59,7 +59,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<TestPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/test" element={<TestMapPage />} />
         <Route path="/marking" element={<MapMarkingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -79,6 +79,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminUpdateProfilePage />
+            </ProtectedRoute>
+          }
+        />
+          <Route
+          path="/admin/truck_map"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminTruckMapPage />
             </ProtectedRoute>
           }
         />
@@ -274,6 +282,15 @@ function App() {
           }
         />
 
+        <Route
+          path="/staff/truck_map"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffTruckMapPage />
+            </ProtectedRoute>
+          }
+        />
+
 
 
 
@@ -322,6 +339,19 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/official/truck_map"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialTruckMapPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+
+        
       </Routes>
     </Router>
   );

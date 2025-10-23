@@ -297,6 +297,12 @@ const TruckManagementLayout = () => {
                                         Complete Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Latitude
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Longitude
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Truck ID
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -312,6 +318,12 @@ const TruckManagementLayout = () => {
                                     <tr key={truck._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{truck?.user?.first_name || "None"} {truck?.user?.middle_name} {truck?.user?.last_name}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{truck?.position?.lat}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{truck?.position?.lng}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{truck?.truck_id}</span>
