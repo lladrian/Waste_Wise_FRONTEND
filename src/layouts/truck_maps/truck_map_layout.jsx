@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { toast } from "react-toastify";
 import { getAllTruck } from "../../hooks/truck_map_hook";
 import { AuthContext } from "../../context/AuthContext";
@@ -9,12 +9,61 @@ const TruckMap = () => {
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [statusOptions, setStatusOptions] = useState([]);
-  const [selectedTruck, setSelectedTruck] = useState(null); // For modal
+  const [selectedTruck, setSelectedTruck] = useState(null);
+  const ws = useRef(null);
+  const mapRef = useRef(null);
+  const markersRef = useRef({});
 
+  // WebSocket connection
+  useEffect(() => {
+   // ws.current = new WebSocket("ws://localhost:5000");
+    ws.current = new WebSocket("ws://waste-wise-backend-uzub.onrender.com");
+
+    ws.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+
+      switch (message.name) {
+        case "trucks":
+          const filteredSchedules = message.data.filter(schedule => {
+            // Check if route exists and has merge_barangay array
+            if (!schedule.route || !schedule.route.merge_barangay) {
+              return false;
+            }
+
+            // Check if any barangay in merge_barangay matches the requested barangay_id
+            return schedule.route.merge_barangay.some(barangay =>
+              barangay.barangay_id.toString() === user?.barangay
+            );
+          });
+
+          const list = user.role !== "barangay_official" ? message.data : filteredSchedules;
+          setRecords(list);
+          setFilteredRecords(list);
+          break;
+        default:
+          console.warn("Unknown data list:", message.name);
+      }
+    };
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    return () => {
+      if (ws.current) ws.current.close();
+    };
+  }, []);
+
+  // Fetch initial data
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Helper: get today in Philippine timezone (YYYY-MM-DD)
   function getTodayFormatted() {
     const now = new Date();
 
@@ -24,8 +73,8 @@ const TruckMap = () => {
 
     // Format as YYYY-MM-DD
     const year = philippinesTime.getFullYear();
-    const month = String(philippinesTime.getMonth() + 1).padStart(2, '0');
-    const day = String(philippinesTime.getDate()).padStart(2, '0');
+    const month = String(philippinesTime.getMonth() + 1).padStart(2, "0");
+    const day = String(philippinesTime.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
   }
@@ -35,8 +84,7 @@ const TruckMap = () => {
       const { data, success } = await getAllTruck(user?.barangay, getTodayFormatted());
 
       if (success) {
-        // console.log(data.trucks2)
-        const list = user.role !== 'barangay_official' ? data.trucks : (data.trucks2 || []);
+        const list = user.role !== "barangay_official" ? data.trucks : data.trucks2 || [];
         setRecords(list);
         setFilteredRecords(list);
 
@@ -51,6 +99,7 @@ const TruckMap = () => {
     }
   };
 
+  // Filter records by selected status
   useEffect(() => {
     if (selectedStatus === "all") {
       setFilteredRecords(records);
@@ -63,82 +112,109 @@ const TruckMap = () => {
     }
   }, [selectedStatus, records]);
 
+  // Initialize map only once
   useEffect(() => {
-    const loadMap = async () => {
+    const initMap = async () => {
       if (!window.google) return;
       const { AdvancedMarkerElement } = await window.google.maps.importLibrary("marker");
 
-      const first = filteredRecords.find(
-        (r) => r.truck?.position?.lat && r.truck?.position?.lng
-      );
-      const center = first
-        ? { lat: first.truck.position.lat, lng: first.truck.position.lng }
-        : { lat: 11.0064, lng: 124.6075 }; // Default Ormoc City
-
+      // Default center Ormoc City
+      const center = { lat: 11.0064, lng: 124.6075 };
       const map = new window.google.maps.Map(document.getElementById("map"), {
         center,
         zoom: 12,
         mapId: "DEMO_MAP_ID",
       });
 
-      filteredRecords.forEach((record) => {
-        const truck = record.truck;
-        const route = record.route;
-        const lat = truck?.position?.lat;
-        const lng = truck?.position?.lng;
+      mapRef.current = { map, AdvancedMarkerElement };
+    };
 
-        if (!lat || !lng) return;
+    initMap();
+  }, []);
 
-        // --- 🔹 Create Truck ID label + colored icon
-        const iconImg = createStatusIcon(truck.status);
+  // Update markers when filteredRecords change
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const { map, AdvancedMarkerElement } = mapRef.current;
 
-        const markerDiv = document.createElement("div");
-        markerDiv.style.display = "flex";
-        markerDiv.style.flexDirection = "column";
-        markerDiv.style.alignItems = "center";
-        markerDiv.style.textAlign = "center";
+    // Helper to create marker content
+    const createMarkerContent = (truck) => {
+      const iconImg = createStatusIcon(truck.status);
 
-        // Label showing Truck ID
-        const label = document.createElement("div");
-        label.innerText = truck.truck_id || "N/A";
-        label.style.backgroundColor = "rgba(0,0,0,0.7)";
-        label.style.color = "white";
-        label.style.padding = "2px 6px";
-        label.style.borderRadius = "4px";
-        label.style.fontSize = "11px";
-        label.style.fontWeight = "600";
-        label.style.marginBottom = "3px";
-        label.style.whiteSpace = "nowrap";
+      const markerDiv = document.createElement("div");
+      markerDiv.style.display = "flex";
+      markerDiv.style.flexDirection = "column";
+      markerDiv.style.alignItems = "center";
+      markerDiv.style.textAlign = "center";
 
-        markerDiv.appendChild(label);
-        markerDiv.appendChild(iconImg);
+      const label = document.createElement("div");
+      label.innerText = truck.truck_id || "N/A";
+      label.style.backgroundColor = "rgba(0,0,0,0.7)";
+      label.style.color = "white";
+      label.style.padding = "2px 6px";
+      label.style.borderRadius = "4px";
+      label.style.fontSize = "11px";
+      label.style.fontWeight = "600";
+      label.style.marginBottom = "3px";
+      label.style.whiteSpace = "nowrap";
+
+      markerDiv.appendChild(label);
+      markerDiv.appendChild(iconImg);
+
+      return markerDiv;
+    };
+
+    // Update existing markers or add new markers
+    filteredRecords.forEach((record) => {
+      const truck = record.truck;
+      const lat = truck?.position?.lat;
+      const lng = truck?.position?.lng;
+      if (!lat || !lng) return;
+
+      const existingMarker = markersRef.current[truck.truck_id];
+
+      if (existingMarker) {
+        // Update position if changed
+        existingMarker.position = { lat, lng };
+        // Optionally update icon/status here if needed
+      } else {
+        // Create new marker
+        const content = createMarkerContent(truck);
 
         const marker = new AdvancedMarkerElement({
           map,
           position: { lat, lng },
           title: `Truck ID: ${truck.truck_id}`,
-          content: markerDiv,
+          content,
         });
 
-        // Open modal when marker clicked
         marker.addListener("click", () => {
           setSelectedTruck({
             truck_id: truck.truck_id,
             status: truck.status || "N/A",
-            route_name: route?.route_name || "No route assigned",
+            route_name: record.route?.route_name || "No route assigned",
             garbage_type: record.garbage_type || "N/A",
             scheduled_collection: record.scheduled_collection || "N/A",
             driver: truck.user || {},
             remark: record.remark || "None",
           });
         });
-      });
-    };
 
-    loadMap();
+        markersRef.current[truck.truck_id] = marker;
+      }
+    });
+
+    // Remove markers that no longer exist
+    const currentTruckIds = filteredRecords.map((r) => r.truck?.truck_id);
+    Object.keys(markersRef.current).forEach((truckId) => {
+      if (!currentTruckIds.includes(truckId)) {
+        markersRef.current[truckId].setMap(null);
+        delete markersRef.current[truckId];
+      }
+    });
   }, [filteredRecords]);
 
-  // Truck status icons
+  // Truck status icons helper
   const createStatusIcon = (status) => {
     const s = (status || "").toLowerCase();
     let iconUrl;
@@ -161,10 +237,12 @@ const TruckMap = () => {
 
   return (
     <div className="relative">
-      {/* Map */}
+      {/* Status filter dropdown (optional, add UI if needed) */}
+
+      {/* Map container */}
       <div id="map" className="w-full h-[500px] rounded shadow" />
 
-      {/* Modal */}
+      {/* Modal for selected truck */}
       {selectedTruck && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
