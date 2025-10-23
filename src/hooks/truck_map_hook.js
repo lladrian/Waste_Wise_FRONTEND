@@ -21,14 +21,3 @@ export const getAllTruck = async (barangay_id, date) => {
     throw error;
   }
 };
-
-export const updateTruck = async (id, data) => {
-  try {
-    const res = await API.updateTruck(id, data);
-
-    return { data: res.data, success: true };
-  } catch (error) {
-    // console.error("Failed to register user:", error);
-    throw error;
-  }
-};

@@ -1,65 +1,96 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from 'react';
 
 function WebSocketTest() {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [ws, setWs] = useState(null);
+  const [input, setInput] = useState('');
+  const ws = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // const socket = new WebSocket("ws://localhost:5000");
-    // const socket = new WebSocket("ws://waste-wise-backend-chi.vercel.app");
-    const socket = new WebSocket("wss://waste-wise-backend-chi.vercel.app");
+    ws.current = new WebSocket('ws://localhost:5000');
+    // ws.current = new WebSocket('wss://waste-wise-backend-uzub.onrender.com');
 
-
-    socket.onopen = () => {
-      console.log("Connected to server");
+    ws.current.onopen = () => {
+      console.log('✅ Connected');
+      setIsConnected(true);
     };
 
-    socket.onmessage = (event) => {
-      setMessages((prev) => [...prev, event.data]);
+    ws.current.onmessage = async (event) => {
+      let messageText;
+
+      // Check if data is Blob and convert it to text
+      if (event.data instanceof Blob) {
+        messageText = await event.data.text();
+      } else {
+        messageText = event.data;
+      }
+
+      console.log('📩 Message received:', messageText);
+      setMessages((prev) => [...prev, messageText]);
     };
 
-    socket.onclose = () => {
-      console.log("Disconnected from server");
+    ws.current.onclose = () => {
+      console.log('🔌 Disconnected');
+      setIsConnected(false);
     };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
+    ws.current.onerror = (error) => {
+      console.error('❌ WebSocket error:', error);
     };
-
-    setWs(socket);
 
     return () => {
-      socket.close();
+      if (ws.current) {
+        ws.current.close();
+      }
     };
   }, []);
 
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
   const sendMessage = () => {
-    if (ws && input) {
-      ws.send(input);
-      setInput("");
+    if (ws.current && isConnected && input.trim()) {
+      ws.current.send(input);
+      setMessages((prev) => [...prev, `You: ${input}`]);
+      setInput('');
     }
   };
 
   return (
-    <div>
-      <h2>WebSocket Test</h2>
+    <div style={{ padding: '2rem' }}>
+      <h2>💬 Realtime Chat (WebSocket)</h2>
+
+      <div
+        style={{
+          border: '1px solid #ccc',
+          padding: '1rem',
+          height: '300px',
+          overflowY: 'auto',
+          marginBottom: '1rem',
+        }}
+      >
+        {messages.map((msg, i) => (
+          <div key={i}>{msg}</div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Message to server"
+        onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+        placeholder={isConnected ? 'Type a message...' : 'Connecting...'}
+        disabled={!isConnected}
+        style={{ marginRight: '0.5rem' }}
       />
-      <button onClick={sendMessage}>Send</button>
-
-      <div style={{ marginTop: 20 }}>
-        <h3>Messages:</h3>
-        {messages.map((msg, i) => (
-          <div key={i} style={{ borderBottom: "1px solid #ccc" }}>
-            {msg}
-          </div>
-        ))}
-      </div>
+      <button onClick={sendMessage} disabled={!isConnected || !input.trim()}>
+        Send
+      </button>
     </div>
   );
 }
