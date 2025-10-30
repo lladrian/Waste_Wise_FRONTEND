@@ -54,6 +54,21 @@ export const getAllBarangay = () => axios.get(`/barangays/get_all_barangay`);
 export const getSpecificBarangay = (id) => axios.get(`/barangays/get_specific_barangay/${id}`);
 export const deleteBarangay = (id) => axios.delete(`/barangays/delete_barangay/${id}`);
 export const updateBarangay = (id, data) => axios.put(`/barangays/update_barangay/${id}`, data);
+export const createRequest = (data) => axios.post(`/requests/add_request`,data);
+export const getAllRequest = () => axios.get(`/requests/get_all_request`);
+export const getSpecificRequest = (id) => axios.get(`/requests/get_specific_request/${id}`);
+export const deleteRequest = (id) => axios.delete(`/requests/delete_request/${id}`);
+export const updateRequest = (id, data) => axios.put(`/requests/update_request/${id}`, data);
+export const updateRequestApproval = (id, data) => axios.put(`/requests/update_request_approval/${id}`, data);
+export const getAllNotificationSpecificUser = (id) => axios.get(`/notifications/get_all_notification_specific_user/${id}`);
+export const updateReadAllNotificationSpecificUser = (user_id) => axios.put(`/notifications/update_read_all_notification_specific_user/${user_id}`);
+export const updateReadMultipleNotification = (data) => axios.post(`/notifications/update_read_multiple_notification`,data);
+export const updateArchiveMultipleNotification = (data) => axios.post(`/notifications/update_archive_multiple_notification`,data);
+export const createGarbageSite = (data) => axios.post(`/garbage_sites/add_garbage_site`,data);
+export const getAllGarbageSite = () => axios.get(`/garbage_sites/get_all_garbage_site`);
+export const updateGarbageSite = (id, data) => axios.put(`/garbage_sites/update_garbage_site/${id}`, data);
+export const deleteGarbageSite = (id) => axios.delete(`/garbage_sites/delete_garbage_site/${id}`);
+
 
 
 
@@ -67,12 +82,13 @@ export const getSpecificResidentUser = (id) => axios.get(`/residents/get_specifi
 export const loginResidentUser = (data) => axios.post('/residents/login_user', data);
 
 
+export const getAllGarbageReport = () => axios.get(`/garbage_reports/get_all_garbage_report`);
+export const getAllGarbageReportSpecificBarangay = (id) => axios.get(`/garbage_reports/get_all_garbage_report_specific_barangay/${id}`);
 
-export const createRequest = (data) => axios.post(`/requests/add_request`,data);
-export const getAllRequest = () => axios.get(`/requests/get_all_request`);
-export const getSpecificRequest = (id) => axios.get(`/requests/get_specific_request/${id}`);
-export const deleteRequest = (id) => axios.delete(`/requests/delete_request/${id}`);
-export const updateRequest = (id, data) => axios.put(`/requests/update_request/${id}`, data);
-export const updateRequestApproval = (id, data) => axios.put(`/requests/update_request_approval/${id}`, data);
+export const getAllCollectorReport = () => axios.get(`/collector_reports/get_all_collector_report`);
+
+
+
+
 
 

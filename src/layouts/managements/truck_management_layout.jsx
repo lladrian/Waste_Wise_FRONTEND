@@ -73,6 +73,7 @@ const TruckManagementLayout = () => {
                 truck?.user?.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 truck?.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 truck?.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${truck.user.first_name} ${truck.user.middle_name} ${truck.user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 truck?.truck_id.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }

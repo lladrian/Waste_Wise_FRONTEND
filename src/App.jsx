@@ -22,12 +22,17 @@ import AdminRouteManagementPage from './pages/managements/admin/AdminRouteManage
 import AdminTruckManagementPage from './pages/managements/admin/AdminTruckManagementPage';
 import AdminComplainManagementPage from './pages/managements/admin/AdminComplainManagementPage';
 import AdminBarangayManagementPage from './pages/managements/admin/AdminBarangayManagementPage';
+import AdminGarbageReportManagementPage from './pages/managements/admin/AdminGarbageReportManagementPage';
+import AdminCollectorReportManagementPage from './pages/managements/admin/AdminCollectorReportManagementPage';
+import AdminGarbageSiteManagementPage from './pages/managements/admin/AdminGarbageSiteManagementPage';
 import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
 import AdminUserRequestApprovalPage from './pages/approvals/admin/AdminUserRequestApprovalPage';
+
 
 import AdminLogPage from './pages/admin/AdminLogPage';
 import AdminUpdateProfilePage from './pages/admin/AdminUpdateProfilePage';
 import AdminTruckMapPage from './pages/admin/AdminTruckMapPage';
+import AdminNotificationPage from './pages/admin/AdminNotificationPage';
 
 
 import StaffDashboardPage from './pages/staff/StaffDashboardPage';
@@ -37,6 +42,8 @@ import StaffRouteManagementPage from './pages/managements/staff/StaffRouteManage
 import StaffTruckManagementPage from './pages/managements/staff/StaffTruckManagementPage';
 import StaffComplainManagementPage from './pages/managements/staff/StaffComplainManagementPage';
 import StaffBarangayManagementPage from './pages/managements/staff/StaffBarangayManagementPage';
+import StaffGarbageReportManagementPage from './pages/managements/staff/StaffGarbageReportManagementPage';
+import StaffCollectorReportManagementPage from './pages/managements/staff/StaffCollectorReportManagementPage';
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
 
 import StaffLogPage from './pages/staff/StaffLogPage';
@@ -47,10 +54,16 @@ import StaffTruckMapPage from './pages/staff/StaffTruckMapPage';
 import OfficialDashboardPage from './pages/official/OfficialDashboardPage';
 import OfficialScheduleManagementPage from './pages/managements/official/OfficialScheduleManagementPage';
 import OfficialComplainManagementPage from './pages/managements/official/OfficialComplainManagementPage';
+import OfficialGarbageReportManagementPage from './pages/managements/official/OfficialGarbageReportManagementPage';
+import OfficialCollectorReportManagementPage from './pages/managements/official/OfficialCollectorReportManagementPage';
+
+
 
 import OfficialTruckMapPage from './pages/official/OfficialTruckMapPage';
 import OfficialLogPage from './pages/official/OfficialLogPage';
 import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
+import OfficialNotificationPage from './pages/official/OfficialNotificationPage';
+
 
 function App() {
   return (
@@ -67,8 +80,16 @@ function App() {
         <Route path="/account_request" element={<AccountRequestPage />} />
 
 
-
         {/* Admin Routes */}
+        <Route
+          path="/admin/notifications"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminNotificationPage />
+            </ProtectedRoute>
+          }
+        />
+        
         <Route
           path="/admin/update_profile"
           element={
@@ -103,6 +124,36 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/management/garbage_reports"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminGarbageReportManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/management/garbage_sites"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminGarbageSiteManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        
+
+        <Route
+          path="/admin/management/collector_reports"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminCollectorReportManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        
         <Route
           path="/admin/management/users"
           element={
@@ -250,7 +301,22 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+           <Route
+          path="/staff/management/garbage_reports"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffGarbageReportManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/management/collector_reports"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffCollectorReportManagementPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/staff/management/trucks"
           element={
@@ -291,6 +357,14 @@ function App() {
 
 
         <Route
+          path="/official/notifications"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialNotificationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/official/dashboard"
           element={
             <ProtectedRoute allowedRoles={['barangay_official']}>
@@ -317,6 +391,22 @@ function App() {
           }
         />
 
+        <Route
+          path="/official/management/garbage_reports"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialGarbageReportManagementPage />
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/official/management/collector_reports"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialCollectorReportManagementPage />
+            </ProtectedRoute>
+          }
+        />
            <Route
           path="/official/update_profile"
           element={

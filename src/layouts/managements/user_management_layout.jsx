@@ -82,6 +82,7 @@ const UserManagementLayout = () => {
                 user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${user.first_name} ${user.middle_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 formatRole(user.role).toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user?.role_action?.action_name.toLowerCase().includes(searchTerm.toLowerCase())
             );
