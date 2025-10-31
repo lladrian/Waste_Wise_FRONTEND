@@ -106,9 +106,14 @@ const LogManagementLayout = () => {
                 user?.user?.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user?.user?.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user?.user?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user?.user?.role.toLowerCase().includes(searchTerm.toLowerCase())
+                user?.user?.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.device.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${user.user.first_name} ${user.user.middle_name} ${user.user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.os.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
+
 
         // Role filter
         if (selectedRole) {

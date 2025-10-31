@@ -91,6 +91,7 @@ const UserRequestApprovalLayout = () => {
                 user.gender?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.contact_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${user?.first_name} ${user?.middle_name} ${user?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.role?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }

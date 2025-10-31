@@ -110,6 +110,8 @@ const AccountVerificationPage = () => {
       const { data, success } = await verifyOTP(input_data);
 
       if (success === false) {
+        console.log(123)
+        console.log(data.message)
         toast.error(data.message || "Invalid verification code. Please try again.");
       } else {
         const input_data_2 = {
@@ -135,7 +137,7 @@ const AccountVerificationPage = () => {
         }
       }
     } catch (error) {
-      
+          console.log(error)
       if (error.response && error.response.data) {
         toast.error(error.response.data.message || "Invalid verification code. Please try again.");
       } else {

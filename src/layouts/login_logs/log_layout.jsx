@@ -58,7 +58,6 @@ const LogLayout = () => {
     const fetchData = async () => {
         try {
             const { data, success } = await getAllLoginLogSpecificUser(user?._id);
-
             if (success === true) {
                 setUsers(data)
                 setFilteredUsers(data)
@@ -132,7 +131,10 @@ const LogLayout = () => {
                 user.user.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 user.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.user.role.toLowerCase().includes(searchTerm.toLowerCase())
+                user.user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.device.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.os.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 

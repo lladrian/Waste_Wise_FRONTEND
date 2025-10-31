@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
+  //baseURL: 'https://waste-wise-backend-uzub.onrender.com',
   baseURL: 'https://waste-wise-backend-chi.vercel.app',
   //baseURL: 'http://localhost:5000',
   timeout: 10000,

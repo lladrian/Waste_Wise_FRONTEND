@@ -100,7 +100,8 @@ const ScheduleApprovalLayout = () => {
             filtered = filtered.filter(schedule =>
                 schedule?.truck?.user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 schedule?.truck?.user?.middle_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                schedule?.truck?.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
+                schedule?.truck?.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${schedule?.truck?.user?.first_name} ${schedule?.truck?.user?.middle_name} ${schedule?.truck?.user?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) 
             );
         }
 
