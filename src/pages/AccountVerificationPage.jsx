@@ -104,9 +104,9 @@ const AccountVerificationPage = () => {
       const input_data = {
         otp_type: "verification",
         email: dataUser.user.email,
-        otp: otp
+        otp: otp.join('')
       };
-
+  
       const { data, success } = await verifyOTP(input_data);
 
       if (success === false) {
@@ -115,6 +115,7 @@ const AccountVerificationPage = () => {
         const input_data_2 = {
           verify: true
         };
+
         const { data, success } = await verifyUser(dataUser.user._id, input_data_2);
 
         if (success === false) {
@@ -135,7 +136,8 @@ const AccountVerificationPage = () => {
         }
       }
     } catch (error) {
-      
+          console.log(error)
+            console.log(222)
       if (error.response && error.response.data) {
         toast.error(error.response.data.message || "Invalid verification code. Please try again.");
       } else {

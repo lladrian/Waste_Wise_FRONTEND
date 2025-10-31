@@ -46,11 +46,11 @@ const TruckMap = () => {
     };
 
     ws.current.onopen = () => {
-      console.log("WebSocket connected");
+      // console.log("WebSocket connected");
     };
 
     ws.current.onclose = () => {
-      console.log("WebSocket disconnected");
+      // console.log("WebSocket disconnected");
     };
 
     return () => {

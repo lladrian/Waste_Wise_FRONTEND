@@ -18,26 +18,36 @@ import {
   FiFolder,
   FiUsers,
   FiBarChart2,
-  FiCalendar
+  FiCalendar,
+  FiX
 } from "react-icons/fi";
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
+
 import { AuthContext } from '../context/AuthContext';
+import { getAllNotificationSpecificUser, updateReadSpecificNotification, updateReadAllNotificationSpecificUser, } from "../hooks/notification_hook";
+import { toast } from "react-toastify";
+import { formatDistanceToNow } from 'date-fns';
+
 
 const StaffLayout = ({ children }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     management: location.pathname.includes('/staff/management')
   });
-  const navigate = useNavigate();
   const { logout, user, refresh } = useContext(AuthContext);
-
   const adminFirstName = user?.first_name;
   const adminMiddleName = user?.middle_name;
   const adminLastName = user?.last_name;
   const adminEmail = user?.email;
   const adminId = user?._id || "N/A";
+
+  // Notification state
+  const [notifications, setNotifications] = useState([]);
+
 
   // Optimized navigation with grouped items for WasteWise
   const navItems = [
@@ -50,22 +60,24 @@ const StaffLayout = ({ children }) => {
       label: "Management",
       subItems: [
         { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
+        { path: "/staff/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
+        { path: "/staff/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
         ...(user?.role !== 'enro_staff_head'
           ? [{ path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" }]
           : []
         ),
-        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head' 
+        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head'
           ? [{ path: "/staff/management/routes", icon: FiUsers, label: "Route Management" }]
           : []
         ),
-        ...(user?.role !== 'enro_staff_head'  && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head' 
+        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head'
           ? [{ path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" }]
           : []
         ),
-        ...(user?.role !== 'enro_staff_head'  && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head' 
+        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head'
           ? [{ path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" }]
           : []
-        ),  
+        ),
         { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
       ]
     },
@@ -92,9 +104,20 @@ const StaffLayout = ({ children }) => {
 
   useEffect(() => {
     refresh();
+    fetchData();
   }, []);
 
-
+    const fetchData = async () => {
+    try {
+      const { data, success } = await getAllNotificationSpecificUser(user?._id);
+      if (success === true) {
+        setNotifications(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching notification data:", err);
+      toast.error("Failed to load notifications");
+    }
+  };
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -105,10 +128,49 @@ const StaffLayout = ({ children }) => {
 
   const handleLogout = () => {
     navigate("/");
-    localStorage.clear();
     logout();
+    localStorage.clear();
   };
 
+  // Notification functions
+ const markAsRead = async (notificationId) => {
+    try {
+      const { data, success } = await updateReadSpecificNotification(notificationId);
+      if (success === true) {
+        // toast.success("Notification marked as read");
+      }
+    } catch (err) {
+      console.error("Error marking as read:", err);
+      toast.error("Failed to mark as read");
+    }
+  };
+
+  const markAllAsRead = async () => {
+      try {
+          const { data, success } = await updateReadAllNotificationSpecificUser(user?._id);
+          if (success === true) {
+            toast.success("All notifications marked as read");
+            fetchData();
+          }
+        } catch (err) {
+          console.error("Error marking all as read:", err);
+          toast.error("Failed to mark all as read");
+        }
+  };
+
+  const deleteNotification = (notificationId, e) => {
+    e.stopPropagation();
+    setNotifications(notifications.filter(notification => notification._id !== notificationId));
+  };
+
+  const handleNotificationClick = (notification) => {
+    markAsRead(notification._id);
+    setNotificationDropdownOpen(false);
+    navigate(notification.link);
+  };
+
+  // Get unread notifications count
+  const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
 
   const customTitles = {
@@ -123,7 +185,10 @@ const StaffLayout = ({ children }) => {
     'management/barangays': 'Barangay Management',
     'management/trucks': 'Truck Management',
     'management/complains': 'Complain Management',
+    'management/garbage_reports': 'Garbage Report Management',
+    'management/collector_reports': 'Collector Report Management',
 
+  
     // Approval section
     'approval': 'Approval Management',
     'approval/schedules': 'Schedule Approval',
@@ -136,8 +201,6 @@ const StaffLayout = ({ children }) => {
 
   const getPageTitle = () => {
     const segments = location.pathname.split("/").filter(Boolean);
-
-    // Remove 'staff' prefix for matching
     const relevantSegments = segments.slice(1);
     const pathKey = relevantSegments.join('/');
 
@@ -163,10 +226,6 @@ const StaffLayout = ({ children }) => {
       .replace(/\b\w/g, (c) => c.toUpperCase()) || "Waste Management Dashboard";
   };
 
-  // Get pending requests count
-  const pendingRequestsCount = 5;
-  const urgentRequestsCount = 2;
-
   const isRequestActive = (requestPath) => {
     return location.pathname.startsWith(requestPath);
   };
@@ -186,14 +245,11 @@ const StaffLayout = ({ children }) => {
               <div className="flex items-center space-x-2 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-base font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                    {/* WasteWise  */}
                     {
                       user?.role === 'enro_staff_head' ? 'Staff Head' :
-                      user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
-                      user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
-                      user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
-
-                            // user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
+                        user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
+                          user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
+                            user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
                               'Staff'
                     }
                   </h1>
@@ -253,7 +309,7 @@ const StaffLayout = ({ children }) => {
 
                     {/* Sub Items */}
                     {sidebarOpen && isExpanded && (
-                      <div className="ml-6 space-y-1">
+                      <div className="ml-2 space-y-1">
                         {item.subItems.map((subItem) => {
                           const isSubActive = location.pathname.startsWith(subItem.path);
                           const showBadge = subItem.badge && subItem.badge > 0;
@@ -313,21 +369,6 @@ const StaffLayout = ({ children }) => {
 
         {/* User Profile & Logout - Compact */}
         <div className="p-2 border-t border-blue-200/40 space-y-2 flex-shrink-0">
-          {/* Admin Quick Stats - Only show when sidebar is open */}
-          {/* {sidebarOpen && (
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2 border border-blue-200/40">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-medium text-gray-600">Pending</span>
-                <span className="text-xs font-bold text-orange-500">{pendingRequestsCount}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-medium text-gray-600">Admin ID</span>
-                <span className="text-xs font-bold text-blue-600 truncate">{adminId}</span>
-              </div>
-            </div>
-          )} */}
-
-          {/* Admin & Logout */}
           <div className="space-y-1">
             <div className="flex items-center p-2 rounded-lg bg-blue-50/80 border border-blue-200/40">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
@@ -342,11 +383,11 @@ const StaffLayout = ({ children }) => {
                   </p>
                   <p className="text-xs text-gray-500 truncate">
                     {
-                      user?.role === 'enro_staff_head' ? 'Staff Head' :
+                        user?.role === 'enro_staff_head' ? 'Staff Head' :
                         user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
-                          user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
-                            user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
-                              'Staff'
+                        user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
+                        user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
+                        'Staff'
                     }
                   </p>
                 </div>
@@ -381,12 +422,92 @@ const StaffLayout = ({ children }) => {
 
             <div className="flex items-center space-x-4 flex-shrink-0">
               {/* Notifications */}
-              <button className="relative p-2 rounded-lg hover:bg-blue-50/80 transition-all duration-300 group">
-                <FiBell className="w-4 h-4 text-gray-600 group-hover:text-blue-600" />
-                {pendingRequestsCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              <div className="relative">
+                <button
+                  onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                  className="relative p-2 rounded-lg hover:bg-blue-50/80 transition-all duration-300 group"
+                >
+                  <FiBell className="w-4 h-4 text-gray-600 group-hover:text-blue-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                  )}
+                </button>
+
+                {/* Notification Dropdown */}
+                {notificationDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-1 w-80 bg-white/95 backdrop-blur-lg rounded-xl shadow-xl border border-blue-200/60 py-2 z-30 max-h-96 overflow-hidden">
+                    <div className="px-4 py-2 border-b border-blue-200/40 flex justify-between items-center">
+                      <h3 className="font-semibold text-gray-800">Notifications</h3>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllAsRead}
+                          className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="overflow-y-auto max-h-64">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-8 text-center text-gray-500">
+                          <FiBell className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p>No notifications</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification._id}
+                            onClick={() => handleNotificationClick(notification)}
+                            className={`px-4 py-3 border-b border-blue-200/40 last:border-b-0 cursor-pointer transition-colors duration-200 hover:bg-blue-50/50 ${!notification.is_read ? 'bg-blue-50/30' : ''
+                              }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className={`font-medium text-sm truncate ${!notification.is_read ? 'text-blue-800' : 'text-gray-800'
+                                    }`}>
+                                    {notification.title}
+                                  </h4>
+                                  {/* <button
+                                    onClick={(e) => deleteNotification(notification._id, e)}
+                                    className="ml-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                                  >
+                                    <FiX className="w-3 h-3" />
+                                  </button> */}
+                                </div>
+                                <p className="text-xs text-gray-600 mb-1 line-clamp-2">
+                                  {notification.notif_content}
+                                </p>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-gray-500">
+                                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                                  </span>
+                                  {!notification.is_read && (
+                                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {notifications.length > 0 && (
+                      <div className="px-4 py-2 border-t border-blue-200/40">
+                        <Link
+                          to="/admin/notifications"
+                          className="text-xs text-blue-600 hover:text-blue-800 font-medium text-center block"
+                          onClick={() => setNotificationDropdownOpen(false)}
+                        >
+                          View all notifications
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </button>
+              </div>
 
               {/* Admin Dropdown */}
               <div className="relative">
@@ -403,7 +524,6 @@ const StaffLayout = ({ children }) => {
                     <p className="text-sm font-semibold text-gray-800 truncate">
                       {adminFirstName} {adminLastName}
                     </p>
-                    {/* <p className="text-xs text-gray-500 truncate">ID: {adminId}</p> */}
                   </div>
                   <FiChevronDown className={`w-3 h-3 text-gray-500 transition-transform duration-300 flex-shrink-0 ${userDropdownOpen ? "rotate-180" : ""
                     }`} />
@@ -432,9 +552,9 @@ const StaffLayout = ({ children }) => {
                     >
                       <FiFileText className="w-3 h-3 mr-2 flex-shrink-0" />
                       <span className="truncate flex-1">Collection Requests</span>
-                      {pendingRequestsCount > 0 && (
+                      {unreadCount > 0 && (
                         <span className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full flex-shrink-0">
-                          {pendingRequestsCount}
+                          {unreadCount}
                         </span>
                       )}
                     </Link>
@@ -470,11 +590,14 @@ const StaffLayout = ({ children }) => {
         </main>
       </div>
 
-      {/* Backdrop for dropdown */}
-      {userDropdownOpen && (
+      {/* Backdrop for dropdowns */}
+      {(userDropdownOpen || notificationDropdownOpen) && (
         <div
           className="fixed inset-0 z-10"
-          onClick={() => setUserDropdownOpen(false)}
+          onClick={() => {
+            setUserDropdownOpen(false);
+            setNotificationDropdownOpen(false);
+          }}
         />
       )}
     </div>
