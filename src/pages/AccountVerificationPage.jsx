@@ -106,6 +106,7 @@ const AccountVerificationPage = () => {
         email: dataUser.user.email,
         otp: otp.join('')
       };
+    
   
       const { data, success } = await verifyOTP(input_data);
 
@@ -120,6 +121,7 @@ const AccountVerificationPage = () => {
 
         if (success === false) {
           toast.error(data.message || "Failed to verify. Please try again.");
+          return;
         }
     
         await login(dataUser.user, dataUser.fetched_at);
