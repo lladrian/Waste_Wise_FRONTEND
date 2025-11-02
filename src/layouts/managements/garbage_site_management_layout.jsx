@@ -18,6 +18,9 @@ import { createGarbageSite, getAllGarbageSite, deleteGarbageSite, updateGarbageS
 
 import { toast } from "react-toastify";
 
+import MapLocationPicker from '../../components/MapLocationPicker';
+
+
 const GarbageSiteManagementLayout = () => {
     const [garbageSites, setGarbageSites] = useState([]);
     const [filteredGarbageSites, setFilteredGarbageSites] = useState([]);
@@ -25,10 +28,29 @@ const GarbageSiteManagementLayout = () => {
     const [showModal, setShowModal] = useState(false);
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingGarbageSites, setEditingGarbageSite] = useState(null);
+    const [barangays, setBarangays] = useState([]);
+
+
+    // Also update your formData state to include markerPosition
     const [formData, setFormData] = useState({
         barangay: '',
-        garbage_site_name: ''
+        garbage_site_name: '',
+        latitude: '',
+        longitude: '',
+        markerPosition: null // { x: number, y: number }
     });
+
+    // And update resetForm to reset markerPosition
+    const resetForm = () => {
+        setFormData({
+            barangay: '',
+            garbage_site_name: '',
+            latitude: '',
+            longitude: '',
+            markerPosition: null
+        });
+        setEditingGarbageSite(null);
+    };
 
     useEffect(() => {
         fetchData();
@@ -39,8 +61,9 @@ const GarbageSiteManagementLayout = () => {
         try {
             const { data, success } = await getAllGarbageSite();
             if (success === true) {
-                setGarbageSites(data.data)
-                setFilteredGarbageSites(data.data)
+                setBarangays(data.barangays.data)
+                setGarbageSites(data.garbage_sites.data)
+                setFilteredGarbageSites(data.garbage_sites.data)
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -70,16 +93,15 @@ const GarbageSiteManagementLayout = () => {
         e.preventDefault();
 
         const input_data = {
-            // barangay: formData.barangay || ,
-            barangay: '68f2ffff73cd4ede59ae53a6' ,
+            barangay: formData.barangay,
             garbage_site_name: formData.garbage_site_name,
-            latitude: '11.01234',
-            longitude: '124.01234',
+            latitude: formData.latitude,
+            longitude: formData.longitude,
         };
 
         if (editingGarbageSites) {
             try {
-                const { data, success } = await updateBarangay(editingGarbageSites._id, input_data);
+                const { data, success } = await updateGarbageSite(editingGarbageSites._id, input_data);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to update garbage site");
@@ -125,8 +147,10 @@ const GarbageSiteManagementLayout = () => {
     const handleEdit = (site) => {
         setEditingGarbageSite(site);
         setFormData({
-            barangay: site.barangay,
+            barangay: site.barangay._id,
             garbage_site_name: site.garbage_site_name,
+            latitude: site.position.lat,
+            longitude: site.position.lng,
         });
 
         setShowModal(true);
@@ -136,7 +160,7 @@ const GarbageSiteManagementLayout = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this garbage site?')) {
             try {
-                const { data, success } = await deleteBarangay(id);
+                const { data, success } = await deleteGarbageSite(id);
 
                 if (success === true) {
                     toast.success(data.data);
@@ -150,14 +174,7 @@ const GarbageSiteManagementLayout = () => {
     };
 
 
-    const resetForm = () => {
-        setFormData({
-            barangay: '',
-            garbage_site_name: '',
-        });
 
-        setEditingGarbageSite(null);
-    };
 
 
     const handleInputChange = (e) => {
@@ -165,6 +182,16 @@ const GarbageSiteManagementLayout = () => {
         setFormData(prev => ({
             ...prev,
             [name]: value
+        }));
+    };
+
+
+    const handleLocationSelect = (location) => {
+        console.log('Selected location:', location);
+        setFormData(prev => ({
+            ...prev,
+            latitude: location.lat,
+            longitude: location.lng
         }));
     };
 
@@ -281,7 +308,7 @@ const GarbageSiteManagementLayout = () => {
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
@@ -303,6 +330,26 @@ const GarbageSiteManagementLayout = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Barangay
+                                        </label>
+                                        <select
+                                            name="barangay"
+                                            value={formData.barangay || ""}
+                                            onChange={handleInputChange}
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Barangay</option>
+                                            {barangays?.filter(barangay => barangay?._id && barangay?.barangay_name)
+                                                .map((barangay) => (
+                                                    <option key={barangay._id} value={barangay._id}>
+                                                        {barangay.barangay_name}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Site Name
                                         </label>
                                         <input
@@ -315,8 +362,63 @@ const GarbageSiteManagementLayout = () => {
                                             placeholder="Enter Site Name"
                                         />
                                     </div>
-                                </div>
 
+                                    {/* Map Container */}
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Select Location on Map
+                                        </label>
+                                        <div className="border border-gray-300 rounded-lg bg-gray-100 relative overflow-hidden">
+                                            <div className="w-full h-full relative">
+                                                {editingGarbageSites ? (
+                                                    <MapLocationPicker
+                                                        initialLocation={{
+                                                            lat: formData.latitude,
+                                                            lng: formData.longitude
+                                                        }} 
+                                                        onLocationSelect={handleLocationSelect}
+                                                    />
+                                                ) : (
+                                                    <MapLocationPicker onLocationSelect={handleLocationSelect} />
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            Click anywhere on the map to set the garbage site location
+                                        </p>
+                                    </div>
+
+                                    {/* Latitude and Longitude Display */}
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Latitude
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="latitude"
+                                            value={formData.latitude || ""}
+                                            onChange={handleInputChange}
+                                            readOnly
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+                                            placeholder="Click on map to set latitude"
+                                        />
+                                    </div>
+
+                                    <div className="md:col-span-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Longitude
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="longitude"
+                                            value={formData.longitude || ""}
+                                            onChange={handleInputChange}
+                                            readOnly
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+                                            placeholder="Click on map to set longitude"
+                                        />
+                                    </div>
+                                </div>
 
                                 {/* Action Buttons */}
                                 <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
@@ -342,7 +444,6 @@ const GarbageSiteManagementLayout = () => {
                     </div>
                 </div>
             )}
-
 
             {showModalPassword && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

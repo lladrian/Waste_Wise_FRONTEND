@@ -23,6 +23,7 @@ import { getAllCollectorReport } from "../../hooks/collector_report_management_h
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
+import MapLocationMarker from '../../components/MapLocationMarker';
 
 
 const ReportGarbageManagementLayout = () => {
@@ -766,15 +767,12 @@ const ReportGarbageManagementLayout = () => {
 
                         {/* Map Section */}
                         <div className="w-full h-[500px]">
-                            <iframe
-                                title="Google Map"
-                                src={`https://www.google.com/maps?q=${viewingCollectorReports?.position?.lat},${viewingCollectorReports?.position?.lng}&z=15&output=embed`}
-                                width="100%"
-                                height="100%"
-                                allowFullScreen
-                                loading="lazy"
-                                className="rounded-b-xl"
-                            ></iframe>
+                            <MapLocationMarker
+                                initialLocation={{
+                                    lat: viewingCollectorReports.position.lat,
+                                    lng: viewingCollectorReports.position.lng
+                                }}
+                            />
                         </div>
                     </div>
                 </div>

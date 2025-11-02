@@ -58,6 +58,7 @@ const OfficialLayout = ({ children }) => {
       subItems: [
          { path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" },
          { path: "/official/management/complains", icon: FiUsers, label: "Complain Management" },
+         { path: "/official/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
          { path: "/official/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
          { path: "/official/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
       ]
@@ -156,7 +157,7 @@ const customTitles = {
     'management/complains': 'Complain Management',
     'management/garbage_reports': 'Garbage Report Management',
     'management/collector_reports': 'Collector Report Management',
-
+    'management/garbage_sites': 'Garbage Site Management',
 
 
     // Approval section

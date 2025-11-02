@@ -78,6 +78,7 @@ const AccountRecoveryPage = () => {
           email: formData.email,
           otp: formData.verification_code
         };
+        console.log(input_data)
 
         const { data, success } = await verifyOTP(input_data);
 
