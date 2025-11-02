@@ -3,7 +3,6 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 import ProtectedRoute from './components/ProtectedRoute';
-import MapLocationPicker from './components/MapLocationPicker';
 
 import TestPage from './pages/TestPage';
 
@@ -73,7 +72,7 @@ function App() {
     <Router>
       <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<MapLocationPicker />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/test" element={<TestPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verification/:id" element={<AccountVerificationPage />} />
