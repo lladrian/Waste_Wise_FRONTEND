@@ -36,46 +36,50 @@ const MapLocationPicker = ({ initialLocation, onLocationSelect }) => {
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const newLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-           setSelectedLocation(newLocation);
+          setSelectedLocation(newLocation);
         },
         (error) => {
-          alert('Unable to get current location');
-          console.error(error);
+          console.warn('Geolocation error:', error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 10000,
         }
       );
     }
   };
 
 
-return (
-  <div className="w-full relative">
-  <GoogleMap
-    mapContainerStyle={mapContainerStyle}
-    center={center}
-    zoom={13}
-    onClick={handleMapClick}
-  >
-    {selectedLocation && <Marker position={selectedLocation} />}
-  </GoogleMap>
+  return (
+    <div className="w-full relative">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={13}
+        onClick={handleMapClick}
+      >
+        {selectedLocation && <Marker position={selectedLocation} />}
+      </GoogleMap>
 
-  {/* Control Buttons - overlay on top of map */}
-  <div className="absolute bottom-8 left-5 right-5 flex justify-between z-50">
-    <button
-      className="bg-blue-500 px-6 py-3 rounded-full text-white font-bold shadow-lg hover:bg-blue-600 transition-colors"
-      onClick={getCurrentLocation}
-      type="button"  // ← Add this line
-    >
-      Current Location
-    </button>
-  </div>
-</div>
+      {/* Control Buttons - overlay on top of map */}
+      <div className="absolute bottom-8 left-5 right-5 flex justify-between z-50">
+        <button
+          className="bg-blue-500 px-6 py-3 rounded-full text-white font-bold shadow-lg hover:bg-blue-600 transition-colors"
+          onClick={getCurrentLocation}
+          type="button"  // ← Add this line
+        >
+          Current Location
+        </button>
+      </div>
+    </div>
 
-);
+  );
 };
 
 export default MapLocationPicker;
