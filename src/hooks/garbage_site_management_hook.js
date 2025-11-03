@@ -17,8 +17,10 @@ export const createGarbageSite = async (data) => {
 export const getAllGarbageSite = async () => {
   try {
     const res = await API.getAllGarbageSite();
+    const res2 = await API.getAllBarangay();
+    
 
-    return { data: res.data, success: true };
+    return { data: {garbage_sites: res.data, barangays: res2.data }, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
     throw error;

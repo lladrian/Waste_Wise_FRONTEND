@@ -15,6 +15,5 @@ npm install @react-google-maps/api
 npm install @googlemaps/js-api-loader
 npm install socket.io-client
 npm install date-fns
-
-
+npm install @react-google-maps/api
 

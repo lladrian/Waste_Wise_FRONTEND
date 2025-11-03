@@ -23,6 +23,7 @@ import { getAllGarbageReportSpecificBarangay, getAllGarbageReport } from "../../
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
+import MapLocationMarker from '../../components/MapLocationMarker';
 
 
 const ReportGarbageManagementLayout = () => {
@@ -578,15 +579,12 @@ const ReportGarbageManagementLayout = () => {
 
                         {/* Map Section */}
                         <div className="w-full h-[500px]">
-                            <iframe
-                                title="Google Map"
-                                src={`https://www.google.com/maps?q=${viewingReportGarbages?.position?.lat},${viewingReportGarbages?.position?.lng}&z=15&output=embed`}
-                                width="100%"
-                                height="100%"
-                                allowFullScreen
-                                loading="lazy"
-                                className="rounded-b-xl"
-                            ></iframe>
+                            <MapLocationMarker
+                                initialLocation={{
+                                    lat: viewingReportGarbages.position.lat,
+                                    lng: viewingReportGarbages.position.lng
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -899,7 +897,7 @@ const ReportGarbageManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Barangay:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingReportGarbages?.user.barangay?.barangay_name || "None"}
+                                            {viewingReportGarbages?.user?.barangay?.barangay_name || "None"}
                                         </p>
                                     </div>
                                     <div>
