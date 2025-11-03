@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -8,23 +8,32 @@ import {
     FiFilter,
     FiBook,
     FiLock,
+    FiMapPin,
     FiUser,
     FiClock,
     FiCheckCircle,
     FiXCircle
 } from 'react-icons/fi';
 
-import { getSpecificBarangay, createBarangay, getAllBarangay, deleteBarangay, updateBarangay } from "../../hooks/barangay_hook";
+import { getSpecificBarangay, createBarangay, getAllBarangay, getAllGarbageSiteSpecifcBarangay, deleteBarangay, updateBarangay } from "../../hooks/barangay_hook";
 
 import { toast } from "react-toastify";
+import { AuthContext } from '../../context/AuthContext';
+
+import MapLocationMarkerMultiple from '../../components/MapLocationMarkerMultiple';
+
 
 const BarangayManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [barangays, setBarangays] = useState([]);
+    const [garbageSites, setGarbageSites] = useState([]);
+    const [garbageSitePositions, setGarbageSitePositions] = useState([]);
     const [filteredBarangays, setFilteredBarangays] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingBarangays, setEditingBarangay] = useState(null);
+    const [showMapModal, setShowMapModal] = useState(false);
     const [formData, setFormData] = useState({
         barangay_name: ''
     });
@@ -40,6 +49,24 @@ const BarangayManagementLayout = () => {
             if (success === true) {
                 setBarangays(data.data)
                 setFilteredBarangays(data.data)
+            }
+        } catch (err) {
+            console.error("Error fetching reg data:", err);
+            toast.error("Failed to load registration data");
+        }
+    };
+
+    const fetchDataGarbageSites = async (barangay_id) => {
+        try {
+            const { data, success } = await getAllGarbageSiteSpecifcBarangay(barangay_id);
+            if (success === true) {
+                const locations = data.data.map(site => ({
+                    lat: site.position.lat,
+                    lng: site.position.lng
+                }));
+
+                setGarbageSites(data.data);
+                setGarbageSitePositions(locations);
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -161,6 +188,12 @@ const BarangayManagementLayout = () => {
         }));
     };
 
+  
+    const handleViewMap = (report) => {
+        fetchDataGarbageSites(report._id)
+        setShowMapModal(true)
+    };
+
     return (
         <>
             <div className="space-y-6">
@@ -225,6 +258,13 @@ const BarangayManagementLayout = () => {
                                                     <FiEdit className="w-4 h-4" />
                                                 </button>
                                                 <button
+                                                    onClick={() => handleViewMap(barangay)}
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="View on Map"
+                                                >
+                                                    <FiMapPin className="w-4 h-4" />
+                                                </button>
+                                                <button
                                                     onClick={() => handleDelete(barangay._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Delete"
@@ -254,6 +294,26 @@ const BarangayManagementLayout = () => {
                     )}
                 </div>
             </div>
+
+            {showMapModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden">
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h2 className="text-lg font-semibold text-gray-800">Total Garbage Sites: ({garbageSites.length})</h2>
+                            <button
+                                onClick={() => setShowMapModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        {/* Map Section */}
+                        <div className="w-full h-[500px]">
+                            <MapLocationMarkerMultiple locations={garbageSitePositions} />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
