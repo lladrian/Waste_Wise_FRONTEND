@@ -69,6 +69,7 @@ const OfficialLayout = ({ children }) => {
     { path: "/official/truck_map", icon: FiBarChart2, label: "Truck Map" },
     { path: "/official/update_profile", icon: FiBarChart2, label: "Update Profile" },
     { path: "/official/notifications", icon: FiBarChart2, label: "Notifications" },
+    { path: "/official/garbage_sites", icon: FiBarChart2, label: "Garbage Sites" },
     // { path: "/official/analytics", icon: FiBarChart2, label: "Analytics" },
     // { path: "/official/settings", icon: FiSettings, label: "System Settings" },
   ];
@@ -163,8 +164,9 @@ const customTitles = {
     // Approval section
     'approval': 'Approval Management',
     'approval/schedules': 'Schedule Approval',
-
+    
     // Other pages
+    'garbage_sites': 'Garbage Site',
     'login_history': 'Login History',
     'update_profile': 'Update Profile',
     'truck_map': 'Truck Map',

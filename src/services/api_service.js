@@ -68,6 +68,7 @@ export const createGarbageSite = (data) => axios.post(`/garbage_sites/add_garbag
 export const getAllGarbageSite = () => axios.get(`/garbage_sites/get_all_garbage_site`);
 export const updateGarbageSite = (id, data) => axios.put(`/garbage_sites/update_garbage_site/${id}`, data);
 export const deleteGarbageSite = (id) => axios.delete(`/garbage_sites/delete_garbage_site/${id}`);
+export const getAllGarbageSiteSpecifcBarangay = (id) => axios.get(`/garbage_sites/get_all_garbage_site_specific_barangay/${id}`);
 
 
 
@@ -86,6 +87,7 @@ export const getAllGarbageReport = () => axios.get(`/garbage_reports/get_all_gar
 export const getAllGarbageReportSpecificBarangay = (id) => axios.get(`/garbage_reports/get_all_garbage_report_specific_barangay/${id}`);
 
 export const getAllCollectorReport = () => axios.get(`/collector_reports/get_all_collector_report`);
+
 
 
 

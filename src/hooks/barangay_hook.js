@@ -23,10 +23,22 @@ export const createBarangay = async (data) => {
   }
 };
 
+export const getAllGarbageSiteSpecifcBarangay = async (barangay_id) => {
+  try {
+    const res = await API.getAllGarbageSiteSpecifcBarangay(barangay_id);
+    
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
 
 export const getAllBarangay = async () => {
   try {
     const res = await API.getAllBarangay();
+    
 
     return { data: res.data, success: true };
   } catch (error) {

@@ -65,6 +65,9 @@ import OfficialTruckMapPage from './pages/official/OfficialTruckMapPage';
 import OfficialLogPage from './pages/official/OfficialLogPage';
 import OfficialUpdateProfilePage from './pages/official/OfficialUpdateProfilePage';
 import OfficialNotificationPage from './pages/official/OfficialNotificationPage';
+import OfficialGarbageSitePage from './pages/official/OfficialGarbageSitePage';
+
+
 
 
 function App() {
@@ -409,8 +412,18 @@ function App() {
             <ProtectedRoute allowedRoles={['barangay_official']}>
               <OfficialCollectorReportManagementPage />
             </ProtectedRoute>
+          }   
+        />
+
+        <Route
+          path="/official/management/garbage_sites"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialGarbageSiteManagementPage />
+            </ProtectedRoute>
           }
         />
+
            <Route
           path="/official/update_profile"
           element={
@@ -437,14 +450,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
-          path="/official/management/garbage_sites"
+          path="/official/garbage_sites"
           element={
             <ProtectedRoute allowedRoles={['barangay_official']}>
-              <OfficialGarbageSiteManagementPage />
+              <OfficialGarbageSitePage />
             </ProtectedRoute>
           }
         />
+
+        
+ 
 
 
 
