@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -19,9 +19,11 @@ import { createGarbageSite, getAllGarbageSite, deleteGarbageSite, updateGarbageS
 import { toast } from "react-toastify";
 
 import MapLocationPicker from '../../components/MapLocationPicker';
+import { AuthContext } from '../../context/AuthContext';
 
 
 const GarbageSiteManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [garbageSites, setGarbageSites] = useState([]);
     const [filteredGarbageSites, setFilteredGarbageSites] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -61,9 +63,18 @@ const GarbageSiteManagementLayout = () => {
         try {
             const { data, success } = await getAllGarbageSite();
             if (success === true) {
-                setBarangays(data.barangays.data)
-                setGarbageSites(data.garbage_sites.data)
-                setFilteredGarbageSites(data.garbage_sites.data)
+                const filteredBarangays = data?.barangays?.data?.filter(barangay => barangay?._id === user?.barangay?._id);
+                const filteredGarbageSites = data?.garbage_sites?.data?.filter(site => site?.barangay?._id === user?.barangay?._id);
+
+                if (user.role === 'barangay_official') {
+                    setBarangays(filteredBarangays)
+                    setGarbageSites(filteredGarbageSites)
+                    setFilteredGarbageSites(filteredGarbageSites)
+                } else {
+                    setBarangays(data.barangays.data)
+                    setGarbageSites(data.garbage_sites.data)
+                    setFilteredGarbageSites(data.garbage_sites.data)
+                }
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -375,7 +386,7 @@ const GarbageSiteManagementLayout = () => {
                                                         initialLocation={{
                                                             lat: formData.latitude,
                                                             lng: formData.longitude
-                                                        }} 
+                                                        }}
                                                         onLocationSelect={handleLocationSelect}
                                                     />
                                                 ) : (
