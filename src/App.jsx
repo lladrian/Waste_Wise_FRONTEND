@@ -25,6 +25,7 @@ import AdminBarangayManagementPage from './pages/managements/admin/AdminBarangay
 import AdminGarbageReportManagementPage from './pages/managements/admin/AdminGarbageReportManagementPage';
 import AdminCollectorReportManagementPage from './pages/managements/admin/AdminCollectorReportManagementPage';
 import AdminGarbageSiteManagementPage from './pages/managements/admin/AdminGarbageSiteManagementPage';
+import AdminCollectorAttendanceManagementPage from './pages/managements/admin/AdminCollectorAttendanceManagementPage';
 import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
 import AdminUserRequestApprovalPage from './pages/approvals/admin/AdminUserRequestApprovalPage';
 
@@ -143,6 +144,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminGarbageSiteManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/management/collector_attendances"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminCollectorAttendanceManagementPage />
             </ProtectedRoute>
           }
         />
