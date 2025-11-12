@@ -351,10 +351,6 @@ const ScheduleManagementLayout = () => {
         'Cancelled',
     ];
 
-    const getBarangayName = (barangayId) => {
-        const barangay = barangays.find(b => b._id === barangayId);
-        return barangay?.barangay_name || 'Unknown Barangay';
-    };
 
     return (
         <>
@@ -900,7 +896,7 @@ const ScheduleManagementLayout = () => {
                                                             .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
                                                             .map((barangay, index) => {
                                                                 const barangayId = barangay.barangay_id;
-                                                                const barangayName = getBarangayName(barangayId);
+                                                                const barangayName = barangayId.barangay_name;
                                                                 const orderNumber = barangay.order_index + 1;
 
                                                                 return (

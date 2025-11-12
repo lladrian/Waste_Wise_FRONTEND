@@ -73,8 +73,7 @@ const AdminLayout = ({ children }) => {
         { path: "/admin/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
         { path: "/admin/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
         { path: "/admin/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
-
-        
+        { path: "/admin/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" },
       ]
     },
     {
@@ -183,7 +182,9 @@ const AdminLayout = ({ children }) => {
     'management/role_actions': 'Role Action Management',
     'management/garbage_reports': 'Garbage Report Management',
     'management/collector_reports': 'Collector Report Management',
+    'management/collector_attendances': 'Collector Attendance Management',
     'management/garbage_sites': 'Garbage Site Management',
+    
 
     // Approval section
     'approval': 'Approval Management',
