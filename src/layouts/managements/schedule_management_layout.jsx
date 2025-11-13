@@ -16,6 +16,9 @@ import {
 } from 'react-icons/fi';
 
 import { getSpecificSchedule, createSchedule, getAllSchedule, deleteSchedule, updateSchedule } from "../../hooks/schedule_hook";
+import { getSpecificRoute } from "../../hooks/route_hook";
+
+
 import BeautifulCalendar from "../../components/BeautifulCalendar";
 import { toast } from "react-toastify";
 
@@ -45,6 +48,7 @@ const ScheduleManagementLayout = () => {
         truck: '',
         user: '',
         status: '',
+        barangays: [],
         remark: '',
         garbage_type: '',
         scheduled_collection: ''
@@ -91,7 +95,7 @@ const ScheduleManagementLayout = () => {
                 schedule?.truck?.user?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 schedule?.truck?.user?.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 schedule?.truck?.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                `${schedule?.truck?.user?.first_name} ${schedule?.truck?.user?.middle_name} ${schedule?.truck?.user?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) 
+                `${schedule?.truck?.user?.first_name} ${schedule?.truck?.user?.middle_name} ${schedule?.truck?.user?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -121,7 +125,7 @@ const ScheduleManagementLayout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-
+        const response = await getSpecificRoute(formData?.route);
 
         const input_data = {
             route: formData?.route,
@@ -131,7 +135,13 @@ const ScheduleManagementLayout = () => {
             status: formData?.status,
             remark: formData?.remark,
             scheduled_collection: formData?.scheduled_collection,
+            task: response?.data?.data?.merge_barangay.map(barangay => ({
+                barangay_id: barangay.barangay_id,
+                status: 'Pending',
+                order_index: barangay.order_index
+            }))
         };
+
 
         if (editingSchedules) {
             try {
@@ -556,6 +566,7 @@ const ScheduleManagementLayout = () => {
                                         </select>
                                     </div>
 
+
                                     {editingSchedules && (
                                         <>
                                             {/* Remark Field */}
@@ -783,7 +794,6 @@ const ScheduleManagementLayout = () => {
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);
-                                        setViewingComplain(null);
                                         resetForm();
                                     }}
                                     className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -887,24 +897,28 @@ const ScheduleManagementLayout = () => {
                                                 <thead className="bg-gray-50">
                                                     <tr>
                                                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Order</th>
+                                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th>
                                                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Barangay Name</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-200">
-                                                    {viewingSchedules?.route.merge_barangay && viewingSchedules.route.merge_barangay.length > 0 ? (
-                                                        viewingSchedules.route.merge_barangay
+                                                    {viewingSchedules?.task && viewingSchedules.task.length > 0 ? (
+                                                        viewingSchedules.task
                                                             .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
                                                             .map((barangay, index) => {
                                                                 const barangayId = barangay.barangay_id;
-                                                                const barangayName = barangayId.barangay_name;
+                                                                const barangayName = barangayId?.barangay_name;
                                                                 const orderNumber = barangay.order_index + 1;
 
                                                                 return (
-                                                                    <tr key={barangayId}>
+                                                                    <tr key={barangayId._id}>
                                                                         <td className="px-4 py-2">
                                                                             <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-xs">
                                                                                 {orderNumber}
                                                                             </span>
+                                                                        </td>
+                                                                         <td className="px-4 py-2 font-medium text-gray-700">
+                                                                            {barangay.status}
                                                                         </td>
                                                                         <td className="px-4 py-2 font-medium text-gray-700">
                                                                             {barangayName}
