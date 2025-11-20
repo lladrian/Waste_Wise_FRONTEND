@@ -36,7 +36,6 @@ export const getAllSchedule = async (barangay_id) => {
     const res5 = await API.getAllScheduleSpecificBarangay(barangay_id);
 
 
-    // const filteredData = res3.data.data.filter(user => user.role === 'garbage_collector');
 
     return { data: { schedules: res.data, routes: res2.data, trucks: res3.data, barangays: res4.data, schedules2: res5.data, }, success: true };
   } catch (error) {
