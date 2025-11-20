@@ -408,7 +408,7 @@ const UserRequestApprovalLayout = () => {
             gender: formData.gender,
             contact_number: formData.contact_number,
             roles: multipleRoleWithActions, // Send complete array with role actions
-            role_action: formData.role_action || firstRoleAction, // Keep for backward compatibility
+            role_action: firstRoleAction, // Keep for backward compatibility
             barangay: formData.barangay,
         };
 
