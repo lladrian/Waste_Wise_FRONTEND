@@ -551,9 +551,7 @@ const ComplainManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain.user.first_name} {complain.user.middle_name} {complain.user.last_name}</span>
                                         </td>
-                                        {/* <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatRole(complain.user.role)}</span>
-                                        </td> */}
+                           
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain?.barangay?.barangay_name || "None"}</span>
                                         </td>

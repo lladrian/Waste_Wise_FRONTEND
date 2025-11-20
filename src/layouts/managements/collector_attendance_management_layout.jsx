@@ -875,7 +875,7 @@ const AttendanceManagementLayout = () => {
                                             <div>
                                                 <span className="text-gray-500">Role:</span>
                                                 <p className="font-medium text-gray-800">
-                                                    {formatRole(viewingCollectorAttendances?.user?.role)}
+                                                    {formatRole(viewingCollectorAttendances?.user?.roe)}
                                                 </p>
                                             </div>
                                             <div>

@@ -13,6 +13,18 @@ export const createUserGarbageCollector = async (data) => {
 };
 
 
+export const updateUserSelectedRole = async (id, data) => {
+  try {
+    const res = await API.updateUserSelectedRole(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
+
 export const createUser = async (data) => {
   try {
     const res = await API.createUser(data);
@@ -23,6 +35,19 @@ export const createUser = async (data) => {
     throw error;
   }
 };
+
+export const createUserByAdmin = async (data) => {
+  try {
+    const res = await API.createUserByAdmin(data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
+
 
 export const getSpecificUser = async (id) => {
   try {

@@ -19,14 +19,17 @@ import {
   FiUsers,
   FiBarChart2,
   FiCalendar,
-  FiX
+  FiX,
+  FiShuffle
 } from "react-icons/fi";
 import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi";
 
 import { AuthContext } from '../context/AuthContext';
-import { getAllNotificationSpecificUser, updateReadSpecificNotification, updateReadAllNotificationSpecificUser, } from "../hooks/notification_hook";
 import { toast } from "react-toastify";
 import { formatDistanceToNow } from 'date-fns';
+
+import { getAllNotificationSpecificUser, updateReadMultipleNotification, updateReadAllNotificationSpecificUser, } from "../hooks/notification_hook";
+import { updateUserSelectedRole } from "../hooks/user_management_hook";
 
 
 const StaffLayout = ({ children }) => {
@@ -35,19 +38,64 @@ const StaffLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     management: location.pathname.includes('/staff/management')
   });
-  const { logout, user, refresh } = useContext(AuthContext);
+  const { logout, user, refresh, update_profile } = useContext(AuthContext);
   const adminFirstName = user?.first_name;
   const adminMiddleName = user?.middle_name;
   const adminLastName = user?.last_name;
   const adminEmail = user?.email;
   const adminId = user?._id || "N/A";
 
+  // Dynamic role options based on user's multiple_role array
+  const getRoleOptions = () => {
+    if (!user?.multiple_role || !Array.isArray(user.multiple_role)) {
+      return [
+        { value: 'admin', label: 'Admin' },
+        { value: 'enro_staff_monitoring', label: 'ENRO Staff Monitoring' },
+        { value: 'enro_staff_scheduler', label: 'ENRO Staff Scheduler' },
+        { value: 'enro_staff_head', label: 'ENRO Staff Head' },
+        { value: 'enro_staff_eswm_section_head', label: 'ENRO ESWM Section Head' },
+        { value: 'barangay_official', label: 'Barangay Official' },
+        { value: 'garbage_collector', label: 'Garbage Collector' },
+      ];
+    }
+
+    // Map the user's multiple_role to the role options format
+    const roleLabels = {
+      'admin': 'Admin',
+      'enro_staff_monitoring': 'ENRO Staff Monitoring',
+      'enro_staff_scheduler': 'ENRO Staff Scheduler',
+      'enro_staff_head': 'ENRO Staff Head',
+      'enro_staff_eswm_section_head': 'ENRO ESWM Section Head',
+      'barangay_official': 'Barangay Official',
+      'garbage_collector': 'Garbage Collector'
+    };
+
+    return user.multiple_role
+      .filter(roleObj => roleObj.role && roleLabels[roleObj.role])
+      .map(roleObj => ({
+        value: roleObj.role,
+        label: roleLabels[roleObj.role],
+        role_action: roleObj.role_action // Include role_action in the option
+      }));
+  };
+
+  const roleOptions = getRoleOptions();
+
+  // Get current role label
+  const getCurrentRoleLabel = () => {
+    const currentRole = roleOptions.find(role => role.value === user?.role);
+    return currentRole?.label || 'Admin';
+  };
+
+  // Check if user has multiple roles
+  const hasMultipleRoles = roleOptions.length > 1;
+
   // Notification state
   const [notifications, setNotifications] = useState([]);
-
 
   // Optimized navigation with grouped items for WasteWise
   const navItems = [
@@ -101,15 +149,16 @@ const StaffLayout = ({ children }) => {
     // { path: "/staff/settings", icon: FiSettings, label: "System Settings" },
   ];
 
-
   useEffect(() => {
     refresh();
     fetchData();
   }, []);
 
-    const fetchData = async () => {
+
+  const fetchData = async () => {
     try {
       const { data, success } = await getAllNotificationSpecificUser(user?._id);
+      
       if (success === true) {
         setNotifications(data.data);
       }
@@ -132,12 +181,51 @@ const StaffLayout = ({ children }) => {
     localStorage.clear();
   };
 
-  // Notification functions
- const markAsRead = async (notificationId) => {
+  const handleRoleSwitch = async (newRole, role_action) => {
     try {
-      const { data, success } = await updateReadSpecificNotification(notificationId);
+      const input_data = {
+        role: newRole,
+        role_action: role_action
+      }
+
+      const { data, success } = await updateUserSelectedRole(user?._id, input_data);
+
+      if(success === true) {
+        setRoleDropdownOpen(false);
+        const role = data.data.role;
+
+        await update_profile(data.data)
+        // await refresh()
+
+        if (role == 'admin') {
+          navigate('/admin/dashboard');
+          // window.location.reload();
+        }
+
+        if (role === 'enro_staff_scheduler' || role === 'enro_staff_head' || role === 'enro_staff_monitoring' || role === 'enro_staff_eswm_section_head') {
+          navigate('/staff/dashboard');
+          // window.location.reload();
+        }
+
+        if (role == 'barangay_official') {
+          navigate('/official/dashboard');
+          // window.location.reload();
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to switch role");
+      console.error("Role switch error:", error);
+    }
+  };
+
+  const markAsRead = async (notificationId) => {
+    try {
+      const { data, success } = await updateReadMultipleNotification({
+        notif_ids: [notificationId] // This should be an array of notification IDs
+      });
+
       if (success === true) {
-        // toast.success("Notification marked as read");
+        toast.success("Notification marked as read");
       }
     } catch (err) {
       console.error("Error marking as read:", err);
@@ -146,16 +234,16 @@ const StaffLayout = ({ children }) => {
   };
 
   const markAllAsRead = async () => {
-      try {
-          const { data, success } = await updateReadAllNotificationSpecificUser(user?._id);
-          if (success === true) {
-            toast.success("All notifications marked as read");
-            fetchData();
-          }
-        } catch (err) {
-          console.error("Error marking all as read:", err);
-          toast.error("Failed to mark all as read");
-        }
+    try {
+      const { data, success } = await updateReadAllNotificationSpecificUser(user?._id);
+      if (success === true) {
+        toast.success("All notifications marked as read");
+        fetchData();
+      }
+    } catch (err) {
+      console.error("Error marking all as read:", err);
+      toast.error("Failed to mark all as read");
+    }
   };
 
   const deleteNotification = (notificationId, e) => {
@@ -172,8 +260,7 @@ const StaffLayout = ({ children }) => {
   // Get unread notifications count
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
-
-  const customTitles = {
+ const customTitles = {
     // Dashboard
     'dashboard': 'Waste Wise Dashboard',
 
@@ -367,8 +454,81 @@ const StaffLayout = ({ children }) => {
           </nav>
         </div>
 
-        {/* User Profile & Logout - Compact */}
-        <div className="p-2 border-t border-blue-200/40 space-y-2 flex-shrink-0">
+        {/* User Profile & Actions - Compact */}
+        <div className="p-2 border-t border-blue-200/40 space-y-2 flex-shrink-0 relative">
+          {hasMultipleRoles && (
+            <div className="relative">
+              <button
+                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                className="cursor-pointer flex items-center justify-center p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50/80 border border-transparent hover:border-blue-200/60 w-full transition-all duration-300 group"
+              >
+                <FiShuffle className="text-base group-hover:scale-110 transition-transform duration-300 flex-shrink-0" />
+                {sidebarOpen && (
+                  <>
+                    <span className="ml-2 text-sm font-medium truncate">Switch Role</span>
+                    <span className="ml-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 min-w-[18px] text-center">
+                      {roleOptions.length}
+                    </span>
+                  </>
+                )}
+              </button>
+
+              {roleDropdownOpen && sidebarOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setRoleDropdownOpen(false)}
+                  />
+
+                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl border border-blue-200/60 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-blue-200/40">
+                      <h3 className="font-semibold text-gray-800 text-sm">Switch Role</h3>
+                      <p className="text-xs text-gray-500 mt-1">Select a role to switch to</p>
+                    </div>
+                    <div>
+                      {roleOptions.map((role) => (
+                        <button
+                          key={role.value}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent event from bubbling to backdrop
+                            handleRoleSwitch(role.value, role.role_action);
+                          }}
+                          className={`flex items-center w-full px-4 py-3 text-sm transition-all duration-200 hover:bg-blue-50/80 ${user?.role === role.value
+                            ? 'bg-blue-50 text-blue-600 font-medium border-r-2 border-blue-500'
+                            : 'text-gray-600'
+                            }`}
+                        >
+                          <span className="truncate text-left flex-1">{role.label}</span>
+                          {user?.role === role.value && (
+                            <FiCheckCircle className="w-4 h-4 ml-2 text-blue-500 flex-shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Current Role Display */}
+          {/* {sidebarOpen && (
+            <div className="flex items-center p-2 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/60">
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-md flex items-center justify-center shadow-sm flex-shrink-0">
+                <FiUser className="text-white text-xs" />
+              </div>
+              <div className="ml-2 flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-800 truncate">
+                  {getCurrentRoleLabel()}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {hasMultipleRoles ? `${roleOptions.length} roles available` : 'Current Role'}
+                </p>
+              </div>
+            </div>
+          )} */}
+
+          {/* User Info & Logout */}
           <div className="space-y-1">
             <div className="flex items-center p-2 rounded-lg bg-blue-50/80 border border-blue-200/40">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
@@ -381,7 +541,7 @@ const StaffLayout = ({ children }) => {
                   <p className="text-xs font-semibold text-gray-800 truncate">
                     {adminFirstName} {adminLastName}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-gray-500 truncate">    
                     {
                         user?.role === 'enro_staff_head' ? 'Staff Head' :
                         user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
@@ -421,6 +581,17 @@ const StaffLayout = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4 flex-shrink-0">
+              {/* Current Role Badge */}
+              {/* <div className="hidden sm:flex items-center space-x-2 bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-200/60">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm font-medium text-blue-700">{getCurrentRoleLabel()}</span>
+                {hasMultipleRoles && (
+                  <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full">
+                    {roleOptions.length}
+                  </span>
+                )}
+              </div> */}
+
               {/* Notifications */}
               <div className="relative">
                 <button
@@ -438,7 +609,7 @@ const StaffLayout = ({ children }) => {
                   <div className="absolute right-0 top-full mt-1 w-80 bg-white/95 backdrop-blur-lg rounded-xl shadow-xl border border-blue-200/60 py-2 z-30 max-h-96 overflow-hidden">
                     <div className="px-4 py-2 border-b border-blue-200/40 flex justify-between items-center">
                       <h3 className="font-semibold text-gray-800">Notifications</h3>
-                      {unreadCount > 0 && (
+                      {unreadCount >= 0 && (
                         <button
                           onClick={markAllAsRead}
                           className="text-xs text-blue-600 hover:text-blue-800 font-medium"
@@ -469,19 +640,13 @@ const StaffLayout = ({ children }) => {
                                     }`}>
                                     {notification.title}
                                   </h4>
-                                  {/* <button
-                                    onClick={(e) => deleteNotification(notification._id, e)}
-                                    className="ml-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
-                                  >
-                                    <FiX className="w-3 h-3" />
-                                  </button> */}
                                 </div>
                                 <p className="text-xs text-gray-600 mb-1 line-clamp-2">
                                   {notification.notif_content}
                                 </p>
                                 <div className="flex justify-between items-center">
                                   <span className="text-xs text-gray-500">
-                                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                                   </span>
                                   {!notification.is_read && (
                                     <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
@@ -535,8 +700,28 @@ const StaffLayout = ({ children }) => {
                     <div className="px-3 py-2 border-b border-blue-200/40">
                       <p className="font-semibold text-gray-800 truncate text-sm">{adminFirstName} {adminLastName}</p>
                       <p className="text-xs text-gray-500 truncate">{adminEmail}</p>
-                      <p className="text-xs text-blue-600 font-medium mt-1">WasteWise Administrator</p>
+                      <p className="text-xs text-blue-600 font-medium mt-1">{getCurrentRoleLabel()}</p>
+                      {hasMultipleRoles && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {roleOptions.length} roles available
+                        </p>
+                      )}
                     </div>
+                    {hasMultipleRoles && (
+                      <button
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          setRoleDropdownOpen(true);
+                        }}
+                        className="flex items-center w-full px-3 py-2 text-gray-600 hover:bg-blue-50/80 transition-colors duration-200 text-sm"
+                      >
+                        <FiShuffle className="w-3 h-3 mr-2 flex-shrink-0" />
+                        <span className="truncate">Switch Role</span>
+                        <span className="ml-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full flex-shrink-0">
+                          {roleOptions.length}
+                        </span>
+                      </button>
+                    )}
                     <Link
                       to="/admin/profile"
                       className="flex items-center px-3 py-2 text-gray-600 hover:bg-blue-50/80 transition-colors duration-200 text-sm"
@@ -581,25 +766,15 @@ const StaffLayout = ({ children }) => {
             </div>
           </div>
         </header>
-
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-auto p-6">
+        <main
+          className="flex-1 overflow-auto p-6"
+          onClick={() => setRoleDropdownOpen(false)}
+        >
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </main>
       </div>
-
-      {/* Backdrop for dropdowns */}
-      {(userDropdownOpen || notificationDropdownOpen) && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => {
-            setUserDropdownOpen(false);
-            setNotificationDropdownOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 };

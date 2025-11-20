@@ -10,11 +10,12 @@ import {
     FiUser,
     FiClock,
     FiCheckCircle,
-    FiXCircle
+    FiXCircle,
+    FiAlertCircle
 } from 'react-icons/fi';
+import Select from 'react-select';
 
-import { getAllUserNoResident, deleteUser, updateUser, createUser, updateUserPasswordAdmin } from "../../hooks/user_management_hook";
-
+import { getAllUserNoResident, deleteUser, updateUser, createUserByAdmin, updateUserPasswordAdmin } from "../../hooks/user_management_hook";
 import { toast } from "react-toastify";
 
 const UserManagementLayout = () => {
@@ -27,6 +28,8 @@ const UserManagementLayout = () => {
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingUsers, setEditingUser] = useState(null);
     const [editingUserPassword, setEditingUserPassword] = useState(null);
+    const [roleActionsMap, setRoleActionsMap] = useState({});
+
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -38,17 +41,126 @@ const UserManagementLayout = () => {
         contact_number: '',
         is_disabled: '',
         role: '',
+        multiple_role: [],
         barangay: '',
         barangay_name: '',
         role_action: '',
         role_action_name: '',
     });
 
+    const roleOptions = [
+        { value: 'admin', label: 'Admin' },
+        { value: 'enro_staff_monitoring', label: 'ENRO Staff Monitoring' },
+        { value: 'enro_staff_scheduler', label: 'ENRO Staff Scheduler' },
+        { value: 'enro_staff_head', label: 'ENRO Staff Head' },
+        { value: 'enro_staff_eswm_section_head', label: 'ENRO ESWM Section Head' },
+        { value: 'barangay_official', label: 'Barangay Official' },
+        { value: 'garbage_collector', label: 'Garbage Collector' },
+    ];
 
     useEffect(() => {
         fetchData();
     }, []);
 
+    // Check if ALL role actions are selected
+    const areAllRoleActionsSelected = () => {
+        if (!formData.multiple_role || formData.multiple_role.length === 0) {
+            return false;
+        }
+
+        return formData.multiple_role.every(roleValue => {
+            const roleAction = roleActionsMap[roleValue];
+            return roleAction && roleAction !== '';
+        });
+    };
+
+    // Get roles that are missing actions
+    const getRolesMissingActions = () => {
+        if (!formData.multiple_role || formData.multiple_role.length === 0) {
+            return [];
+        }
+
+        return formData.multiple_role.filter(roleValue => {
+            const roleAction = roleActionsMap[roleValue];
+            return !roleAction || roleAction === '';
+        }).map(roleValue => {
+            const option = roleOptions.find(opt => opt.value === roleValue);
+            return option?.label || roleValue;
+        });
+    };
+
+    // Check if form is valid
+    const isFormValid = () => {
+        const hasRoles = formData.multiple_role && formData.multiple_role.length > 0;
+        const allRoleActionsFilled = areAllRoleActionsSelected();
+
+        return hasRoles && allRoleActionsFilled;
+    };
+
+    // Get available roles for display
+    const getAvailableRoles = () => {
+        if (!formData.multiple_role || !Array.isArray(formData.multiple_role)) {
+            return [];
+        }
+
+        return formData.multiple_role.map(roleValue => {
+            const option = roleOptions.find(opt => opt.value === roleValue);
+            return {
+                value: roleValue,
+                label: option?.label || roleValue,
+                role_action: roleActionsMap[roleValue] || ''
+            };
+        });
+    };
+
+    const getSelectedOptions = (roleValues) => {
+        if (!roleValues || !Array.isArray(roleValues)) {
+            return [];
+        }
+
+        return roleValues.map(roleValue => {
+            const option = roleOptions.find(opt => opt.value === roleValue);
+            return option || { value: roleValue, label: roleValue };
+        });
+    };
+
+    const handleMultipleRoleChange = (selectedOptions) => {
+        const roleValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+
+        // Initialize role actions map for new roles
+        const newRoleActionsMap = {};
+        roleValues.forEach(role => {
+            if (!roleActionsMap[role]) {
+                newRoleActionsMap[role] = '';
+            } else {
+                newRoleActionsMap[role] = roleActionsMap[role];
+            }
+        });
+
+        setRoleActionsMap(newRoleActionsMap);
+
+        setFormData(prev => ({
+            ...prev,
+            multiple_role: roleValues
+        }));
+
+        // Check if barangay official is selected
+        const hasBarangayOfficial = roleValues.includes('barangay_official');
+        if (!hasBarangayOfficial) {
+            setFormData(prev => ({
+                ...prev,
+                barangay: ''
+            }));
+        }
+    };
+
+    // Handle role action changes for individual roles
+    const handleRoleActionChange = (role, actionId) => {
+        setRoleActionsMap(prev => ({
+            ...prev,
+            [role]: actionId
+        }));
+    };
 
     const fetchData = async () => {
         try {
@@ -72,7 +184,6 @@ const UserManagementLayout = () => {
     const filterUsers = () => {
         let filtered = users;
 
-        // Search filter
         if (searchTerm) {
             filtered = filtered.filter(user =>
                 user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -92,32 +203,31 @@ const UserManagementLayout = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-
-        // If role is changing, reset role_action
-        if (name === 'role') {
-            setFormData(prev => ({
-                ...prev,
-                [name]: value,
-                role_action: '' // Reset role_action when role changes
-            }));
-
-            if (name === 'role' && value != 'barangay_official') {
-                setFormData((prev) => ({
-                    ...prev,
-                    [name]: value,
-                    barangay: '',
-                }));
-            }
-        } else {
-            setFormData(prev => ({
-                ...prev,
-                [name]: value
-            }));
-        }
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate ALL role actions before submission
+        if (!areAllRoleActionsSelected()) {
+            const missingRoles = getRolesMissingActions();
+            toast.error(`Please select role actions for: ${missingRoles.join(', ')}`);
+            return;
+        }
+
+        // Build the multiple_role array with role actions for each role
+        const multipleRoleWithActions = formData.multiple_role.map(roleValue => {
+            const roleAction = roleActionsMap[roleValue] || '';
+
+            return {
+                role: roleValue,
+                role_action: roleAction || null
+            };
+        });
 
         const input_data = {
             email: formData.email,
@@ -127,12 +237,10 @@ const UserManagementLayout = () => {
             last_name: formData.last_name,
             gender: formData.gender,
             contact_number: formData.contact_number,
-            role: formData.role,
+            multiple_role: multipleRoleWithActions,
             barangay: formData.barangay,
-            role_action: formData.role_action,
             is_disabled: formData.is_disabled
         };
-
 
 
         if (editingUserPassword) {
@@ -163,7 +271,7 @@ const UserManagementLayout = () => {
                 const { data, success } = await updateUser(editingUsers._id, input_data);
 
                 if (data && success === false) {
-                    toast.error(data.message || "Failed to create user");
+                    toast.error(data.message || "Failed to update user");
                 }
 
                 if (success === true) {
@@ -179,7 +287,7 @@ const UserManagementLayout = () => {
             }
         } else {
             try {
-                const { data, success } = await createUser(input_data);
+                const { data, success } = await createUserByAdmin(input_data);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to create user");
@@ -205,6 +313,49 @@ const UserManagementLayout = () => {
 
     const handleEdit = (user) => {
         setEditingUser(user);
+
+        // Convert user's multiple_role to array of role values
+        const multipleRoleValues = user.multiple_role ?
+            user.multiple_role.map(roleObj => typeof roleObj === 'object' ? roleObj.role : roleObj) :
+            [user.role];
+
+        // Initialize role actions map from existing data
+        const initialRoleActionsMap = {};
+        if (user.multiple_role && Array.isArray(user.multiple_role)) {
+            user.multiple_role.forEach(roleObj => {
+                if (typeof roleObj === 'object') {
+                    const roleValue = roleObj.role;
+                    // Handle different possible structures for role_action
+                    let roleAction = '';
+
+                    if (roleObj.role_action) {
+                        if (typeof roleObj.role_action === 'object') {
+                            // role_action is an object with _id property
+                            roleAction = roleObj.role_action._id || '';
+                        } else if (typeof roleObj.role_action === 'string') {
+                            // role_action is a string ID
+                            roleAction = roleObj.role_action;
+                        }
+                    }
+
+                    initialRoleActionsMap[roleValue] = roleAction;
+                }
+            });
+        } else {
+            // For backward compatibility with single role users
+            let roleAction = '';
+            if (user.role_action) {
+                if (typeof user.role_action === 'object') {
+                    roleAction = user.role_action._id || '';
+                } else if (typeof user.role_action === 'string') {
+                    roleAction = user.role_action;
+                }
+            }
+            initialRoleActionsMap[user.role] = roleAction;
+        }
+
+        setRoleActionsMap(initialRoleActionsMap);
+
         setFormData({
             email: user.email,
             first_name: user.first_name,
@@ -214,8 +365,8 @@ const UserManagementLayout = () => {
             barangay_name: user?.barangay?.barangay_name,
             barangay: user?.barangay?._id,
             contact_number: user.contact_number,
-            role: user.role,
-            role_action: user?.role_action?._id || "", // Use optional chaining
+            role: user.role, // Keep for backward compatibility
+            multiple_role: multipleRoleValues,
             is_disabled: String(user.is_disabled)
         });
 
@@ -242,8 +393,6 @@ const UserManagementLayout = () => {
         setShowModalPassword(true);
     };
 
-
-
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
@@ -260,7 +409,6 @@ const UserManagementLayout = () => {
         }
     };
 
-
     const resetForm = () => {
         setFormData({
             email: '',
@@ -271,16 +419,16 @@ const UserManagementLayout = () => {
             gender: '',
             contact_number: '',
             role: '',
+            multiple_role: [],
             barangay: '',
             barangay_name: '',
             is_disabled: '',
             role_action: ''
         });
-
+        setRoleActionsMap({});
         setEditingUser(null);
         setEditingUserPassword(null);
     };
-
 
     const formatRole = (role) => {
         const roleMap = {
@@ -294,8 +442,14 @@ const UserManagementLayout = () => {
             'barangay_official': 'Barangay Official',
             'garbage_collector': 'Garbage Collector'
         };
-        return roleMap[role] || role; // Return formatted role or original if not found
+        return roleMap[role] || role;
     };
+
+    const availableRoles = getAvailableRoles();
+    const isSubmitDisabled = !isFormValid();
+    const rolesMissingActions = getRolesMissingActions();
+    const allActionsFilled = areAllRoleActionsSelected();
+    const hasBarangayOfficial = formData.multiple_role.includes('barangay_official');
 
     return (
         <>
@@ -311,11 +465,9 @@ const UserManagementLayout = () => {
                     </button>
                 </div>
 
-
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <div className="flex flex-col sm:flex-row gap-4">
-                        {/* Search */}
                         <div className="flex-1 relative">
                             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input
@@ -326,8 +478,6 @@ const UserManagementLayout = () => {
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
-
-
                     </div>
                 </div>
 
@@ -366,7 +516,12 @@ const UserManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{user.first_name} {user.middle_name} {user.last_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
+                                            <div className="flex flex-wrap gap-1">
+                                                <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
+                                                {user.multiple_role && user.multiple_role.length > 1 && (
+                                                    <span className="text-xs text-gray-500">(+{user.multiple_role.length - 1})</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{user?.role_action?.action_name || "None"}</span>
@@ -447,7 +602,6 @@ const UserManagementLayout = () => {
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* First Name */}
                                     <div>
@@ -511,14 +665,10 @@ const UserManagementLayout = () => {
                                                 name="contact_number"
                                                 value={formData.contact_number}
                                                 onChange={(e) => {
-                                                    // Remove any non-digit characters
                                                     let value = e.target.value.replace(/\D/g, '');
-
-                                                    // Limit to 10 digits (after +63)
                                                     if (value.length > 10) {
                                                         value = value.slice(0, 10);
                                                     }
-
                                                     handleInputChange({
                                                         target: {
                                                             name: 'contact_number',
@@ -538,7 +688,7 @@ const UserManagementLayout = () => {
                                         <p className="text-xs text-gray-500 mt-1">Enter 10-digit number (e.g., 9123456789)</p>
                                     </div>
 
-                                    {/* Email Address - Full Width */}
+                                    {/* Email Address */}
                                     <div className="md:col-span-1">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Email Address
@@ -554,8 +704,7 @@ const UserManagementLayout = () => {
                                         />
                                     </div>
 
-
-                                    {/* Only show password field when NOT editing (creating new user) */}
+                                    {/* Password */}
                                     {!editingUsers && (
                                         <div className="md:col-span-1">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -566,13 +715,14 @@ const UserManagementLayout = () => {
                                                 name="password"
                                                 value={formData.password}
                                                 onChange={handleInputChange}
-                                                required={!editingUsers} // Only required for new users
+                                                required={!editingUsers}
                                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                                 placeholder="Enter Password"
                                             />
                                         </div>
                                     )}
 
+                                    {/* Gender */}
                                     <div className={editingUsers ? "md:col-span-1" : "md:col-span-2"}>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Gender
@@ -590,41 +740,40 @@ const UserManagementLayout = () => {
                                         </select>
                                     </div>
 
+                                    {/* Multiple Role Selection */}
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Role
+                                            Roles *
                                         </label>
-                                        <select
-                                            name="role"
-                                            value={formData.role}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Role</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="enro_staff_monitoring">ENRO Staff Monitoring</option>
-                                            <option value="enro_staff_scheduler">ENRO Staff Scheduler</option>
-                                            <option value="enro_staff_head">ENRO Staff Head</option>
-                                            <option value="enro_staff_eswm_section_head">ENRO Staff ESWM Section Head</option>
-                                            <option value="barangay_official">Barangay Official</option>
-                                            <option value="garbage_collector">Garbage Collector</option>
-                                        </select>
+                                        <Select
+                                            id="multiple_role-select"
+                                            name="multiple_role"
+                                            isMulti
+                                            options={roleOptions}
+                                            value={getSelectedOptions(formData.multiple_role)}
+                                            onChange={handleMultipleRoleChange}
+                                            placeholder="Choose roles..."
+                                            isSearchable
+                                            closeMenuOnSelect={false}
+                                            styles={{
+                                                menu: (base) => ({ ...base, zIndex: 9999 }),
+                                                menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
                                     </div>
 
-                                    {/* {formData.barangay || formData.role === 'barangay_official' && ( */}
+                                    {/* Barangay */}
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Barangay
                                         </label>
-
-
                                         <select
                                             name="barangay"
                                             value={formData.barangay || ""}
                                             onChange={handleInputChange}
-                                            required={formData.role === 'barangay_official'}
-                                            disabled={formData.role !== 'barangay_official'}
+                                            required={hasBarangayOfficial}
+                                            disabled={!hasBarangayOfficial}
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Barangay</option>
@@ -635,31 +784,104 @@ const UserManagementLayout = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
-                                    {/* )} */}
-
-                                    <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Role Action
-                                        </label>
-                                        <select
-                                            name="role_action"
-                                            value={formData.role_action || ""}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
-                                        >
-                                            <option value="" disabled>Select Role Action</option>
-                                            {roleActions?.filter(role => role?._id && role?.action_name && role?.role == formData.role)
-                                                .map((role) => (
-                                                    <option key={role._id} value={role._id}>
-                                                        {role.action_name}
-                                                    </option>
-                                                ))}
-                                        </select>
+                                        {hasBarangayOfficial && (
+                                            <p className="text-xs text-gray-500 mt-1">Barangay selection is required for Barangay Official role</p>
+                                        )}
                                     </div>
 
+                                    {/* Role Actions for Multiple Roles */}
+                                    {availableRoles.length > 0 && (
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-semibold text-gray-800 mb-3">
+                                                Set Role Actions for Each Role
+                                                {!allActionsFilled && (
+                                                    <span className="ml-2 text-red-500 text-xs font-normal flex items-center">
+                                                        <FiAlertCircle className="inline w-3 h-3 mr-1" />
+                                                        ALL role actions are required
+                                                    </span>
+                                                )}
+                                            </label>
 
+                                            <div className="space-y-4">
+                                                {availableRoles.map((role) => {
+                                                    const hasAction = roleActionsMap[role.value] && roleActionsMap[role.value] !== '';
+                                                    const isMissingAction = !hasAction;
+
+                                                    // Get available actions for this role
+                                                    const availableActionsForRole = roleActions?.filter((action) => action?.role === role.value) || [];
+
+                                                    return (
+                                                        <div
+                                                            key={role.value}
+                                                            className={`flex flex-col sm:flex-row sm:items-center justify-between 
+                           p-4 rounded-xl border transition-all duration-300
+                           ${hasAction
+                                                                    ? 'border-green-200 bg-green-50'
+                                                                    : isMissingAction
+                                                                        ? 'border-red-200 bg-red-50'
+                                                                        : 'border-gray-100 bg-white'
+                                                                }
+                           shadow-sm hover:shadow-md gap-4`}
+                                                        >
+                                                            {/* Left Section */}
+                                                            <div className="flex items-center space-x-3">
+                                                                <FiUser className={`w-6 h-6 ${hasAction ? 'text-green-500' : isMissingAction ? 'text-red-500' : 'text-indigo-400'}`} />
+                                                                <span className="font-medium text-gray-800 text-sm sm:text-base">
+                                                                    {role.label}
+                                                                </span>
+                                                                {hasAction && (
+                                                                    <FiCheckCircle className="w-4 h-4 text-green-500" />
+                                                                )}
+                                                                {isMissingAction && (
+                                                                    <FiAlertCircle className="w-4 h-4 text-red-500" />
+                                                                )}
+                                                            </div>
+
+                                                            {/* Select Menu */}
+                                                            <select
+                                                                value={roleActionsMap[role.value] || ''}
+                                                                onChange={(e) => handleRoleActionChange(role.value, e.target.value)}
+                                                                className={`border rounded-lg px-3 py-2 
+                               shadow-sm hover:shadow transition-all
+                               focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                               w-full sm:w-60
+                               ${hasAction
+                                                                        ? 'border-green-300 bg-white'
+                                                                        : isMissingAction
+                                                                            ? 'border-red-300 bg-white'
+                                                                            : 'border-gray-300 bg-gradient-to-r from-gray-50 to-white'
+                                                                    }`}
+                                                            >
+                                                                <option value="">No Action</option>
+                                                                {availableActionsForRole.map((action) => (
+                                                                    <option key={action._id} value={action._id}>
+                                                                        {action.action_name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            <div className={`mt-3 p-3 rounded-lg ${allActionsFilled
+                                                    ? 'bg-green-50 border border-green-200'
+                                                    : 'bg-red-50 border border-red-200'
+                                                }`}>
+                                                <p className={`text-xs ${allActionsFilled
+                                                        ? 'text-green-700'
+                                                        : 'text-red-700'
+                                                    }`}>
+                                                    {allActionsFilled
+                                                        ? `✓ All ${availableRoles.length} role actions configured`
+                                                        : `⚠ ${rolesMissingActions.length} role(s) missing actions: ${rolesMissingActions.join(', ')}`
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Account State */}
                                     {editingUsers && (
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -694,16 +916,42 @@ const UserManagementLayout = () => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                                        disabled={isSubmitDisabled}
+                                        className={`px-6 py-2 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md ${isSubmitDisabled
+                                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                            }`}
                                     >
                                         {editingUsers ? 'Update User' : 'Add User'}
-                                    </button>"
+                                    </button>
                                 </div>
+
+                                {/* Validation Summary */}
+                                {isSubmitDisabled && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div className="flex items-center space-x-2 text-red-700">
+                                            <FiAlertCircle className="w-4 h-4" />
+                                            <span className="text-sm font-medium">Cannot submit form because:</span>
+                                        </div>
+                                        <ul className="text-xs text-red-600 mt-2 space-y-1">
+                                            {!formData.multiple_role || formData.multiple_role.length === 0 && (
+                                                <li>• No roles selected</li>
+                                            )}
+                                            {(!allActionsFilled) && (
+                                                <li>• Not all role actions are configured</li>
+                                            )}
+                                            {rolesMissingActions.length > 0 && (
+                                                <li>• Missing actions for: {rolesMissingActions.join(', ')}</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
                             </form>
                         </div>
                     </div>
                 </div>
             )}
+
 
 
             {showModalPassword && (
@@ -765,7 +1013,7 @@ const UserManagementLayout = () => {
                                         </p>
                                     </div>
 
-                                      <div>
+                                    <div>
                                         <span className="text-gray-500">Account State:</span>
                                         <p className="font-medium text-gray-800 capitalize">
                                             {formData?.is_disabled === 'true' ? 'Disabled' : 'Enabled'}

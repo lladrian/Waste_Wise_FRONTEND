@@ -11,11 +11,13 @@ export const getAllTruckDriverUser = () => axios.get(`/users/get_all_user_truck_
 export const getAllUser = () => axios.get(`/users/get_all_user`);
 export const deleteUser = (id) => axios.delete(`/users/delete_user/${id}`);
 export const updateUser = (id, data) => axios.put(`/users/update_user/${id}`,data);
+export const updateUserSelectedRole = (id, data) => axios.put(`/users/update_user_selected_role/${id}`,data);
 export const updateUserProfile = (id, data) => axios.put(`/users/update_user_profile/${id}`,data);
 export const updateUserResident = (id, data) => axios.put(`/users/update_user_resident/${id}`,data);
 export const updateUserPassword = (id, data) => axios.put(`/users/update_user_password/${id}`,data);
 export const updateUserPasswordAdmin = (id, data) => axios.put(`/users/update_user_password_admin/${id}`,data);
 export const createUser = (data) => axios.post(`/users/add_user`,data);
+export const createUserByAdmin = (data) => axios.post(`/users/add_user_by_admin`,data);
 export const verifyUser = (id, data) => axios.put(`/users/update_user_verified/${id}`, data);
 export const createRoleAction = (data) => axios.post(`/actions/add_role_action`,data);
 export const getAllRoleAction = () => axios.get(`/actions/get_all_role_action`);
@@ -80,6 +82,8 @@ export const updateResidentUserPassword = (id, data) => axios.put(`/residents/up
 export const deleteResidentUser = (id) => axios.delete(`/residents/delete_user/${id}`);
 export const updateResidentUser = (id, data) => axios.put(`/residents/update_user/${id}`,data);
 export const createResidentUser = (data) => axios.post(`/residents/add_user`,data);
+
+
 export const getSpecificResidentUser = (id) => axios.get(`/residents/get_specific_user/${id}`);
 export const loginResidentUser = (data) => axios.post('/residents/login_user', data);
 

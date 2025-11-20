@@ -48,7 +48,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   const fetchData = async () => {
     try {
-      const { data, success } = await getSpecificUser(userID);
+      const { data, success } = await getSpecificUser(user?._id);
       if (success === true) {
         setUsers(data.data.user)
         return;
@@ -75,9 +75,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   // Check if user has permission
 
   if (users) {
-    const hasPermission = allowedRoles.includes(userRole) && (users && userRole === users.role);
+    // const hasPermission = allowedRoles.includes(userRole) && (users && userRole === users.role);
+    const hasPermission = allowedRoles.includes(userRole);
 
     if (!hasPermission) {
+      console.log("1:"+userRole)
+      console.log("2:"+users.role)
       localStorage.clear();
       navigate(`/unauthorized`);
       return;

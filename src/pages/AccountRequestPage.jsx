@@ -3,7 +3,7 @@ import { FaRecycle, FaTrashAlt, FaLeaf, FaTruck, FaWater, FaEye, FaEyeSlash, FaA
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import WasteWiseLogo from '../assets/wastewise_logo.png';
-
+import Select from 'react-select';
 import { getAllBarangay, createRequest } from "../hooks/request_hook";
 
 const AccountRequestPage = () => {
@@ -21,8 +21,8 @@ const AccountRequestPage = () => {
         contact_number: "",
         email: "",
         password: "",
-        role: "",
         barangay: "",
+        role: []
     };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -32,6 +32,24 @@ const AccountRequestPage = () => {
         fetchData();
     }, []);
 
+     const roleOptions = [
+        { value: 'admin', label: 'Admin' },
+        { value: 'enro_staff_monitoring', label: 'ENRO Staff Monitoring' },
+        { value: 'enro_staff_scheduler', label: 'ENRO Staff Scheduler' },
+        { value: 'enro_staff_head', label: 'ENRO Staff Head' },
+        { value: 'enro_staff_eswm_section_head', label: 'ENRO ESWM Section Head' },
+        { value: 'barangay_official', label: 'Barangay Official' },
+        { value: 'garbage_collector', label: 'Garbage Collector ' },
+    ];
+
+    const getSelectedOptions = (roleValues) => {
+        return roleValues.map(value => {
+            // Find the option object for this value
+            const option = roleOptions.find(opt => opt.value === value);
+            // If found, return the option object, otherwise create a fallback
+            return option || { value: value, label: value };
+        });
+    };
 
     const fetchData = async () => {
         try {
@@ -85,6 +103,17 @@ const AccountRequestPage = () => {
             [name]: value,
         }));
     };
+
+       const handleSelectChange = (selectedOptions) => {
+        // Extract just the values from the selected option objects
+        const roleValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+
+        setFormData(prev => ({
+            ...prev,
+            role: roleValues
+        }));
+    };
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -155,7 +184,7 @@ const AccountRequestPage = () => {
                 password: formData.password,
                 email: formData.email
             };
-
+         
             const { data, success } = await createRequest(input_data);
 
             if (data && success === false) {
@@ -204,6 +233,8 @@ const AccountRequestPage = () => {
         2: "Account Details",
         3: "Role & Barangay",
     };
+
+     
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-100 flex flex-col">
@@ -478,7 +509,7 @@ const AccountRequestPage = () => {
                                     {/* Step 3: Role & Purpose */}
                                     {currentStep === 3 && (
                                         <div className="space-y-4">
-                                            <div>
+                                            {/* <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Requested Role *
                                                 </label>
@@ -498,9 +529,37 @@ const AccountRequestPage = () => {
                                                     <option value="barangay_official">Barangay Official</option>
                                                     <option value="garbage_collector">Garbage Collector</option>
                                                 </select>
-                                            </div>
+                                            </div> */}
 
-                                            {formData.role === 'barangay_official' && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Requested Role *                                            
+                                                </label>
+                                                <Select
+                                                    id="role-select"
+                                                    name="role"
+                                                    isMulti
+                                                    options={roleOptions}
+                                                    value={getSelectedOptions(formData.role)} // Convert values to option objects
+                                                    onChange={handleSelectChange}
+                                                    placeholder="Choose roles..."
+                                                    isSearchable
+                                                    closeMenuOnSelect={false}
+                                                    styles={{
+                                                        menu: (base) => ({
+                                                            ...base,
+                                                            zIndex: 9999
+                                                        }),
+                                                        menuPortal: (base) => ({
+                                                            ...base,
+                                                            zIndex: 9999
+                                                        })
+                                                    }}
+                                                    menuPortalTarget={document.body}
+                                                />
+                                            </div> 
+
+                                            {formData.role.includes('barangay_official') && (
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                                         Barangay

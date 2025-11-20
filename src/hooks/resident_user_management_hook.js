@@ -6,8 +6,7 @@ import * as API from '../services/api_service'; // or axios if used directly
 export const getAllResidentUser = async () => {
   try {
     const res = await API.getAllResidentUser();
-    //const filteredData = res.data.data.filter(user => user.role === 'resident');
-    //return { data: filteredData, success: true };
+
 
     return { data: res.data, success: true };
   } catch (error) {
