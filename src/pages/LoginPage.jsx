@@ -114,12 +114,13 @@ const LoginPage = () => {
 
           const { data, success } = await createOTP(input_data_2);
 
-          if (data && success === false) {
+          if (success === false) {
             toast.error(data.message || "Create OTP failed");
             return;
           }
-          navigate(`/verification/${user_id}`);
-          return;
+
+           navigate(`/verification/${user_id}`);
+           return;
         }
 
         //  localStorage.setItem('user_data', encryptData(data.data, 'test'));
@@ -141,8 +142,11 @@ const LoginPage = () => {
         if (role == 'barangay_official') {
           navigate('/official/dashboard');
         }
+        
+        return;
       }
     } catch (error) {
+      console.log(error)
       if (error.response && error.response.data) {
         toast.error(error.response.data.message || "Login failed. Please check your credentials.");
       } else {
