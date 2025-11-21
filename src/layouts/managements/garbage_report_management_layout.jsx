@@ -59,7 +59,7 @@ const ReportGarbageManagementLayout = () => {
     const fetchData = async () => {
         try {
             if (user.role === 'barangay_official') {
-                var { data, success } = await getAllGarbageReportSpecificBarangay(user?.barangay);
+                var { data, success } = await getAllGarbageReportSpecificBarangay(user?.barangay?._id);
             } else {
                 var { data, success } = await getAllGarbageReport();
             }

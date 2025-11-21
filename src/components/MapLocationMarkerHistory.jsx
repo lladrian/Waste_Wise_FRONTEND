@@ -17,15 +17,13 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
       if (success) {
         const raw = data.data.route_history || [];
 
-        // Extract positions only → [{lat,lng}, ...]
+        // Convert to simple {lat, lng}
         const formatted = raw.map((item) => ({
           lat: item.position.lat,
           lng: item.position.lng,
         }));
 
         setRouteHistory(formatted);
-
-        // Start from first position
         setCurrentIndex(0);
       }
     } catch (err) {
@@ -33,13 +31,12 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
     }
   };
 
-  // Default center if no initial
+  // Default fallback location
   const selectedLocation = initialLocation || {
     lat: 11.0062,
     lng: 124.6075,
   };
 
-  // If route exists, map centers on first point
   const center = routeHistory.length > 0 ? routeHistory[0] : selectedLocation;
 
   const mapContainerStyle = {
@@ -50,7 +47,8 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
   return (
     <div className="w-full relative space-y-4">
       <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={16}>
-        {/* Route Polyline */}
+        
+        {/* Draw Polyline */}
         {routeHistory.length > 0 && (
           <Polyline
             path={routeHistory}
@@ -62,13 +60,38 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
           />
         )}
 
-        {/* Moving Marker based on slider index */}
+        {/* Moving Marker */}
         {routeHistory.length > 0 && (
-          <Marker position={routeHistory[currentIndex]} />
+          <Marker
+            position={routeHistory[currentIndex]}
+            label="●"
+          />
+        )}
+
+        {/* START Marker (Green) */}
+        {routeHistory.length > 0 && (
+          <Marker
+            position={routeHistory[0]}
+            label="S"
+            icon={{
+              url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+            }}
+          />
+        )}
+
+        {/* END Marker (Red) */}
+        {routeHistory.length > 1 && (
+          <Marker
+            position={routeHistory[routeHistory.length - 1]}
+            label="E"
+            icon={{
+              url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+            }}
+          />
         )}
       </GoogleMap>
 
-      {/* Slider Control */}
+      {/* Slider */}
       {routeHistory.length > 1 && (
         <div className="w-full p-2">
           <input
