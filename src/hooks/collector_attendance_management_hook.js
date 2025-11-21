@@ -13,3 +13,14 @@ export const getAllCollectorAttendance = async () => {
 };
 
 
+export const getSpecificCollectorAttendance = async (id) => {
+  try {
+    const res = await API.getSpecificCollectorAttendance(id);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
