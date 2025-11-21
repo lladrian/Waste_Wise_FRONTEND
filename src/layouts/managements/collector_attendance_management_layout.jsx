@@ -25,7 +25,7 @@ import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
 import MapLocationMarker from '../../components/MapLocationMarker';
 import MapLocationMarkerRealtime from '../../components/MapLocationMarkerRealtime';
-
+import MapLocationMarkerHistory from '../../components/MapLocationMarkerHistory';
 
 
 const AttendanceManagementLayout = () => {
@@ -148,6 +148,8 @@ const AttendanceManagementLayout = () => {
         }
     }, [viewingCollectorAttendances]);
 
+
+    
     const fetchData = async () => {
         try {
             var { data, success } = await getAllCollectorAttendance();
@@ -850,6 +852,7 @@ const AttendanceManagementLayout = () => {
                                 >
                                     <option value="userInfo">User Information</option>
                                     <option value="realtime_map">Realtime Location Map</option>
+                                    <option value="history_route_map">History Route Map</option>
                                     <option value="start_map">Start Location Map</option>
                                     <option value="end_map">End Location Map</option>
                                 </select>
@@ -1059,6 +1062,18 @@ const AttendanceManagementLayout = () => {
                                                 lat: viewingCollectorAttendances?.position_start?.lat,
                                                 lng: viewingCollectorAttendances?.position_start?.lng
                                             }}
+                                        /> 
+                                    </div>
+                                </>
+                            )  : selectedView === 'history_route_map' ? (
+                                <>
+                                    <div className="w-full  mb-6">
+                                          <MapLocationMarkerHistory
+                                            initialLocation={{
+                                                lat: viewingCollectorAttendances?.position_start?.lat,
+                                                lng: viewingCollectorAttendances?.position_start?.lng
+                                            }}
+                                            attendance_id={viewingCollectorAttendances?._id}
                                         />
                                     </div>
                                 </>

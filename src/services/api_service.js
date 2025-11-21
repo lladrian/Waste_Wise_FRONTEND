@@ -72,6 +72,7 @@ export const updateGarbageSite = (id, data) => axios.put(`/garbage_sites/update_
 export const deleteGarbageSite = (id) => axios.delete(`/garbage_sites/delete_garbage_site/${id}`);
 export const getAllGarbageSiteSpecifcBarangay = (id) => axios.get(`/garbage_sites/get_all_garbage_site_specific_barangay/${id}`);
 export const getAllCollectorAttendance = () => axios.get(`/collector_attendances/get_all_collector_attendance`);
+export const getSpecificCollectorAttendance = (id) => axios.get(`/collector_attendances/get_specific_collector_attendance/${id}`);
 
 
 
