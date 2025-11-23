@@ -1,0 +1,571 @@
+import React, { useState, useEffect } from 'react';
+import {
+    FiPlus,
+    FiEdit,
+    FiTrash2,
+    FiSearch,
+    FiFilter,
+    FiBook,
+    FiInfo,
+    FiUser,
+    FiClock,
+    FiCheckCircle,
+    FiXCircle
+} from 'react-icons/fi';
+
+import { generateReportLoginLog, getAllLoginLog } from "../../hooks/log_management_hook";
+
+import { toast } from "react-toastify";
+
+import DateRangeFilter from '../../components/DateRangeFilter';
+
+const LogManagementLayout = () => {
+    const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showModalData, setShowModalData] = useState(false);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [selectedRole, setSelectedRole] = useState('');
+    const [selectedRemark, setSelectedRemark] = useState('');
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+        update_password: '',
+        first_name: '',
+        middle_name: '',
+        last_name: '',
+        gender: '',
+        contact_number: '',
+        is_disabled: '',
+        role: '',
+        role_action: '',
+        role_action_name: '',
+        device: '',
+        platform: '',
+        remark: '',
+        status: '',
+        created_at: '',
+        os: ''
+    });
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const { data, success } = await getAllLoginLog();
+            if (success === true) {
+                setUsers(data.data)
+                setFilteredUsers(data.data)
+            }
+        } catch (err) {
+            console.error("Error fetching reg data:", err);
+            toast.error("Failed to load registration data");
+        }
+    };
+
+    const downloadGeneratedReport = async () => {
+        try {
+            const res = await generateReportLoginLog({
+                start_date: startDate,
+                end_date: endDate,
+            });
+
+            const blob = new Blob([res.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'login-logs-report.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error('Download failed:', err);
+            toast.error('Failed to download reports data');
+        }
+    };
+
+    useEffect(() => {
+        filterUsers();
+    }, [searchTerm, users, startDate, endDate, selectedRole, selectedRemark]);
+
+    const filterUsers = () => {
+        let filtered = users;
+
+        // Search filter
+        if (searchTerm) {
+            filtered = filtered.filter(user =>
+                user?.user?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.user?.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.user?.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.user?.gender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.user?.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.user?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.user?.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.device.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${user.user.first_name} ${user.user.middle_name} ${user.user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user?.os.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+
+        // Role filter
+        if (selectedRole) {
+            filtered = filtered.filter(user =>
+                user?.user?.role === selectedRole
+            );
+        }
+
+        // Remark filter
+        if (selectedRemark) {
+            filtered = filtered.filter(user =>
+                user.remark === selectedRemark
+            );
+        }
+
+        // Date range filter on created_at string inside each user object (assumed format "YYYY-MM-DD HH:mm:ss")
+        if (startDate && endDate) {
+            const startDateStr = `${startDate} 00:00:00`;
+            const endDateStr = `${endDate} 23:59:59`;
+
+            filtered = filtered.filter(user => {
+                const createdAt = user.created_at || user?.user?.created_at || '';
+                return createdAt >= startDateStr && createdAt <= endDateStr;
+            });
+        }
+
+        setFilteredUsers(filtered);
+    };
+
+    // Get unique roles and remarks for filter dropdowns
+    const getUniqueRoles = () => {
+        const roles = users.map(user => user?.user?.role).filter(Boolean);
+        // console.log(users)
+        console.log(roles)
+        return [...new Set(roles)];
+    };
+
+    const getUniqueRemarks = () => {
+        const remarks = users.map(user => user.remark).filter(Boolean);
+        return [...new Set(remarks)];
+    };
+
+    const handleEdit = (user, log) => {
+        setFormData({
+            os: log.os,
+            device: log.device,
+            platform: log.platform,
+            remark: log.remark,
+            status: log.status,
+            created_at: log.created_at,
+            email: user.email,
+            first_name: user.first_name,
+            middle_name: user.middle_name,
+            last_name: user.last_name,
+            gender: user.gender,
+            contact_number: user.contact_number,
+            role: user.role,
+            role_action: user.role_action || '',
+            role_action_name: user?.role_action?.action_name || "None",
+            is_disabled: String(user.is_disabled)
+        });
+
+        setShowModalData(true);
+    };
+
+    const resetForm = () => {
+        setFormData({
+            os: '',
+            device: '',
+            platform: '',
+            remark: '',
+            status: '',
+            created_at: '',
+            email: '',
+            password: '',
+            first_name: '',
+            middle_name: '',
+            last_name: '',
+            gender: '',
+            contact_number: '',
+            role: '',
+            is_disabled: '',
+            role_action: ''
+        });
+    };
+
+    const resetFilters = () => {
+        setSelectedRole('');
+        setSelectedRemark('');
+        setSearchTerm('');
+        setStartDate('');
+        setEndDate('');
+    };
+
+    const formatRole = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
+            'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+
+        return roleMap[role] || role;
+    };
+
+    function formatDate(datetimeString) {
+        const date = new Date(datetimeString.replace(' ', 'T'));
+        return date.toLocaleString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+        });
+    }
+
+    return (
+        <>
+            <div className="space-y-6">
+                {/* Filters and Search */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                    <div className="flex flex-col gap-4">
+                        {/* First Row: Date Range Filter */}
+                        <div className="w-full">
+                            <DateRangeFilter
+                                onChange={({ startDate, endDate }) => {
+                                    setStartDate(startDate);
+                                    setEndDate(endDate);
+                                }}
+                                downloadHandler={downloadGeneratedReport}
+                            />
+                        </div>
+
+                        {/* Second Row: Search and Filter Controls */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {/* Search Input */}
+                            <div className="relative">
+                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Search user..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+
+                            {/* Role Filter */}
+                            <div>
+                                <select
+                                    value={selectedRole}
+                                    onChange={(e) => setSelectedRole(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                >
+                                    <option value="">All Roles</option>
+                                    {getUniqueRoles().map(role => (
+                                        <option key={role} value={role}>
+                                            {formatRole(role)}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Remark Filter */}
+                            <div>
+                                <select
+                                    value={selectedRemark}
+                                    onChange={(e) => setSelectedRemark(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                >
+                                    <option value="">All Remarks</option>
+                                    {getUniqueRemarks().map(remark => (
+                                        <option key={remark} value={remark}>
+                                            {remark}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Reset Filters Button */}
+                            <div>
+                                <button
+                                    onClick={resetFilters}
+                                    className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    <FiFilter className="w-4 h-4" />
+                                    <span>Reset Filters</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Active Filters Display */}
+                        {(selectedRole || selectedRemark || searchTerm || startDate || endDate) && (
+                            <div className="flex flex-wrap gap-2 items-center text-sm">
+                                <span className="text-gray-500">Active filters:</span>
+                                {selectedRole && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                                        Role: {formatRole(selectedRole)}
+                                        <button
+                                            onClick={() => setSelectedRole('')}
+                                            className="ml-1 text-blue-500 hover:text-blue-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {selectedRemark && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                                        Remark: {selectedRemark}
+                                        <button
+                                            onClick={() => setSelectedRemark('')}
+                                            className="ml-1 text-green-500 hover:text-green-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {searchTerm && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                                        Search: {searchTerm}
+                                        <button
+                                            onClick={() => setSearchTerm('')}
+                                            className="ml-1 text-purple-500 hover:text-purple-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                                {(startDate || endDate) && (
+                                    <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+                                        Date: {startDate} to {endDate}
+                                        <button
+                                            onClick={() => { setStartDate(''); setEndDate(''); }}
+                                            className="ml-1 text-orange-500 hover:text-orange-700"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Complete Name
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Account Type
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Logged In
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Device
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Platform
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Operating System
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Remark
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {filteredUsers.map((user) => (
+                                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user?.user?.first_name} {user?.user?.middle_name} {user?.user?.last_name}</span>
+                                            <span className="text-sm text-gray-900">{user?.resident_user?.first_name} {user?.resident_user?.middle_name} {user?.resident_user?.last_name}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{formatRole(user?.user?.role)}</span>
+                                            <span className="text-sm text-gray-900">{formatRole(user?.resident_user?.role)}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{formatDate(user.created_at)}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.device}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.platform}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.os}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.remark}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{user.status}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center space-x-2">
+                                                <button
+                                                    onClick={() => handleEdit(user?.user || user?.resident_user, user)}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    title="View Data"
+                                                >
+                                                    <FiInfo className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Empty State */}
+                    {filteredUsers.length === 0 && (
+                        <div className="text-center py-12">
+                            <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-500 text-lg">No logs found</p>
+                            <p className="text-gray-400 text-sm mt-1">
+                                {searchTerm || selectedRole || selectedRemark || startDate || endDate
+                                    ? 'Try adjusting your search or filters'
+                                    : 'No login logs available'
+                                }
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {showModalData && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-end items-center mb-6">
+                                <button
+                                    onClick={() => {
+                                        setShowModalData(false);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* User Information Section */}
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Name:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.first_name} {formData?.middle_name} {formData?.last_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Gender:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.gender}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Role:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formatRole(formData?.role)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Role Action:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.role_action_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Contact:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.contact_number || 'Not provided'}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Email Address:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.email || 'Not provided'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Log Information</h3>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Device:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formData?.device}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Platform:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.platform}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Operating System:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.os}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Remark:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.remark}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Status:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {formData?.status}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Date:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatDate(formData?.created_at)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
+
+export default LogManagementLayout;
