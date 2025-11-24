@@ -61,7 +61,7 @@ const ScheduleManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllSchedule(user.barangay);
+            const { data, success } = await getAllSchedule(user?.barangay?._id);
 
             if (success === true) {
                 setTrucks(data.trucks.data)

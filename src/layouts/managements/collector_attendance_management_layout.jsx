@@ -96,8 +96,6 @@ const AttendanceManagementLayout = () => {
                         return true;
                     });
 
-                    console.log(filteredSchedules)
-
                     // Update real-time position if we have matching records
                     if (filteredSchedules.length > 0) {
                         const latestRecord = filteredSchedules[0];
@@ -113,6 +111,11 @@ const AttendanceManagementLayout = () => {
                             });
                         }
                     }
+                    break;
+                    case "attendance":
+                        if(viewingCollectorAttendances.user._id === message.data.user._id && viewingCollectorAttendances._id === message.data._id) {
+                            setViewingCollectorAttendance(message.data)
+                        }
                     break;
                 default:
                     console.warn("Unknown data list:", message.name);
@@ -878,7 +881,7 @@ const AttendanceManagementLayout = () => {
                                             <div>
                                                 <span className="text-gray-500">Role:</span>
                                                 <p className="font-medium text-gray-800">
-                                                    {formatRole(viewingCollectorAttendances?.user?.roe)}
+                                                    {formatRole(viewingCollectorAttendances?.user?.role)}
                                                 </p>
                                             </div>
                                             <div>

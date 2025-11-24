@@ -108,10 +108,11 @@ const OfficialLayout = ({ children }) => {
       label: "Management",
       subItems: [
          { path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" },
-         { path: "/official/management/complains", icon: FiUsers, label: "Complain Management" },
+         { path: "/official/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
          { path: "/official/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
          { path: "/official/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
          { path: "/official/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
+         { path: "/official/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
       ]
     },
 
@@ -119,7 +120,6 @@ const OfficialLayout = ({ children }) => {
     { path: "/official/login_history", icon: FiBarChart2, label: "Login History" },
     { path: "/official/truck_map", icon: FiBarChart2, label: "Truck Map" },
     { path: "/official/update_profile", icon: FiBarChart2, label: "Update Profile" },
-    { path: "/official/notifications", icon: FiBarChart2, label: "Notifications" },
     { path: "/official/garbage_sites", icon: FiBarChart2, label: "Garbage Sites" },
     // { path: "/official/analytics", icon: FiBarChart2, label: "Analytics" },
     // { path: "/official/settings", icon: FiSettings, label: "System Settings" },
@@ -246,10 +246,14 @@ const customTitles = {
     'management/schedules': 'Schedule Management',
     'management/routes': 'Route Management',
     'management/trucks': 'Truck Management',
-    'management/complains': 'Complain Management',
+    'management/complains': 'Barangay Complain Management',
     'management/garbage_reports': 'Garbage Report Management',
     'management/collector_reports': 'Collector Report Management',
     'management/garbage_sites': 'Garbage Site Management',
+    'management/barangay_requests': 'Barangay Request Management',
+
+
+    
 
 
     // Approval section
@@ -629,7 +633,7 @@ const customTitles = {
                     {notifications.length > 0 && (
                       <div className="px-4 py-2 border-t border-blue-200/40">
                         <Link
-                          to="/admin/notifications"
+                          to="/official/notifications"
                           className="text-xs text-blue-600 hover:text-blue-800 font-medium text-center block"
                           onClick={() => setNotificationDropdownOpen(false)}
                         >

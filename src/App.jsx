@@ -46,11 +46,15 @@ import StaffComplainManagementPage from './pages/managements/staff/StaffComplain
 import StaffBarangayManagementPage from './pages/managements/staff/StaffBarangayManagementPage';
 import StaffGarbageReportManagementPage from './pages/managements/staff/StaffGarbageReportManagementPage';
 import StaffCollectorReportManagementPage from './pages/managements/staff/StaffCollectorReportManagementPage';
+import StaffBarangayRequestManagementPage from './pages/managements/staff/StaffBarangayRequestManagementPage';
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
 
 import StaffLogPage from './pages/staff/StaffLogPage';
 import StaffUpdateProfilePage from './pages/staff/StaffUpdateProfilePage';
 import StaffTruckMapPage from './pages/staff/StaffTruckMapPage';
+import StaffNotificationPage from './pages/staff/StaffNotificationPage';
+
+
 
 
 import OfficialDashboardPage from './pages/official/OfficialDashboardPage';
@@ -59,6 +63,8 @@ import OfficialComplainManagementPage from './pages/managements/official/Officia
 import OfficialGarbageReportManagementPage from './pages/managements/official/OfficialGarbageReportManagementPage';
 import OfficialCollectorReportManagementPage from './pages/managements/official/OfficialCollectorReportManagementPage';
 import OfficialGarbageSiteManagementPage from './pages/managements/official/OfficialGarbageSiteManagementPage';
+import OfficialBarangayRequestManagementPage from './pages/managements/official/OfficialBarangayRequestManagementPage';
+
 
 
 
@@ -302,6 +308,28 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/staff/management/barangay_requests"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffBarangayRequestManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        
+
+         <Route
+          path="/staff/notifications"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffNotificationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        
         <Route
           path="/staff/management/barangays"
           element={
@@ -424,6 +452,16 @@ function App() {
             </ProtectedRoute>
           }   
         />
+
+        <Route
+          path="/official/management/barangay_requests"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialBarangayRequestManagementPage />
+            </ProtectedRoute>
+          }   
+        />
+        
 
         <Route
           path="/official/management/garbage_sites"

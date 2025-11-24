@@ -514,7 +514,7 @@ const ReportGarbageManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {['enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(report)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -523,6 +523,7 @@ const ReportGarbageManagementLayout = () => {
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
                                                 )}
+                                                
                                                 <button
                                                     onClick={() => handleViewMap(report)}
                                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

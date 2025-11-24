@@ -110,6 +110,8 @@ const StaffLayout = ({ children }) => {
         { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
         { path: "/staff/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
         { path: "/staff/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
+        { path: "/staff/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
+    
         ...(user?.role !== 'enro_staff_head'
           ? [{ path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" }]
           : []
@@ -126,7 +128,7 @@ const StaffLayout = ({ children }) => {
           ? [{ path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" }]
           : []
         ),
-        { path: "/staff/management/complains", icon: FiUsers, label: "Complain Management" },
+        { path: "/staff/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
       ]
     },
 
@@ -271,11 +273,11 @@ const StaffLayout = ({ children }) => {
     'management/routes': 'Route Management',
     'management/barangays': 'Barangay Management',
     'management/trucks': 'Truck Management',
-    'management/complains': 'Complain Management',
+    'management/complains': 'Barangay Complain Management',
     'management/garbage_reports': 'Garbage Report Management',
     'management/collector_reports': 'Collector Report Management',
+    'management/barangay_requests': 'Barangay Request Management',
 
-  
     // Approval section
     'approval': 'Approval Management',
     'approval/schedules': 'Schedule Approval',
@@ -662,7 +664,7 @@ const StaffLayout = ({ children }) => {
                     {notifications.length > 0 && (
                       <div className="px-4 py-2 border-t border-blue-200/40">
                         <Link
-                          to="/admin/notifications"
+                          to="/staff/notifications"
                           className="text-xs text-blue-600 hover:text-blue-800 font-medium text-center block"
                           onClick={() => setNotificationDropdownOpen(false)}
                         >

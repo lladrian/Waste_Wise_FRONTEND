@@ -147,12 +147,14 @@ const ComplainManagementLayout = () => {
         e.preventDefault();
 
         const input_data = {
-            barangay: formData.barangay,
-            user: formData.user,
+            // barangay: formData.barangay,
+            // user: formData.user,
+            barangay: user?.barangay?._id,
+            user: user?._id,
             complain_content: formData.complain_content,
             complain_type: formData.complain_type,
-            resolution_status: formData.resolution_status,
-            archived: formData.archived
+            // resolution_status: formData.resolution_status,
+           // archived: formData.archived
         };
 
         if (editingComplains) {
@@ -356,16 +358,17 @@ const ComplainManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                {/* <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Complain</span>
-                    </button>
-                </div> */}
-
+                {user?.role === 'barangay_official' && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New Complain</span>
+                        </button>
+                    </div>
+                )}
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-6">
                     {/* Filters and Search */}
@@ -551,7 +554,7 @@ const ComplainManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain.user.first_name} {complain.user.middle_name} {complain.user.last_name}</span>
                                         </td>
-                           
+
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{complain?.barangay?.barangay_name || "None"}</span>
                                         </td>
@@ -580,7 +583,7 @@ const ComplainManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {/* {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(complain)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -588,7 +591,7 @@ const ComplainManagementLayout = () => {
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
-                                                )}
+                                                )} */}
 
                                                 <button
                                                     onClick={() => handleView(complain)}
@@ -651,7 +654,7 @@ const ComplainManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             User
                                         </label>
@@ -660,7 +663,6 @@ const ComplainManagementLayout = () => {
                                             value={formData.user}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select User</option>
@@ -671,9 +673,9 @@ const ComplainManagementLayout = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
+                                    </div> */}
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Barangay
                                         </label>
@@ -682,7 +684,6 @@ const ComplainManagementLayout = () => {
                                             value={formData.barangay}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Barangay</option>
@@ -693,7 +694,7 @@ const ComplainManagementLayout = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
+                                    </div> */}
 
 
 
@@ -706,15 +707,14 @@ const ComplainManagementLayout = () => {
                                             value={formData.complain_type}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Complain Type</option>
-                                            <option value="Breakdown">Breakdown</option>
+                                            {/* <option value="Breakdown">Breakdown</option>
                                             <option value="Roadblock">Roadblock</option>
                                             <option value="Delay">Delay</option>
                                             <option value="Other">Other</option>
-                                            <option value="" disabled>Select Complain Type Resident</option>
+                                            <option value="" disabled>Select Complain Type Resident</option> */}
                                             <option value="Missed Pickup">Missed Pickup</option>
                                             <option value="Delayed Collection">Delayed Collection</option>
                                             <option value="Uncollected Area">Uncollected Area</option>
@@ -722,7 +722,7 @@ const ComplainManagementLayout = () => {
                                         </select>
                                     </div>
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Resolution Status
                                         </label>
@@ -745,7 +745,7 @@ const ComplainManagementLayout = () => {
                                             <option value="Cancelled">Resolved</option>
                                             <option value="Invalid">Invalid</option>
                                         </select>
-                                    </div>
+                                    </div> */}
 
                                     {editingComplains && (
                                         <div className="md:col-span-2">
@@ -766,13 +766,13 @@ const ComplainManagementLayout = () => {
                                         </div>
                                     )}
 
+
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Complain Content
                                         </label>
                                         <textarea
                                             name="complain_content"
-                                            disabled
                                             value={formData.complain_content}
                                             onChange={(e) => {
                                                 handleInputChange(e);
@@ -886,7 +886,6 @@ const ComplainManagementLayout = () => {
                                         <div>
                                             <span className="text-gray-500">Complete Name:</span>
                                             <p className="font-medium text-gray-800 capitalize">
-                                                {console.log(viewingComplains)}
                                                 {viewingComplains?.verified_by?.first_name} {viewingComplains?.verified_by?.middle_name} {viewingComplains?.verified_by?.last_name}
                                             </p>
                                         </div>
@@ -976,8 +975,8 @@ const ComplainManagementLayout = () => {
                                                 onClick={() => handleComplainVerification(viewingComplains?._id, 'Verified')}
                                                 disabled={viewingComplains?.resolution_status === 'Verified'}
                                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingComplains?.resolution_status === 'Verified'
-                                                        ? 'bg-green-100 text-green-600 cursor-not-allowed'
-                                                        : 'bg-green-600 text-white hover:bg-green-700'
+                                                    ? 'bg-green-100 text-green-600 cursor-not-allowed'
+                                                    : 'bg-green-600 text-white hover:bg-green-700'
                                                     }`}
                                             >
                                                 <FiCheckCircle className="w-4 h-4" />
@@ -991,8 +990,8 @@ const ComplainManagementLayout = () => {
                                                 onClick={() => handleComplainVerification(viewingComplains?._id, 'Unverified')}
                                                 disabled={viewingComplains?.resolution_status === 'Unverified'}
                                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingComplains?.resolution_status === 'Unverified'
-                                                        ? 'bg-red-100 text-red-600 cursor-not-allowed'
-                                                        : 'bg-red-600 text-white hover:bg-red-700'
+                                                    ? 'bg-red-100 text-red-600 cursor-not-allowed'
+                                                    : 'bg-red-600 text-white hover:bg-red-700'
                                                     }`}
                                             >
                                                 <FiXCircle className="w-4 h-4" />
@@ -1001,6 +1000,8 @@ const ComplainManagementLayout = () => {
                                         )}
                                     </div>
                                 )}
+
+                                
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);

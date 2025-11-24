@@ -99,12 +99,13 @@ const LoginPage = () => {
         toast.error(data.message || "Login failed");
       } else {
 
+        const user_id = data.data.user._id;
+        const role = data.data.user.role;
+
         if (data.data.user.is_disabled === true) {
           navigate(`/disabled/${data.data.user._id}`);
           return;
         }
-        const user_id = data.data.user._id;
-        const role = data.data.user.role;
 
         if (data.data.user.is_verified === false) {
           const input_data_2 = {
@@ -123,11 +124,15 @@ const LoginPage = () => {
            return;
         }
 
-        //  localStorage.setItem('user_data', encryptData(data.data, 'test'));
+        if (role == 'garbage_collector') {
+          toast.error("You cannot log in as a Garbage Collector!");
+          return;
+        }
 
-
-        // localStorage.setItem('user_id', encryptData(user_id, 'test'));
-        // localStorage.setItem('user_role', encryptData(role, 'test'));
+        if (role == 'resident') {
+          toast.error("You cannot log in as a Resident!");
+          return;
+        }
 
         await login(data.data.user, data.data.logged_in_at);
 
