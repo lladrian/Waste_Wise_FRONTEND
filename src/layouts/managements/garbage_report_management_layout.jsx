@@ -25,6 +25,7 @@ import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
 import MapLocationMarker from '../../components/MapLocationMarker';
 
+import MapLocationPicker from '../../components/MapLocationPicker';
 
 const ReportGarbageManagementLayout = () => {
     const { user } = useContext(AuthContext);
@@ -48,9 +49,19 @@ const ReportGarbageManagementLayout = () => {
         latitude: '',
         longitude: '',
         garbage_type: '',
+        report_type: '',
         notes: '',
         resolution_status: ''
     });
+
+    const handleLocationSelect = (location) => {
+        console.log('Selected location:', location);
+        setFormData(prev => ({
+            ...prev,
+            latitude: location.lat,
+            longitude: location.lng
+        }));
+    };
 
     useEffect(() => {
         fetchData();
@@ -315,7 +326,7 @@ const ReportGarbageManagementLayout = () => {
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                     >
                         <FiPlus className="w-4 h-4" />
-                        <span>Add New Complain</span>
+                        <span>Add New Garbage Report</span>
                     </button>
                 </div> */}
 
@@ -517,7 +528,7 @@ const ReportGarbageManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {['enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(report)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -597,7 +608,7 @@ const ReportGarbageManagementLayout = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {editingReportGarbages ? 'Edit Report Garbage' : 'Add New Report Garbage'}
+                                    {editingReportGarbages ? 'Edit Garbage Report' : 'Add New Garbage Report'}
                                 </h2>
                                 <button
                                     onClick={() => {
@@ -657,34 +668,141 @@ const ReportGarbageManagementLayout = () => {
                                         </select>
                                     </div> */}
 
-
-
-                                    {/* <div className="md:col-span-2">
+                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Complain Type
+                                            Garbage Type
                                         </label>
                                         <select
-                                            name="complain_type"
-                                            value={formData.complain_type}
+                                            name="garbage_type"
+                                            value={formData.garbage_type}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
-                                            <option value="" disabled>Select Complain Type</option>
-                                            <option value="Breakdown">Breakdown</option>
+                                            <option value="" disabled>Select Garbage Type</option>
+                                            {/* <option value="Breakdown">Breakdown</option>
                                             <option value="Roadblock">Roadblock</option>
                                             <option value="Delay">Delay</option>
                                             <option value="Other">Other</option>
-                                            <option value="" disabled>Select Complain Type Resident</option>
-                                            <option value="Missed Pickup">Missed Pickup</option>
-                                            <option value="Delayed Collection">Delayed Collection</option>
-                                            <option value="Uncollected Area">Uncollected Area</option>
-                                            <option value="Illegal Dumping">Illegal Dumping</option>
+                                            <option value="" disabled>Select Complain Type Resident</option> */}
+                                            <option value="biodegradable">Biodegradable</option>
+                                            <option value="non_biodegradable">Non Biodegradable</option>
+                                            <option value="recyclable">Recyclable</option>
+                                            <option value="other">Other</option>
                                         </select>
-                                    </div> */}
+                                    </div>
+
+
 
                                     <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Report Type
+                                        </label>
+                                        <select
+                                            name="report_type"
+                                            value={formData.report_type}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Complain Type</option>
+                                            {/* <option value="Breakdown">Breakdown</option>
+                                            <option value="Roadblock">Roadblock</option>
+                                            <option value="Delay">Delay</option>
+                                            <option value="Other">Other</option>
+                                            <option value="" disabled>Select Complain Type Resident</option> */}
+                                            <option value="missed_route">Missed Route</option>
+                                            <option value="overflowing">Overflowing</option>
+                                            <option value="uncollected">Uncollected</option>
+                                            <option value="illegal_dumping">Illegal Dumping</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+
+                                     <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Notes
+                                        </label>
+                                        <textarea
+                                            name="notes"
+                                            value={formData.notes}
+                                            onChange={(e) => {
+                                                handleInputChange(e);
+                                                // Auto-resize logic
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = e.target.scrollHeight + 30 + 'px';
+                                            }}
+                                            onFocus={(e) => {
+                                                // Trigger resize on focus as well
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = e.target.scrollHeight + 30 + 'px';
+                                            }}
+                                            required
+                                            rows={3}
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 resize-none overflow-hidden"
+                                            placeholder="Enter Complain Content"
+                                            style={{ minHeight: '80px' }}
+                                        />
+                                    </div>
+
+                                    {/* Map Container */}
+                                    {!editingReportGarbages && (
+                                        <>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Select Location on Map
+                                                </label>
+                                                <div className="border border-gray-300 rounded-lg bg-gray-100 relative overflow-hidden">
+                                                    <div className="w-full h-full relative">
+                                                        <MapLocationPicker
+                                                            // initialLocation={{
+                                                            //     lat: formData.latitude,
+                                                            //     lng: formData.longitude
+                                                            // }}
+                                                            onLocationSelect={handleLocationSelect}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <p className="text-sm text-gray-500 mt-2">
+                                                    Click anywhere on the map to set the garbage site location
+                                                </p>
+                                            </div>
+
+                                            {/* Latitude and Longitude Display */}
+                                            {/* <div className="md:col-span-1">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Latitude
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="latitude"
+                                                    value={formData.latitude || ""}
+                                                    onChange={handleInputChange}
+                                                    readOnly
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+                                                    placeholder="Click on map to set latitude"
+                                                />
+                                            </div>
+
+                                            <div className="md:col-span-1">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Longitude
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="longitude"
+                                                    value={formData.longitude || ""}
+                                                    onChange={handleInputChange}
+                                                    readOnly
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+                                                    placeholder="Click on map to set longitude"
+                                                />
+                                            </div>
+                                        */}
+                                        </> 
+                                    )}
+
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Resolution Status
                                         </label>
@@ -707,7 +825,7 @@ const ReportGarbageManagementLayout = () => {
                                             <option value="Cancelled">Resolved</option>
                                             <option value="Invalid">Invalid</option>
                                         </select>
-                                    </div>
+                                    </div> */}
 
                                     {/* {editingReportGarbages && (
                                         <div className="md:col-span-2">

@@ -11,44 +11,41 @@ import {
     FiInfo,
     FiLock,
     FiUser,
-    FiMapPin,
     FiClock,
     FiCheckCircle,
     FiXCircle,
     FiArchive
 } from 'react-icons/fi';
 
-import { getAllCollectorReport } from "../../hooks/collector_report_management_hook";
+import { createBarangayRequest, getAllBarangayRequest, getAllBarangayRequestSpecificBarangay } from "../../hooks/barangay_request_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
-import MapLocationMarker from '../../components/MapLocationMarker';
 
 
-const ReportGarbageManagementLayout = () => {
+const BarangayRequestManagementLayout = () => {
     const { user } = useContext(AuthContext);
-    const [collectorReports, setCollectorReports] = useState([]);
-    const [filteredCollectorReports, setFilteredCollectorReports] = useState([]);
+    const [complains, setComplains] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [barangays, setBarangays] = useState([]);
+    const [filteredComplains, setFilteredComplains] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [collectorReportTypeFilter, setCollectorReportTypeFilter] = useState('');
+    const [complainTypeFilter, setComplainTypeFilter] = useState('');
     const [userRoleFilter, setUserRoleFilter] = useState('');
     const [archiveFilter, setArchiveFilter] = useState(''); // Archive filter state
     const [showModal, setShowModal] = useState(false);
     const [showModalData, setShowModalData] = useState(false);
-    const [editingCollectorReports, setEditingCollectorReport] = useState(null);
-    const [viewingCollectorReports, setViewingCollectorReport] = useState(null);
+    const [editingComplains, setEditingComplain] = useState(null);
+    const [viewingComplains, setViewingComplain] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [showMapModal, setShowMapModal] = useState(false);
-
 
     const [formData, setFormData] = useState({
+        barangay: '',
         user: '',
-        latitude: '',
-        longitude: '',
-        garbage_type: '',
         notes: '',
+        request_type: '',
         resolution_status: ''
     });
 
@@ -58,11 +55,22 @@ const ReportGarbageManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            var { data, success } = await getAllCollectorReport();
+            if (user.role === 'barangay_official') {
+                var { data, success } = await getAllBarangayRequestSpecificBarangay(user?.barangay?._id);
+            } else {
+                var { data, success } = await getAllBarangayRequest();
+            }
 
             if (success === true) {
-                setCollectorReports(data.data)
-                setFilteredCollectorReports(data.data)
+                setUsers(data.data)
+                setBarangays(data.data)
+                if (user.role === 'barangay_official') {
+                    setComplains(data.data)
+                    setFilteredComplains(data.data)
+                } else {
+                    setComplains(data.data)
+                    setFilteredComplains(data.data)
+                }
             }
         } catch (err) {
             console.error("Error fetching reg data:", err);
@@ -71,45 +79,45 @@ const ReportGarbageManagementLayout = () => {
     };
 
     useEffect(() => {
-        filterCollectorReports();
-    }, [searchTerm, collectorReportTypeFilter, userRoleFilter, archiveFilter, collectorReports, startDate, endDate]); // Added archiveFilter dependency
+        filterComplains();
+    }, [searchTerm, complainTypeFilter, userRoleFilter, archiveFilter, complains, startDate, endDate]); // Added archiveFilter dependency
 
 
-    const filterCollectorReports = () => {
-        let filtered = collectorReports;
+    const filterComplains = () => {
+        let filtered = complains;
 
         // Search filter
         if (searchTerm) {
-            filtered = filtered.filter(report =>
-                report.notes.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                report.user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                report.user.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                report.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                `${report.user.first_name} ${report.user.middle_name} ${report.user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                report.truck.truck_id.toLowerCase().includes(searchTerm.toLowerCase())
+            filtered = filtered.filter(complain =>
+                complain.complain_content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.user.middle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${complain.user.first_name} ${complain.user.middle_name} ${complain.user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                complain.barangay.barangay_name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
         // Complain type filter
-        if (collectorReportTypeFilter) {
-            filtered = filtered.filter(report =>
-                report.report_type === collectorReportTypeFilter
+        if (complainTypeFilter) {
+            filtered = filtered.filter(complain =>
+                complain.complain_type === complainTypeFilter
             );
         }
 
         // User role filter
         if (userRoleFilter) {
-            filtered = filtered.filter(report =>
-                report.user.role === userRoleFilter
+            filtered = filtered.filter(complain =>
+                complain.user.role === userRoleFilter
             );
         }
 
         // Archive filter
         if (archiveFilter) {
             if (archiveFilter === 'archived') {
-                filtered = filtered.filter(report => report.archived === true);
+                filtered = filtered.filter(complain => complain.archived === true);
             } else if (archiveFilter === 'active') {
-                filtered = filtered.filter(report => report.archived === false);
+                filtered = filtered.filter(complain => complain.archived === false);
             }
         }
 
@@ -125,25 +133,29 @@ const ReportGarbageManagementLayout = () => {
             // const startDateStr = `${startDate}`;
             // const endDateStr = `${endDate}`;
 
-            filtered = filtered.filter(report => {
-                const createdAt = report.created_at || ''; // try both places
+            filtered = filtered.filter(complain => {
+                const createdAt = complain.created_at || ''; // try both places
                 return createdAt >= startDateStr && createdAt <= endDateStr;
             });
         }
 
-        setFilteredCollectorReports(filtered);
+        setFilteredComplains(filtered);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const input_data = {
-            resolution_status: formData.resolution_status
+            barangay: user?.barangay?._id,
+            user: user?._id,
+            notes: formData.notes,
+            request_type: formData.request_type,
+            resolution_status: formData.resolution_status || "Pending",
         };
 
-        if (editingCollectorReports) {
+        if (editingComplains) {
             try {
-                const { data, success } = await updateComplain(editingCollectorReports._id, input_data);
+                const { data, success } = await updateComplain(editingComplains._id, input_data);
 
                 if (data && success === false) {
                     toast.error(data.message || "Failed to update complain");
@@ -160,6 +172,25 @@ const ReportGarbageManagementLayout = () => {
                     toast.error("Failed to update complain");
                 }
             }
+        } else {
+            try {
+                const { data, success } = await createBarangayRequest(input_data);
+
+                if (data && success === false) {
+                    toast.error(data.message || "Failed to create complain");
+                }
+
+                if (success === true) {
+                    toast.success(data.data);
+                    fetchData();
+                }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    toast.error(error.response.data.message || error.message || "Failed to create complain");
+                } else {
+                    toast.error("Failed to create complain");
+                }
+            }
         }
 
         resetForm();
@@ -167,23 +198,23 @@ const ReportGarbageManagementLayout = () => {
         setShowModalData(false);
     };
 
-    const handleEdit = (report) => {
-        setEditingCollectorReport(report);
+    const handleEdit = (complain) => {
+        setEditingComplain(complain);
         setFormData({
-            resolution_status: report?.resolution_status
+            barangay: complain?.barangay?._id,
+            archived: String(complain.archived),
+            user: complain.user._id,
+            complain_content: complain.complain_content,
+            complain_type: complain.complain_type,
+            resolution_status: complain.resolution_status || 'false'
         });
 
         setShowModal(true);
     };
 
-    const handleView = (report) => {
-        setViewingCollectorReport(report);
+    const handleView = (complain) => {
+        setViewingComplain(complain);
         setShowModalData(true);
-    };
-
-    const handleViewMap = (report) => {
-        setViewingCollectorReport(report);
-        setShowMapModal(true)
     };
 
     const handleComplainVerification = async (id, status) => {
@@ -214,16 +245,39 @@ const ReportGarbageManagementLayout = () => {
         resetForm();
         setShowModal(false);
         setShowModalData(false);
-        setViewingCollectorReport(null);
+        setViewingComplain(null);
     };
 
 
+
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this complain?')) {
+            try {
+                const { data, success } = await deleteComplain(id);
+
+                if (success === true) {
+                    toast.success(data.data);
+                    fetchData();
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+                toast.error('Failed to delete complain');
+            }
+        }
+    };
+
     const resetForm = () => {
         setFormData({
-            resolution_status: ''
+            barangay: '',
+            user: '',
+            complain_content: '',
+            complain_type: '',
+            resolution_status: '',
+            archived: '',
         });
 
-        setEditingCollectorReport(null);
+        setEditingComplain(null);
     };
 
     const handleInputChange = (e) => {
@@ -236,13 +290,13 @@ const ReportGarbageManagementLayout = () => {
 
     // Function to get unique complain types from data
     const getComplainTypes = () => {
-        const types = [...new Set(collectorReports.map(complain => complain.complain_type))];
+        const types = [...new Set(complains.map(complain => complain.complain_type))];
         return types.filter(type => type); // Remove empty/null values
     };
 
     // Function to get available user roles from data
     const getUserRoles = () => {
-        const roles = [...new Set(collectorReports.map(complain => complain?.user?.role))];
+        const roles = [...new Set(complains.map(complain => complain?.user?.role))];
         return roles.filter(role => role); // Remove empty/null values
     };
 
@@ -294,21 +348,40 @@ const ReportGarbageManagementLayout = () => {
     };
 
     // Check if any filters are active
-    const isAnyFilterActive = searchTerm || collectorReportTypeFilter || userRoleFilter || archiveFilter;
+    const isAnyFilterActive = searchTerm || complainTypeFilter || userRoleFilter || archiveFilter;
+
+
+
+    const formatRequestType = (type) => {
+        switch (type) {
+            case 'request_help':
+                return 'Request Help';
+            case 'request_new_schedule':
+                return 'Request New Schedule';
+            case 'request_new_truck':
+                return 'Request New Truck';
+            case 'other':
+                return 'Other';
+            default:
+                return type;
+        }
+    };
 
     return (
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                {/* <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Complain</span>
-                    </button>
-                </div> */}
+                {user?.role === 'barangay_official' && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New Complain</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-6">
@@ -341,10 +414,10 @@ const ReportGarbageManagementLayout = () => {
                         </div>
 
                         {/* Complain Type Filter */}
-                        {/* <div className="sm:w-48">
+                        <div className="sm:w-48">
                             <select
-                                value={collectorReportTypeFilter}
-                                onChange={(e) => setCollectorReportTypeFilter(e.target.value)}
+                                value={complainTypeFilter}
+                                onChange={(e) => setComplainTypeFilter(e.target.value)}
                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="">All Types</option>
@@ -354,10 +427,10 @@ const ReportGarbageManagementLayout = () => {
                                     </option>
                                 ))}
                             </select>
-                        </div> */}
+                        </div>
 
                         {/* User Role Filter */}
-                        {/* <div className="sm:w-48">
+                        <div className="sm:w-48">
                             <select
                                 value={userRoleFilter}
                                 onChange={(e) => setUserRoleFilter(e.target.value)}
@@ -372,10 +445,10 @@ const ReportGarbageManagementLayout = () => {
                                         </option>
                                     ))}
                             </select>
-                        </div> */}
+                        </div>
 
                         {/* Archive Filter */}
-                        {/* <div className="sm:w-48">
+                        <div className="sm:w-48">
                             <select
                                 value={archiveFilter}
                                 onChange={(e) => setArchiveFilter(e.target.value)}
@@ -385,14 +458,14 @@ const ReportGarbageManagementLayout = () => {
                                 <option value="active">Active</option>
                                 <option value="archived">Archived</option>
                             </select>
-                        </div> */}
+                        </div>
 
                         {/* Clear Filters Button */}
-                        {/* {isAnyFilterActive && (
+                        {isAnyFilterActive && (
                             <button
                                 onClick={() => {
                                     setSearchTerm('');
-                                    setCollectorReportTypeFilter('');
+                                    setComplainTypeFilter('');
                                     setUserRoleFilter('');
                                     setArchiveFilter('');
                                 }}
@@ -400,7 +473,7 @@ const ReportGarbageManagementLayout = () => {
                             >
                                 Clear All
                             </button>
-                        )} */}
+                        )}
                     </div>
 
                     {/* Active Filters Display */}
@@ -417,11 +490,11 @@ const ReportGarbageManagementLayout = () => {
                                     </button>
                                 </span>
                             )}
-                            {collectorReportTypeFilter && (
+                            {complainTypeFilter && (
                                 <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                                    Type: {collectorReportTypeFilter}
+                                    Type: {complainTypeFilter}
                                     <button
-                                        onClick={() => setCollectorReportTypeFilter('')}
+                                        onClick={() => setComplainTypeFilter('')}
                                         className="ml-1 text-green-600 hover:text-green-800"
                                     >
                                         ×
@@ -463,21 +536,21 @@ const ReportGarbageManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Complete Name
                                     </th>
+                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        User Role
+                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Truck ID
+                                        Barangay Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Complain Content
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Report Type
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Specific Issue
+                                        Notes
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Archive
+                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date
                                     </th>
@@ -487,56 +560,61 @@ const ReportGarbageManagementLayout = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredCollectorReports.map((report) => (
-                                    <tr key={report._id} className={`hover:bg-gray-50 transition-colors bg-gray-50`}>
+                                {filteredComplains.map((complain) => (
+                                    <tr key={complain._id} className={`hover:bg-gray-50 transition-colors ${complain.archived ? 'bg-gray-50' : ''}`}>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report?.user?.first_name} {report?.user?.middle_name} {report?.user?.last_name}</span>
+                                            <span className="text-sm text-gray-900">{complain.user.first_name} {complain.user.middle_name} {complain.user.last_name}</span>
                                         </td>
+
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report?.truck?.truck_id}</span>
+                                            <span className="text-sm text-gray-900">{complain?.barangay?.barangay_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4 max-w-[200px]">
                                             <span className="text-sm text-gray-900 truncate block">
-                                                {report?.notes}
+                                                {complain.notes}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report.report_type}</span>
+                                            <span className="text-sm text-gray-900">{complain.resolution_status}</span>
                                         </td>
+                                        {/* <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${complain.archived
+                                                    ? 'bg-gray-100 text-gray-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                                }`}>
+                                                <FiArchive className={`w-3 h-3 mr-1 ${complain.archived ? '' : 'opacity-50'}`} />
+                                                {formatArchiveStatus(complain.archived)}
+                                            </span>
+                                        </td> */}
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report.specific_issue}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report.resolution_status}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatDate(report.created_at)}</span>
+                                            <span className="text-sm text-gray-900">{formatDate(complain.created_at)}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
                                                     <button
-                                                        onClick={() => handleEdit(report)}
+                                                        onClick={() => handleEdit(complain)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                         title="Edit"
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
                                                 )}
+
                                                 <button
-                                                    onClick={() => handleViewMap(report)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="View on Map"
-                                                >
-                                                    <FiMapPin className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleView(report)}
+                                                    onClick={() => handleView(complain)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
+                                                {/* <button
+                                                    onClick={() => handleDelete(complain._id)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Delete"
+                                                >
+                                                    <FiTrash2 className="w-4 h-4" />
+                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -546,14 +624,14 @@ const ReportGarbageManagementLayout = () => {
                     </div>
 
                     {/* Empty State */}
-                    {filteredCollectorReports.length === 0 && (
+                    {filteredComplains.length === 0 && (
                         <div className="text-center py-12">
                             <FiBook className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">No report garbages found</p>
+                            <p className="text-gray-500 text-lg">No complains found</p>
                             <p className="text-gray-400 text-sm mt-1">
                                 {isAnyFilterActive
                                     ? 'Try adjusting your search or filters'
-                                    : 'Get started by adding your first report garbage'
+                                    : 'Get started by adding your first complain'
                                 }
                             </p>
                         </div>
@@ -568,7 +646,7 @@ const ReportGarbageManagementLayout = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {editingCollectorReports ? 'Edit Collector Report' : 'Add New Collector Report'}
+                                    {editingComplains ? 'Edit Complain' : 'Add New Complain'}
                                 </h2>
                                 <button
                                     onClick={() => {
@@ -593,7 +671,6 @@ const ReportGarbageManagementLayout = () => {
                                             value={formData.user}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select User</option>
@@ -615,7 +692,6 @@ const ReportGarbageManagementLayout = () => {
                                             value={formData.barangay}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Barangay</option>
@@ -639,7 +715,6 @@ const ReportGarbageManagementLayout = () => {
                                             value={formData.complain_type}
                                             onChange={handleInputChange}
                                             required
-                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Complain Type</option>
@@ -657,30 +732,24 @@ const ReportGarbageManagementLayout = () => {
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Resolution Status
+                                            Request Type
                                         </label>
                                         <select
-                                            name="resolution_status"
-                                            value={formData.resolution_status}
+                                            name="request_type"
+                                            value={formData.request_type || ""}
                                             onChange={handleInputChange}
                                             required
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
-                                            <option value="" disabled>Select Resolution Status</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="In Progress">In Progress</option>
-                                            <option value="Resolved">Resolved</option>
-                                            <option value="Cancelled">Cancelled</option>
-                                            <option value="" disabled>Select Resolution Status Resident</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="In Progress">In Progress</option>
-                                            <option value="Under Review">Under Review</option>
-                                            <option value="Cancelled">Resolved</option>
-                                            <option value="Invalid">Invalid</option>
+                                            <option value="" disabled>Select Request Type</option>
+                                            <option value="request_help">Request Help</option>
+                                            <option value="request_new_schedule">Request New Schedule</option>
+                                            <option value="request_new_truck">Request New Truck</option>
+                                            <option value="other">Other</option>
                                         </select>
                                     </div>
 
-                                    {/* {editingCollectorReports && (
+                                    {editingComplains && (
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Archive Status
@@ -697,16 +766,16 @@ const ReportGarbageManagementLayout = () => {
                                                 <option value="false">Active</option>
                                             </select>
                                         </div>
-                                    )} */}
+                                    )}
 
-                                    {/* <div className="md:col-span-2">
+
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Complain Content
+                                            Notes
                                         </label>
                                         <textarea
-                                            name="complain_content"
-                                            disabled
-                                            value={formData.complain_content}
+                                            name="notes"
+                                            value={formData.notes}
                                             onChange={(e) => {
                                                 handleInputChange(e);
                                                 // Auto-resize logic
@@ -721,10 +790,10 @@ const ReportGarbageManagementLayout = () => {
                                             required
                                             rows={3}
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 resize-none overflow-hidden"
-                                            placeholder="Enter Complain Content"
+                                            placeholder="Enter Notes"
                                             style={{ minHeight: '80px' }}
                                         />
-                                    </div> */}
+                                    </div>
                                 </div>
 
                                 {/* Action Buttons */}
@@ -743,36 +812,10 @@ const ReportGarbageManagementLayout = () => {
                                         type="submit"
                                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
                                     >
-                                        {editingCollectorReports ? 'Update Collector Report' : 'Add Collector Report'}
+                                        {editingComplains ? 'Update Complain' : 'Add Complain'}
                                     </button>
                                 </div>
                             </form>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showMapModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden">
-                        <div className="flex justify-between items-center p-4 border-b">
-                            <h2 className="text-lg font-semibold text-gray-800">Location Map</h2>
-                            <button
-                                onClick={() => setShowMapModal(false)}
-                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        {/* Map Section */}
-                        <div className="w-full h-[500px]">
-                            <MapLocationMarker
-                                initialLocation={{
-                                    lat: viewingCollectorReports.position.lat,
-                                    lng: viewingCollectorReports.position.lng
-                                }}
-                            />
                         </div>
                     </div>
                 </div>
@@ -782,12 +825,12 @@ const ReportGarbageManagementLayout = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">Report Details</h2>
+                            <div className="flex justify-end items-center mb-6">
+                                {/* <h2 className="text-xl font-bold text-gray-800">Complain Details</h2> */}
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);
-                                        setViewingCollectorReport(null);
+                                        setViewingComplain(null);
                                         resetForm();
                                     }}
                                     className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -802,131 +845,125 @@ const ReportGarbageManagementLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingCollectorReports?.user?.first_name} {viewingCollectorReports?.user?.middle_name} {viewingCollectorReports?.user?.last_name}
+                                            {viewingComplains?.user?.first_name} {viewingComplains?.user?.middle_name} {viewingComplains?.user?.last_name}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Gender:</span>
                                         <p className="font-medium text-gray-800 capitalize">
-                                            {viewingCollectorReports?.user?.gender}
+                                            {viewingComplains?.user?.gender}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Role:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formatRole(viewingCollectorReports?.user?.role)}
+                                            {formatRole(viewingComplains?.user?.role)}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Contact Number:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.user?.contact_number}
+                                            {viewingComplains?.user?.contact_number}
                                         </p>
                                     </div>
                                     <div>
                                         <span className="text-gray-500">Email Address:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.user?.email}
+                                            {viewingComplains?.user?.email}
                                         </p>
                                     </div>
                                     {/* <div>
                                         <span className="text-gray-500">Verification Status:</span>
-                                        <p className={`font-medium ${viewingCollectorReports?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
-                                            {viewingCollectorReports?.user?.is_verified ? 'Verified' : 'Unverified'}
+                                        <p className={`font-medium ${viewingComplains?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                                            {viewingComplains?.user?.is_verified ? 'Verified' : 'Unverified'}
                                         </p>
                                     </div> */}
                                 </div>
                             </div>
 
-                            {viewingCollectorReports?.verified_by && (
+                            {viewingComplains?.verified_by && (
                                 <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                     <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
                                     <div className="grid grid-cols-2 gap-3 text-sm">
                                         <div>
                                             <span className="text-gray-500">Complete Name:</span>
                                             <p className="font-medium text-gray-800 capitalize">
-                                                {viewingCollectorReports?.verified_by?.first_name} {viewingCollectorReports?.verified_by?.middle_name} {viewingCollectorReports?.verified_by?.last_name}
+                                                {viewingComplains?.verified_by?.first_name} {viewingComplains?.verified_by?.middle_name} {viewingComplains?.verified_by?.last_name}
                                             </p>
                                         </div>
                                         <div>
                                             <span className="text-gray-500">Gender:</span>
                                             <p className="font-medium text-gray-800 capitalize">
-                                                {viewingCollectorReports?.verified_by?.gender}
+                                                {viewingComplains?.verified_by?.gender}
                                             </p>
                                         </div>
                                         <div>
                                             <span className="text-gray-500">Role:</span>
                                             <p className="font-medium text-gray-800">
-                                                {formatRole(viewingCollectorReports?.verified_by?.role)}
+                                                {formatRole(viewingComplains?.verified_by?.role)}
                                             </p>
                                         </div>
                                         <div>
                                             <span className="text-gray-500">Contact Number:</span>
                                             <p className="font-medium text-gray-800">
-                                                {viewingCollectorReports?.verified_by?.contact_number}
+                                                {viewingComplains?.verified_by?.contact_number}
                                             </p>
                                         </div>
                                         <div>
                                             <span className="text-gray-500">Email Address:</span>
                                             <p className="font-medium text-gray-800">
-                                                {viewingCollectorReports?.verified_by?.email}
+                                                {viewingComplains?.verified_by?.email}
                                             </p>
                                         </div>
                                         {/* <div>
                                         <span className="text-gray-500">Verification Status:</span>
-                                        <p className={`font-medium ${viewingCollectorReports?.verified_by?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
-                                            {viewingCollectorReports?.verified_by?.is_verified ? 'Verified' : 'Unverified'}
+                                        <p className={`font-medium ${viewingComplains?.verified_by?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                                            {viewingComplains?.verified_by?.is_verified ? 'Verified' : 'Unverified'}
                                         </p>
                                     </div> */}
                                     </div>
                                 </div>
                             )}
 
+
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Report Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Request Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="text-gray-500">Report Type:</span>
+                                        <span className="text-gray-500">Request Type:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.report_type}
+                                            {formatRequestType(viewingComplains?.request_type)}
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Specific Issued:</span>
+                                        <span className="text-gray-500">Barangay:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.specific_issue}
+                                            {viewingComplains?.barangay?.barangay_name || "None"}
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Truck ID:</span>
+                                        <span className="text-gray-500">Status:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.truck.truck_id}
+                                            {viewingComplains?.resolution_status}
                                         </p>
                                     </div>
-                                    <div>
-                                        <span className="text-gray-500">Position:</span>
-                                        <p>
-                                            Latitude: <span className="font-medium text-gray-800">{viewingCollectorReports?.position.lat}</span>,
-                                            Longitude: <span className="font-medium text-gray-800">{viewingCollectorReports?.position.lng}</span>
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Resolution Status:</span>
+                                    {/* <div>
+                                        <span className="text-gray-500">Archive Status:</span>
                                         <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.resolution_status}
+                                            {formatArchiveStatus(viewingComplains?.archived)}
                                         </p>
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <span className="text-gray-500">Date:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formatDate(viewingCollectorReports?.created_at)}
+                                            {formatDate(viewingComplains?.created_at)}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="mt-4 text-sm">
-                                    <span className="text-gray-500">Report Content:</span>
+                                    <span className="text-gray-500">Notes:</span>
                                     <p className="font-medium text-gray-800 mt-1 break-words whitespace-pre-wrap overflow-hidden">
-                                        {viewingCollectorReports?.notes}
+                                        {viewingComplains?.notes}
                                     </p>
                                 </div>
                             </div>
@@ -936,11 +973,11 @@ const ReportGarbageManagementLayout = () => {
                                 {user.role === 'barangay_official' && (
                                     <div className="flex gap-3">
                                         {/* Verify Button - Show only when verified_by is null */}
-                                        {viewingCollectorReports?.verified_by === null && (
+                                        {viewingComplains?.verified_by === null && (
                                             <button
-                                                onClick={() => handleComplainVerification(viewingCollectorReports?._id, 'Verified')}
-                                                disabled={viewingCollectorReports?.resolution_status === 'Verified'}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingCollectorReports?.resolution_status === 'Verified'
+                                                onClick={() => handleComplainVerification(viewingComplains?._id, 'Verified')}
+                                                disabled={viewingComplains?.resolution_status === 'Verified'}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingComplains?.resolution_status === 'Verified'
                                                     ? 'bg-green-100 text-green-600 cursor-not-allowed'
                                                     : 'bg-green-600 text-white hover:bg-green-700'
                                                     }`}
@@ -951,11 +988,11 @@ const ReportGarbageManagementLayout = () => {
                                         )}
 
                                         {/* Unverify Button - Show only when verified_by is not null */}
-                                        {viewingCollectorReports?.verified_by !== null && (
+                                        {viewingComplains?.verified_by !== null && (
                                             <button
-                                                onClick={() => handleComplainVerification(viewingCollectorReports?._id, 'Unverified')}
-                                                disabled={viewingCollectorReports?.resolution_status === 'Unverified'}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingCollectorReports?.resolution_status === 'Unverified'
+                                                onClick={() => handleComplainVerification(viewingComplains?._id, 'Unverified')}
+                                                disabled={viewingComplains?.resolution_status === 'Unverified'}
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingComplains?.resolution_status === 'Unverified'
                                                     ? 'bg-red-100 text-red-600 cursor-not-allowed'
                                                     : 'bg-red-600 text-white hover:bg-red-700'
                                                     }`}
@@ -969,7 +1006,7 @@ const ReportGarbageManagementLayout = () => {
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);
-                                        setViewingCollectorReport(null);
+                                        setViewingComplain(null);
                                         resetForm();
                                     }}
                                     className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
@@ -985,4 +1022,4 @@ const ReportGarbageManagementLayout = () => {
     );
 };
 
-export default ReportGarbageManagementLayout;
+export default BarangayRequestManagementLayout;

@@ -73,30 +73,11 @@ export const deleteGarbageSite = (id) => axios.delete(`/garbage_sites/delete_gar
 export const getAllGarbageSiteSpecifcBarangay = (id) => axios.get(`/garbage_sites/get_all_garbage_site_specific_barangay/${id}`);
 export const getAllCollectorAttendance = () => axios.get(`/collector_attendances/get_all_collector_attendance`);
 export const getSpecificCollectorAttendance = (id) => axios.get(`/collector_attendances/get_specific_collector_attendance/${id}`);
-
-
-
-
-export const getAllResidentUser = () => axios.get(`/residents/get_all_user`);
-export const updateResidentUserPasswordAdmin = (id, data) => axios.put(`/residents/update_user_password_admin/${id}`,data);
-export const updateResidentUserPassword = (id, data) => axios.put(`/residents/update_user_password/${id}`,data);
-export const deleteResidentUser = (id) => axios.delete(`/residents/delete_user/${id}`);
-export const updateResidentUser = (id, data) => axios.put(`/residents/update_user/${id}`,data);
-export const createResidentUser = (data) => axios.post(`/residents/add_user`,data);
-
-
-export const getSpecificResidentUser = (id) => axios.get(`/residents/get_specific_user/${id}`);
-export const loginResidentUser = (data) => axios.post('/residents/login_user', data);
-
-
 export const getAllGarbageReport = () => axios.get(`/garbage_reports/get_all_garbage_report`);
 export const getAllGarbageReportSpecificBarangay = (id) => axios.get(`/garbage_reports/get_all_garbage_report_specific_barangay/${id}`);
-
 export const getAllCollectorReport = () => axios.get(`/collector_reports/get_all_collector_report`);
 
 
-
-
-
-
-
+export const createBarangayRequest = (data) => axios.post(`/barangay_requests/add_barangay_request`,data);
+export const getAllBarangayRequest = () => axios.get(`/barangay_requests/get_all_barangay_request`);
+export const getAllBarangayRequestSpecificBarangay = (id) => axios.get(`/barangay_requests/get_all_barangay_request_specific_barangay/${id}`);
