@@ -7,6 +7,7 @@ export const createUserGarbageCollector = (data) => axios.post(`/users/add_user_
 export const changePasswordRecovery = (data) => axios.put('/users/update_user_password_recovery', data);
 export const loginUser = (data) => axios.post('/users/login_user', data);
 export const getSpecificUser = (id) => axios.get(`/users/get_specific_user/${id}`);
+export const getAllUserSpecificBarangay = (id) => axios.get(`/users/get_all_user_specific_barangay/${id}`);
 export const getAllTruckDriverUser = () => axios.get(`/users/get_all_user_truck_driver`);
 export const getAllUser = () => axios.get(`/users/get_all_user`);
 export const deleteUser = (id) => axios.delete(`/users/delete_user/${id}`);
@@ -44,6 +45,7 @@ export const getAllTruck = () => axios.get(`/trucks/get_all_truck`);
 export const getSpecificTruck = (id) => axios.get(`/trucks/get_specific_truck/${id}`);
 export const deleteTruck = (id) => axios.delete(`/trucks/delete_truck/${id}`);
 export const updateTruck = (id, data) => axios.put(`/trucks/update_truck/${id}`, data);
+export const updateComplainStatus = (id, data) => axios.put(`/complains/update_complain_status/${id}`, data);
 export const createComplain = (data) => axios.post(`/complains/add_complain`,data);
 export const getAllComplain = () => axios.get(`/complains/get_all_complain`);
 export const getSpecificComplain = (id) => axios.get(`/complains/get_specific_complain/${id}`);
@@ -75,9 +77,14 @@ export const getAllCollectorAttendance = () => axios.get(`/collector_attendances
 export const getSpecificCollectorAttendance = (id) => axios.get(`/collector_attendances/get_specific_collector_attendance/${id}`);
 export const getAllGarbageReport = () => axios.get(`/garbage_reports/get_all_garbage_report`);
 export const getAllGarbageReportSpecificBarangay = (id) => axios.get(`/garbage_reports/get_all_garbage_report_specific_barangay/${id}`);
+export const updateGarbageReportStatus = (id, data) => axios.put(`/garbage_reports/update_garbage_report_status/${id}`, data);
+
 export const getAllCollectorReport = () => axios.get(`/collector_reports/get_all_collector_report`);
+
 
 
 export const createBarangayRequest = (data) => axios.post(`/barangay_requests/add_barangay_request`,data);
 export const getAllBarangayRequest = () => axios.get(`/barangay_requests/get_all_barangay_request`);
 export const getAllBarangayRequestSpecificBarangay = (id) => axios.get(`/barangay_requests/get_all_barangay_request_specific_barangay/${id}`);
+export const updateBarangayRequestStatus = (id, data) => axios.put(`/barangay_requests/update_barangay_request_status/${id}`, data);
+

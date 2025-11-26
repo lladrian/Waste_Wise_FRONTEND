@@ -7,6 +7,7 @@ import {
     FiSearch,
     FiFilter,
     FiBook,
+    FiMapPin,
     FiLock,
     FiUser,
     FiClock,
@@ -19,6 +20,8 @@ import { createGarbageSite, getAllGarbageSite, deleteGarbageSite, updateGarbageS
 import { toast } from "react-toastify";
 
 import MapLocationPicker from '../../components/MapLocationPicker';
+import MapLocationMarker from '../../components/MapLocationMarker';
+
 import { AuthContext } from '../../context/AuthContext';
 
 
@@ -31,6 +34,8 @@ const GarbageSiteManagementLayout = () => {
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingGarbageSites, setEditingGarbageSite] = useState(null);
     const [barangays, setBarangays] = useState([]);
+    const [viewingReportGarbages, setViewingReportGarbage] = useState(null);
+    const [showMapModal, setShowMapModal] = useState(false);
 
 
     // Also update your formData state to include markerPosition
@@ -58,6 +63,11 @@ const GarbageSiteManagementLayout = () => {
         fetchData();
     }, []);
 
+
+    const handleViewMap = (site) => {
+        setViewingReportGarbage(site);
+        setShowMapModal(true)
+    };
 
     const fetchData = async () => {
         try {
@@ -210,16 +220,17 @@ const GarbageSiteManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Garbage Site</span>
-                    </button>
-                </div>
-
+                {['enro_staff_scheduler', 'barangay_official'].includes(user.role) && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New Garbage Site</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -279,20 +290,32 @@ const GarbageSiteManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(site)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(site._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                {['enro_staff_scheduler', 'barangay_official'].includes(user.role) && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleEdit(site)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit"
+                                                        >
+                                                            <FiEdit className="w-4 h-4" />
+                                                        </button>
+                                                
+                                                        <button
+                                                            onClick={() => handleDelete(site._id)}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <FiTrash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                )}
+                                                        <button
+                                                            onClick={() => handleViewMap(site)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="View on Map"
+                                                        >
+                                                            <FiMapPin className="w-4 h-4" />
+                                                        </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -316,6 +339,32 @@ const GarbageSiteManagementLayout = () => {
                     )}
                 </div>
             </div>
+
+              {showMapModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden">
+                                    <div className="flex justify-between items-center p-4 border-b">
+                                        <h2 className="text-lg font-semibold text-gray-800">Location Map</h2>
+                                        <button
+                                            onClick={() => setShowMapModal(false)}
+                                            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+            
+                                    {/* Map Section */}
+                                    <div className="w-full h-[500px]">
+                                        <MapLocationMarker
+                                            initialLocation={{
+                                                lat: viewingReportGarbages.position.lat,
+                                                lng: viewingReportGarbages.position.lng
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

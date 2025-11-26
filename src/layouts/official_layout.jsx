@@ -107,6 +107,7 @@ const OfficialLayout = ({ children }) => {
       icon: FiFolder,
       label: "Management",
       subItems: [
+         { path: "/official/management/residents", icon: FiUsers, label: "Resident Management" },
          { path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" },
          { path: "/official/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
          { path: "/official/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
@@ -242,6 +243,7 @@ const customTitles = {
 
     // Management section
     'management': 'Waste Management',
+    'management/residents': 'Resident Management',
     'management/logs': 'Log Management',
     'management/schedules': 'Schedule Management',
     'management/routes': 'Route Management',
@@ -253,7 +255,6 @@ const customTitles = {
     'management/barangay_requests': 'Barangay Request Management',
 
 
-    
 
 
     // Approval section

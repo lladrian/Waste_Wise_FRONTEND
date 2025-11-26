@@ -109,30 +109,19 @@ const StaffLayout = ({ children }) => {
       subItems: [
         { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
         { path: "/staff/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
+        { path: "/staff/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
         { path: "/staff/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
-        { path: "/staff/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
-    
-        ...(user?.role !== 'enro_staff_head'
-          ? [{ path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" }]
-          : []
-        ),
-        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head'
-          ? [{ path: "/staff/management/routes", icon: FiUsers, label: "Route Management" }]
-          : []
-        ),
-        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head'
-          ? [{ path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" }]
-          : []
-        ),
-        ...(user?.role !== 'enro_staff_head' && user?.role !== 'enro_staff_monitoring' && user?.role !== 'enro_staff_eswm_section_head'
-          ? [{ path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" }]
-          : []
-        ),
+        { path: "/staff/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" },
+        { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
+        { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
+        { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
+        { path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" },
         { path: "/staff/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
+        { path: "/staff/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
       ]
     },
 
-    ...(user?.role === 'enro_staff_head' ? [
+    ...(user?.role === 'enro_staff_head' || user?.role === 'enro_staff_scheduler' ? [
       {
         path: "/staff/approval",
         icon: FiFolder,
@@ -275,7 +264,9 @@ const StaffLayout = ({ children }) => {
     'management/trucks': 'Truck Management',
     'management/complains': 'Barangay Complain Management',
     'management/garbage_reports': 'Garbage Report Management',
+    'management/garbage_sites': 'Garbage Site Management',
     'management/collector_reports': 'Collector Report Management',
+    'management/collector_attendances': 'Collector Attendance Management',
     'management/barangay_requests': 'Barangay Request Management',
 
     // Approval section

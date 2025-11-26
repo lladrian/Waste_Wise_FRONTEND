@@ -41,6 +41,8 @@ const ReportGarbageManagementLayout = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [showMapModal, setShowMapModal] = useState(false);
+    const [selectedView, setSelectedView] = useState('user_info');
+
 
 
     const [formData, setFormData] = useState({
@@ -514,7 +516,7 @@ const ReportGarbageManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {['enro_staff_head', 'enro_staff_eswm_section_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(report)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -523,14 +525,13 @@ const ReportGarbageManagementLayout = () => {
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
                                                 )}
-                                                
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleViewMap(report)}
                                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                     title="View on Map"
                                                 >
                                                     <FiMapPin className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
                                                 <button
                                                     onClick={() => handleView(report)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -797,187 +798,218 @@ const ReportGarbageManagementLayout = () => {
                                 </button>
                             </div>
 
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Complete Name:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {viewingCollectorReports?.user?.first_name} {viewingCollectorReports?.user?.middle_name} {viewingCollectorReports?.user?.last_name}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Gender:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {viewingCollectorReports?.user?.gender}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Role:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {formatRole(viewingCollectorReports?.user?.role)}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Contact Number:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.user?.contact_number}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Email Address:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.user?.email}
-                                        </p>
-                                    </div>
-                                    {/* <div>
+                            {/* Dropdown for view selection */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Select View
+                                </label>
+                                <select
+                                    value={selectedView}
+                                    onChange={(e) => setSelectedView(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                >
+                                    <option value="user_info">User Information</option>
+                                    <option value="location_map">Location Map</option>
+                                    {/* <option value="start_map">Start Location Map</option>
+                                    <option value="end_map">End Location Map</option> */}
+                                </select>
+                            </div>
+
+                            {selectedView === 'user_info' ? (
+
+                                <div>
+                                    <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                        <div className="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span className="text-gray-500">Complete Name:</span>
+                                                <p className="font-medium text-gray-800 capitalize">
+                                                    {viewingCollectorReports?.user?.first_name} {viewingCollectorReports?.user?.middle_name} {viewingCollectorReports?.user?.last_name}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Gender:</span>
+                                                <p className="font-medium text-gray-800 capitalize">
+                                                    {viewingCollectorReports?.user?.gender}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Role:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {formatRole(viewingCollectorReports?.user?.role)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Contact Number:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingCollectorReports?.user?.contact_number}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Email Address:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingCollectorReports?.user?.email}
+                                                </p>
+                                            </div>
+                                            {/* <div>
                                         <span className="text-gray-500">Verification Status:</span>
                                         <p className={`font-medium ${viewingCollectorReports?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
                                             {viewingCollectorReports?.user?.is_verified ? 'Verified' : 'Unverified'}
                                         </p>
                                     </div> */}
-                                </div>
-                            </div>
+                                        </div>
+                                    </div>
 
-                            {viewingCollectorReports?.verified_by && (
-                                <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
-                                    <div className="grid grid-cols-2 gap-3 text-sm">
-                                        <div>
-                                            <span className="text-gray-500">Complete Name:</span>
-                                            <p className="font-medium text-gray-800 capitalize">
-                                                {viewingCollectorReports?.verified_by?.first_name} {viewingCollectorReports?.verified_by?.middle_name} {viewingCollectorReports?.verified_by?.last_name}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Gender:</span>
-                                            <p className="font-medium text-gray-800 capitalize">
-                                                {viewingCollectorReports?.verified_by?.gender}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Role:</span>
-                                            <p className="font-medium text-gray-800">
-                                                {formatRole(viewingCollectorReports?.verified_by?.role)}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Contact Number:</span>
-                                            <p className="font-medium text-gray-800">
-                                                {viewingCollectorReports?.verified_by?.contact_number}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Email Address:</span>
-                                            <p className="font-medium text-gray-800">
-                                                {viewingCollectorReports?.verified_by?.email}
-                                            </p>
-                                        </div>
-                                        {/* <div>
+                                    {viewingCollectorReports?.verified_by && (
+                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div>
+                                                    <span className="text-gray-500">Complete Name:</span>
+                                                    <p className="font-medium text-gray-800 capitalize">
+                                                        {viewingCollectorReports?.verified_by?.first_name} {viewingCollectorReports?.verified_by?.middle_name} {viewingCollectorReports?.verified_by?.last_name}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Gender:</span>
+                                                    <p className="font-medium text-gray-800 capitalize">
+                                                        {viewingCollectorReports?.verified_by?.gender}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Role:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {formatRole(viewingCollectorReports?.verified_by?.role)}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Contact Number:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {viewingCollectorReports?.verified_by?.contact_number}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Email Address:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {viewingCollectorReports?.verified_by?.email}
+                                                    </p>
+                                                </div>
+                                                {/* <div>
                                         <span className="text-gray-500">Verification Status:</span>
                                         <p className={`font-medium ${viewingCollectorReports?.verified_by?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
                                             {viewingCollectorReports?.verified_by?.is_verified ? 'Verified' : 'Unverified'}
                                         </p>
                                     </div> */}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Report Information</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span className="text-gray-500">Report Type:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingCollectorReports?.report_type}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Specific Issued:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingCollectorReports?.specific_issue}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Truck ID:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingCollectorReports?.truck?.truck_id}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Position:</span>
+                                                <p>
+                                                    Latitude: <span className="font-medium text-gray-800">{viewingCollectorReports?.position.lat}</span>,
+                                                    Longitude: <span className="font-medium text-gray-800">{viewingCollectorReports?.position.lng}</span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Resolution Status:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingCollectorReports?.resolution_status}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Date:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {formatDate(viewingCollectorReports?.created_at)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 text-sm">
+                                            <span className="text-gray-500">Report Content:</span>
+                                            <p className="font-medium text-gray-800 mt-1 break-words whitespace-pre-wrap overflow-hidden">
+                                                {viewingCollectorReports?.notes}
+                                            </p>
+                                        </div>
                                     </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                                        {user.role === 'barangay_official' && (
+                                            <div className="flex gap-3">
+                                                {/* Verify Button - Show only when verified_by is null */}
+                                                {viewingCollectorReports?.verified_by === null && (
+                                                    <button
+                                                        onClick={() => handleComplainVerification(viewingCollectorReports?._id, 'Verified')}
+                                                        disabled={viewingCollectorReports?.resolution_status === 'Verified'}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingCollectorReports?.resolution_status === 'Verified'
+                                                            ? 'bg-green-100 text-green-600 cursor-not-allowed'
+                                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                                            }`}
+                                                    >
+                                                        <FiCheckCircle className="w-4 h-4" />
+                                                        Mark as Verified
+                                                    </button>
+                                                )}
+
+                                                {/* Unverify Button - Show only when verified_by is not null */}
+                                                {viewingCollectorReports?.verified_by !== null && (
+                                                    <button
+                                                        onClick={() => handleComplainVerification(viewingCollectorReports?._id, 'Unverified')}
+                                                        disabled={viewingCollectorReports?.resolution_status === 'Unverified'}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingCollectorReports?.resolution_status === 'Unverified'
+                                                            ? 'bg-red-100 text-red-600 cursor-not-allowed'
+                                                            : 'bg-red-600 text-white hover:bg-red-700'
+                                                            }`}
+                                                    >
+                                                        <FiXCircle className="w-4 h-4" />
+                                                        Mark as Unverified
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                        {/* <button
+                                            onClick={() => {
+                                                setShowModalData(false);
+                                                setViewingCollectorReport(null);
+                                                resetForm();
+                                            }}
+                                            className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                        >
+                                            Close
+                                        </button> */}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="w-full h-[500px]">
+                                    <MapLocationMarker
+                                        initialLocation={{
+                                            lat: viewingCollectorReports.position.lat,
+                                            lng: viewingCollectorReports.position.lng
+                                        }}
+                                    />
                                 </div>
                             )}
-
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Report Information</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Report Type:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.report_type}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Specific Issued:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.specific_issue}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Truck ID:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.truck.truck_id}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Position:</span>
-                                        <p>
-                                            Latitude: <span className="font-medium text-gray-800">{viewingCollectorReports?.position.lat}</span>,
-                                            Longitude: <span className="font-medium text-gray-800">{viewingCollectorReports?.position.lng}</span>
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Resolution Status:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingCollectorReports?.resolution_status}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Date:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {formatDate(viewingCollectorReports?.created_at)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="mt-4 text-sm">
-                                    <span className="text-gray-500">Report Content:</span>
-                                    <p className="font-medium text-gray-800 mt-1 break-words whitespace-pre-wrap overflow-hidden">
-                                        {viewingCollectorReports?.notes}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
-                                {user.role === 'barangay_official' && (
-                                    <div className="flex gap-3">
-                                        {/* Verify Button - Show only when verified_by is null */}
-                                        {viewingCollectorReports?.verified_by === null && (
-                                            <button
-                                                onClick={() => handleComplainVerification(viewingCollectorReports?._id, 'Verified')}
-                                                disabled={viewingCollectorReports?.resolution_status === 'Verified'}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingCollectorReports?.resolution_status === 'Verified'
-                                                    ? 'bg-green-100 text-green-600 cursor-not-allowed'
-                                                    : 'bg-green-600 text-white hover:bg-green-700'
-                                                    }`}
-                                            >
-                                                <FiCheckCircle className="w-4 h-4" />
-                                                Mark as Verified
-                                            </button>
-                                        )}
-
-                                        {/* Unverify Button - Show only when verified_by is not null */}
-                                        {viewingCollectorReports?.verified_by !== null && (
-                                            <button
-                                                onClick={() => handleComplainVerification(viewingCollectorReports?._id, 'Unverified')}
-                                                disabled={viewingCollectorReports?.resolution_status === 'Unverified'}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingCollectorReports?.resolution_status === 'Unverified'
-                                                    ? 'bg-red-100 text-red-600 cursor-not-allowed'
-                                                    : 'bg-red-600 text-white hover:bg-red-700'
-                                                    }`}
-                                            >
-                                                <FiXCircle className="w-4 h-4" />
-                                                Mark as Unverified
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-                                <button
-                                    onClick={() => {
-                                        setShowModalData(false);
-                                        setViewingCollectorReport(null);
-                                        resetForm();
-                                    }}
-                                    className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
-                                >
-                                    Close
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

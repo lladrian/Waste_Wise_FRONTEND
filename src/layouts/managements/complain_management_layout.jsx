@@ -17,7 +17,7 @@ import {
     FiArchive
 } from 'react-icons/fi';
 
-import { getSpecificComplain, getAllComplainBarangay, updateComplainVerification, createComplain, getAllComplain, deleteComplain, updateComplain } from "../../hooks/complain_hook";
+import { getSpecificComplain, getAllComplainBarangay, updateComplainVerification, createComplain, getAllComplain, deleteComplain, updateComplain, updateComplainStatus } from "../../hooks/complain_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
@@ -35,6 +35,7 @@ const ComplainManagementLayout = () => {
     const [userRoleFilter, setUserRoleFilter] = useState('');
     const [archiveFilter, setArchiveFilter] = useState(''); // Archive filter state
     const [showModal, setShowModal] = useState(false);
+    const [showModalCreate, setShowModalCreate] = useState(false);
     const [showModalData, setShowModalData] = useState(false);
     const [editingComplains, setEditingComplain] = useState(null);
     const [viewingComplains, setViewingComplain] = useState(null);
@@ -143,7 +144,9 @@ const ComplainManagementLayout = () => {
         setFilteredComplains(filtered);
     };
 
-    const handleSubmit = async (e) => {
+    
+
+      const handleSubmitCreate = async (e) => {
         e.preventDefault();
 
         const input_data = {
@@ -154,21 +157,65 @@ const ComplainManagementLayout = () => {
             complain_content: formData.complain_content,
             complain_type: formData.complain_type,
             // resolution_status: formData.resolution_status,
-           // archived: formData.archived
+            // archived: formData.archived
         };
 
-        if (editingComplains) {
+    
             try {
-                const { data, success } = await updateComplain(editingComplains._id, input_data);
+                const { data, success } = await createComplain(input_data);
 
                 if (data && success === false) {
-                    toast.error(data.message || "Failed to update complain");
+                    toast.error(data.message || "Failed to create complain");
                 }
 
                 if (success === true) {
                     toast.success(data.data);
                     fetchData();
                 }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    toast.error(error.response.data.message || error.message || "Failed to create complain");
+                } else {
+                    toast.error("Failed to create complain");
+                }
+            }
+      
+
+        resetForm();
+        setShowModal(false);
+        setShowModalCreate(false);
+        setShowModalData(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const input_data = {
+            // barangay: formData.barangay,
+            // user: formData.user,
+            barangay: user?.barangay?._id,
+            user: user?._id,
+            complain_content: formData.complain_content,
+            complain_type: formData.complain_type,
+            resolution_status: formData.resolution_status,
+            // archived: formData.archived
+        };
+
+        const input_data2 = {
+            status: formData.resolution_status,
+        };
+
+        if (editingComplains) {
+            try {
+                // const { data, success } = await updateComplain(editingComplains._id, input_data);
+                const response = await updateComplainStatus(editingComplains._id, input_data2);
+
+                // if (success === true) {
+                if (response.success) {
+                    toast.success(response.data.data);
+                    fetchData();
+                }
+                // }
             } catch (error) {
                 if (error.response && error.response.data) {
                     toast.error(error.response.data.message || error.message || "Failed to update complain");
@@ -335,6 +382,12 @@ const ComplainManagementLayout = () => {
         });
     }
 
+    const scheduleStatusOptions = [
+        'Pending',
+        'Approved',
+        'Cancelled',
+    ];
+
     const formatRole = (role) => {
         const roleMap = {
             'admin': 'Admin',
@@ -351,6 +404,8 @@ const ComplainManagementLayout = () => {
         return roleMap[role] || role; // Return formatted role or original if not found
     };
 
+  
+
     // Check if any filters are active
     const isAnyFilterActive = searchTerm || complainTypeFilter || userRoleFilter || archiveFilter;
 
@@ -361,7 +416,7 @@ const ComplainManagementLayout = () => {
                 {user?.role === 'barangay_official' && (
                     <div className="flex justify-end">
                         <button
-                            onClick={() => setShowModal(true)}
+                            onClick={() => setShowModalCreate(true)}
                             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                         >
                             <FiPlus className="w-4 h-4" />
@@ -583,7 +638,7 @@ const ComplainManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {/* {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {['enro_staff_eswm_section_head', 'enro_staff_head', 'barangay_official'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(complain)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -591,8 +646,7 @@ const ComplainManagementLayout = () => {
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
-                                                )} */}
-
+                                                )}
                                                 <button
                                                     onClick={() => handleView(complain)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -631,6 +685,107 @@ const ComplainManagementLayout = () => {
                 </div>
             </div>
 
+
+
+  {/* Rest of your modal code remains the same */}
+            {showModalCreate && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    {editingComplains ? 'Edit Complain' : 'Add New Complain'}
+                                </h2>
+                                <button
+                                    onClick={() => {
+                                        setShowModalCreate(false);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleSubmitCreate} className="space-y-6">
+                                {/* 2-Column Grid for Form Fields */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Complain Type
+                                        </label>
+                                        <select
+                                            name="complain_type"
+                                            value={formData.complain_type}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Complain Type</option>
+                                            {/* <option value="Breakdown">Breakdown</option>
+                                            <option value="Roadblock">Roadblock</option>
+                                            <option value="Delay">Delay</option>
+                                            <option value="Other">Other</option>
+                                            <option value="" disabled>Select Complain Type Resident</option>  */}
+                                            <option value="Missed Pickup">Missed Pickup</option>
+                                            <option value="Delayed Collection">Delayed Collection</option>
+                                            <option value="Uncollected Area">Uncollected Area</option>
+                                            <option value="Illegal Dumping">Illegal Dumping</option>
+                                        </select>
+                                    </div> 
+
+                                 <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Complain Content
+                                        </label>
+                                        <textarea
+                                            name="complain_content"
+                                            value={formData.complain_content}
+                                            onChange={(e) => {
+                                                handleInputChange(e);
+                                                // Auto-resize logic
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = e.target.scrollHeight + 30 + 'px';
+                                            }}
+                                            onFocus={(e) => {
+                                                // Trigger resize on focus as well
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = e.target.scrollHeight + 30 + 'px';
+                                            }}
+                                            required
+                                            rows={3}
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 resize-none overflow-hidden"
+                                            placeholder="Enter Complain Content"
+                                            style={{ minHeight: '80px' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowModalCreate(false);
+                                            resetForm();
+                                        }}
+                                        className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        {editingComplains ? 'Update Complain' : 'Add Complain'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Rest of your modal code remains the same */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -654,6 +809,26 @@ const ComplainManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Status
+                                        </label>
+                                        <select
+                                            name="resolution_status"
+                                            value={formData.resolution_status}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Truck Status</option>
+                                            {scheduleStatusOptions.map((status) => (
+                                                <option key={status} value={status}>
+                                                    {status}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             User
@@ -698,7 +873,7 @@ const ComplainManagementLayout = () => {
 
 
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Complain Type
                                         </label>
@@ -710,17 +885,17 @@ const ComplainManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Complain Type</option>
-                                            {/* <option value="Breakdown">Breakdown</option>
+                                            <option value="Breakdown">Breakdown</option>
                                             <option value="Roadblock">Roadblock</option>
                                             <option value="Delay">Delay</option>
                                             <option value="Other">Other</option>
-                                            <option value="" disabled>Select Complain Type Resident</option> */}
+                                            <option value="" disabled>Select Complain Type Resident</option> 
                                             <option value="Missed Pickup">Missed Pickup</option>
                                             <option value="Delayed Collection">Delayed Collection</option>
                                             <option value="Uncollected Area">Uncollected Area</option>
                                             <option value="Illegal Dumping">Illegal Dumping</option>
                                         </select>
-                                    </div>
+                                    </div> */}
 
                                     {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -747,7 +922,7 @@ const ComplainManagementLayout = () => {
                                         </select>
                                     </div> */}
 
-                                    {editingComplains && (
+                                    {/* {editingComplains && (
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Archive Status
@@ -764,10 +939,10 @@ const ComplainManagementLayout = () => {
                                                 <option value="false">Active</option>
                                             </select>
                                         </div>
-                                    )}
+                                    )} */}
 
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Complain Content
                                         </label>
@@ -791,7 +966,7 @@ const ComplainManagementLayout = () => {
                                             placeholder="Enter Complain Content"
                                             style={{ minHeight: '80px' }}
                                         />
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* Action Buttons */}
@@ -1001,7 +1176,7 @@ const ComplainManagementLayout = () => {
                                     </div>
                                 )}
 
-                                
+
                                 <button
                                     onClick={() => {
                                         setShowModalData(false);

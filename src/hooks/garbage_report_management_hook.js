@@ -22,3 +22,16 @@ export const getAllGarbageReportSpecificBarangay = async (id) => {
     throw error;
   }
 };
+
+
+export const updateGarbageReportStatus = async (id, data) => {
+  try {
+    const res = await API.updateGarbageReportStatus(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+

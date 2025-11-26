@@ -43,7 +43,7 @@ const AttendanceManagementLayout = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [showMapModal, setShowMapModal] = useState(false);
-    const [selectedView, setSelectedView] = useState('userInfo');
+    const [selectedView, setSelectedView] = useState('user_info');
     const [realTimePosition, setRealTimePosition] = useState(null);
     const ws = useRef(null);
 
@@ -368,6 +368,8 @@ const AttendanceManagementLayout = () => {
             hour12: true,
         });
     }
+
+    
 
     const formatRole = (role) => {
         const roleMap = {
@@ -853,7 +855,7 @@ const AttendanceManagementLayout = () => {
                                     onChange={(e) => setSelectedView(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                                 >
-                                    <option value="userInfo">User Information</option>
+                                    <option value="user_info">User Information</option>
                                     <option value="realtime_map">Realtime Location Map</option>
                                     <option value="history_route_map">History Route Map</option>
                                     {/* <option value="start_map">Start Location Map</option>
@@ -861,7 +863,7 @@ const AttendanceManagementLayout = () => {
                                 </select>
                             </div>
 
-                            {selectedView === 'userInfo' ? (
+                            {selectedView === 'user_info' ? (
                                 <>
                                     <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                         <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
@@ -1025,7 +1027,6 @@ const AttendanceManagementLayout = () => {
                                                                 const barangayId = barangay?.barangay_id;
                                                                 const barangayName = barangayId?.barangay_name || 'Unknown Barangay';
                                                                 const orderNumber = barangay.order_index + 1;
-                                                                {console.log()}
                                                                 return (
                                                                     <tr key={barangayId?._id || index}>
                                                                         <td className="px-4 py-2">

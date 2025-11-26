@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -8,6 +8,7 @@ import {
     FiFilter,
     FiBook,
     FiLock,
+    FiInfo,
     FiUser,
     FiClock,
     FiCheckCircle,
@@ -19,9 +20,14 @@ import BeautifulCalendar from "../../components/BeautifulCalendar";
 import { toast } from "react-toastify";
 
 import DateRangeFilter from '../../components/DateRangeFilter';
+import { AuthContext } from '../../context/AuthContext';
+
+import MapLocationMarker from '../../components/MapLocationMarker';
+import MapLocationMarkerRealtime from '../../components/MapLocationMarkerRealtime';
 
 
 const TruckManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [trucks, setTrucks] = useState([]);
     const [users, setUsers] = useState([]);
     const [drivers, setDrivers] = useState([]);
@@ -30,7 +36,12 @@ const TruckManagementLayout = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingTrucks, setEditingTruck] = useState(null);
     const [startDate, setStartDate] = useState('');
+    const [showModalData, setShowModalData] = useState(false);
     const [endDate, setEndDate] = useState('');
+    const [viewingCollectorAttendances, setViewingCollectorAttendance] = useState(null);
+    const [selectedView, setSelectedView] = useState('userInfo');
+    
+    
 
     const [formData, setFormData] = useState({
         user: '',
@@ -62,6 +73,11 @@ const TruckManagementLayout = () => {
         filterTrucks();
     }, [searchTerm, trucks, startDate, endDate]);
 
+
+     const handleView = (attendance) => {
+        setViewingCollectorAttendance(attendance);
+        setShowModalData(true);
+    };
 
     const filterTrucks = () => {
         let filtered = trucks;
@@ -209,7 +225,48 @@ const TruckManagementLayout = () => {
     };
 
 
+            const formatRoleForDisplay = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
+            'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+        return roleMap[role] || role;
+    };
 
+    const formatRole = (role) => {
+        const roleMap = {
+            'admin': 'Admin',
+            'resident': 'Resident',
+            'enro_staff': 'ENRO Staff',
+            'enro_staff_monitoring': 'ENRO Staff Monitoring',
+            'enro_staff_scheduler': 'ENRO Staff Scheduler',
+            'enro_staff_head': 'ENRO Staff Head',
+            'enro_staff_eswm_section_head': 'ENRO Staff ESWM Section Head',
+            'barangay_official': 'Barangay Official',
+            'garbage_collector': 'Garbage Collector'
+        };
+
+        return roleMap[role] || role; // Return formatted role or original if not found
+    };
+
+
+     const formatDateString = (dateString) => {
+        if (!dateString) return 'N/A';
+
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
 
     const downloadGeneratedReport = async () => {
         try {
@@ -237,9 +294,9 @@ const TruckManagementLayout = () => {
 
 
     const statusOptions = [
-        'Active',       
-        'On Route',  
-        'Under Maintenance', 
+        'Active',
+        'On Route',
+        'Under Maintenance',
         'Unavailable',
         'Inactive',
     ];
@@ -249,16 +306,17 @@ const TruckManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Truck</span>
-                    </button>
-                </div>
-
+                {['enro_staff_scheduler'].includes(user.role) && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New Truck</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -297,12 +355,12 @@ const TruckManagementLayout = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Complete Name
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Latitude
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Longitude
-                                    </th>
+                                    </th> */}
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Truck ID
                                     </th>
@@ -320,12 +378,12 @@ const TruckManagementLayout = () => {
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{truck?.user?.first_name || "None"} {truck?.user?.middle_name} {truck?.user?.last_name}</span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        {/* <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{truck?.position?.lat}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{truck?.position?.lng}</span>
-                                        </td>
+                                        </td> */}
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{truck?.truck_id}</span>
                                         </td>
@@ -334,19 +392,30 @@ const TruckManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
+                                                {['enro_staff_scheduler'].includes(user.role) && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleEdit(truck)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit"
+                                                        >
+                                                            <FiEdit className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(truck._id)}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <FiTrash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                )}
                                                 <button
-                                                    onClick={() => handleEdit(truck)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
+                                                    onClick={() => handleView(truck)}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    title="View Data"
                                                 >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(truck._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
+                                                    <FiInfo className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -371,6 +440,145 @@ const TruckManagementLayout = () => {
                     )}
                 </div>
             </div>
+
+
+             {showModalData && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-center mb-6">
+                                            <h2 className="text-xl font-bold text-gray-800">Truck Details</h2>
+                                            <button
+                                                onClick={() => {
+                                                    setShowModalData(false);
+                                                    setViewingCollectorAttendance(null);
+                                                    resetForm();
+                                                }}
+                                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                            >
+                                                <FiXCircle className="w-6 h-6" />
+                                            </button>
+                                        </div>
+            
+                                        {/* Dropdown for view selection */}
+                                        <div className="mb-6">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Select View
+                                            </label>
+                                            <select
+                                                value={selectedView}
+                                                onChange={(e) => setSelectedView(e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                            >
+                                                <option value="userInfo">User Information</option>
+                                                <option value="realtime_map">Realtime Location Map</option>
+                                                {/* <option value="history_route_map">History Route Map</option> */}
+                                                {/* <option value="start_map">Start Location Map</option>
+                                                <option value="end_map">End Location Map</option> */}
+                                            </select>
+                                        </div>
+            
+                                        {selectedView === 'userInfo' ? (
+                                            <>
+                                                <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                                    <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                                        <div>
+                                                            <span className="text-gray-500">Complete Name:</span>
+                                                            <p className="font-medium text-gray-800 capitalize">
+                                                                {viewingCollectorAttendances?.user?.first_name} {viewingCollectorAttendances?.user?.middle_name} {viewingCollectorAttendances?.user?.last_name}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Gender:</span>
+                                                            <p className="font-medium text-gray-800 capitalize">
+                                                                {viewingCollectorAttendances?.user?.gender}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Role:</span>
+                                                            <p className="font-medium text-gray-800">
+                                                                {formatRole(viewingCollectorAttendances?.user?.role)}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Contact Number:</span>
+                                                            <p className="font-medium text-gray-800">
+                                                                {viewingCollectorAttendances?.user?.contact_number}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Email Address:</span>
+                                                            <p className="font-medium text-gray-800">
+                                                                {viewingCollectorAttendances?.user?.email}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+            
+            
+                                                <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Truck Information</h3>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                          
+                                                        {/* <div>
+                                                            <span className="text-gray-500">Current Position:</span>
+                                                            <p>
+                                                                Latitude: <span className="font-medium text-gray-800">{viewingCollectorAttendances?.position.lat}</span>,
+                                                                Longitude: <span className="font-medium text-gray-800">{viewingCollectorAttendances?.position.lng}</span>
+                                                            </p>
+                                                        </div> */}
+                                                        <div>
+                                                            <span className="text-gray-500">Truck ID:</span>
+                                                            <p className="font-medium text-gray-800">
+                                                                {viewingCollectorAttendances?.truck_id}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-gray-500">Status:</span>
+                                                            <p className="font-medium text-gray-800">
+                                                                {viewingCollectorAttendances?.status}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ) : selectedView === 'realtime_map' ? (
+                                            <>
+                                                <div className="w-full  mb-6">
+                                                    <MapLocationMarkerRealtime truck_id={viewingCollectorAttendances?._id} display_type = 'garbage_collector'/>
+                                                </div>
+                                            </>
+                                        )  : (
+                                            /* Map Section */
+                                            <div className="w-full  mb-6">
+                                                <MapLocationMarker
+                                                    initialLocation={{
+                                                        lat: viewingCollectorAttendances?.position?.lat,
+                                                        lng: viewingCollectorAttendances?.position?.lng
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+            
+                                        {/* Action Buttons */}
+                                        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                        
+                                            <button
+                                                onClick={() => {
+                                                    setShowModalData(false);
+                                                    setViewingCollectorAttendance(null);
+                                                    resetForm();
+                                                }}
+                                                className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

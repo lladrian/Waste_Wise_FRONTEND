@@ -62,13 +62,23 @@ export const getSpecificUser = async (id) => {
   }
 };
 
+export const getAllUserSpecificBarangay = async (barangay_id) => {
+  try {
+    const res = await API.getAllUserSpecificBarangay(barangay_id);
+
+    return { data: res.data, success: true };
+    // return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
 export const getAllUser = async () => {
   try {
     const res = await API.getAllUser();
-    const res2 = await API.getAllRoute();
-    const filteredData = res.data.data.filter(user => user.role === 'resident');
 
-    return { data: filteredData, data2: res2.data.data, success: true };
+    return { data: res.data, success: true };
     // return { data: res.data, success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);

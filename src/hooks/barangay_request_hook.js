@@ -33,3 +33,16 @@ export const getAllBarangayRequestSpecificBarangay = async (id) => {
     throw error;
   }
 };
+
+
+export const updateBarangayRequestStatus = async (id, data) => {
+  try {
+    const res = await API.updateBarangayRequestStatus(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+

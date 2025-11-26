@@ -26,6 +26,8 @@ import AdminGarbageReportManagementPage from './pages/managements/admin/AdminGar
 import AdminCollectorReportManagementPage from './pages/managements/admin/AdminCollectorReportManagementPage';
 import AdminGarbageSiteManagementPage from './pages/managements/admin/AdminGarbageSiteManagementPage';
 import AdminCollectorAttendanceManagementPage from './pages/managements/admin/AdminCollectorAttendanceManagementPage';
+import AdminScheduleManagementPage from './pages/managements/admin/AdminScheduleManagementPage';
+import AdminBarangayRequestManagementPage from './pages/managements/admin/AdminBarangayRequestManagementPage';
 import AdminScheduleApprovalPage from './pages/approvals/admin/AdminScheduleApprovalPage';
 import AdminUserRequestApprovalPage from './pages/approvals/admin/AdminUserRequestApprovalPage';
 
@@ -47,6 +49,8 @@ import StaffBarangayManagementPage from './pages/managements/staff/StaffBarangay
 import StaffGarbageReportManagementPage from './pages/managements/staff/StaffGarbageReportManagementPage';
 import StaffCollectorReportManagementPage from './pages/managements/staff/StaffCollectorReportManagementPage';
 import StaffBarangayRequestManagementPage from './pages/managements/staff/StaffBarangayRequestManagementPage';
+import StaffCollectorAttendanceManagementPage from './pages/managements/staff/StaffCollectorAttendanceManagementPage';
+import StaffGarbageSiteManagementPage from './pages/managements/staff/StaffGarbageSiteManagementPage';
 import StaffScheduleApprovalPage from './pages/approvals/staff/StaffScheduleApprovalPage';
 
 import StaffLogPage from './pages/staff/StaffLogPage';
@@ -64,8 +68,7 @@ import OfficialGarbageReportManagementPage from './pages/managements/official/Of
 import OfficialCollectorReportManagementPage from './pages/managements/official/OfficialCollectorReportManagementPage';
 import OfficialGarbageSiteManagementPage from './pages/managements/official/OfficialGarbageSiteManagementPage';
 import OfficialBarangayRequestManagementPage from './pages/managements/official/OfficialBarangayRequestManagementPage';
-
-
+import OfficialResidentManagementPage from './pages/managements/official/OfficialResidentManagementPage';
 
 
 import OfficialTruckMapPage from './pages/official/OfficialTruckMapPage';
@@ -144,6 +147,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/admin/management/barangay_requests"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminBarangayRequestManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        
 
         <Route
           path="/admin/management/garbage_sites"
@@ -241,7 +255,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+           <Route
+          path="/admin/management/schedules"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminScheduleManagementPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/approval/schedules"
           element={
@@ -303,12 +324,19 @@ function App() {
         <Route
           path="/staff/management/routes"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_eswm_section_head', 'enro_staff_head', 'enro_staff_monitoring']}>
               <StaffRouteManagementPage />
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/staff/management/garbage_sites"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffGarbageSiteManagementPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/staff/management/barangay_requests"
           element={
@@ -318,7 +346,14 @@ function App() {
           }
         />
 
-        
+        <Route
+          path="/staff/management/collector_attendances"
+          element={
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+              <StaffCollectorAttendanceManagementPage />
+            </ProtectedRoute>
+          }
+        />
 
          <Route
           path="/staff/notifications"
@@ -333,7 +368,7 @@ function App() {
         <Route
           path="/staff/management/barangays"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffBarangayManagementPage />
             </ProtectedRoute>
           }
@@ -341,7 +376,7 @@ function App() {
         <Route
           path="/staff/management/schedules"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_monitoring', 'enro_staff_eswm_section_head', 'enro_staff_head']}>
               <StaffScheduleManagementPage />
             </ProtectedRoute>
           }
@@ -365,7 +400,7 @@ function App() {
         <Route
           path="/staff/management/trucks"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_monitoring', 'enro_staff_eswm_section_head']}>
               <StaffTruckManagementPage />
             </ProtectedRoute>
           }
@@ -435,6 +470,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/official/management/residents"
+          element={
+            <ProtectedRoute allowedRoles={['barangay_official']}>
+              <OfficialResidentManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+        
 
         <Route
           path="/official/management/garbage_reports"
