@@ -279,8 +279,12 @@ const BarangayManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{barangay.barangay_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{barangayStats[barangay._id] ?? 'Loading...'} Garbage Sites</span>
-                                        </td>
+                                            <span className="text-sm text-gray-900">
+                                                {barangayStats[barangay._id] !== undefined
+                                                    ? `${barangayStats[barangay._id]} Garbage Sites`
+                                                    : "Loading..."}
+                                            </span>
+                                        </td>   
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 {['enro_staff_scheduler'].includes(user.role) && (
