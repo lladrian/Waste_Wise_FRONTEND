@@ -86,6 +86,24 @@ export const getAllUser = async () => {
   }
 };
 
+
+
+export const getAllUserResident = async () => {
+  try {
+    const res = await API.getAllUser();
+
+
+    
+    const filteredData = res.data.data.filter(user => user.role === 'resident');
+        
+    return { data:{ data: filteredData }, success: true };
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    throw error;
+  }
+};
+
+
 export const getAllUserNoResident = async () => {
   try {
     const res = await API.getAllUser();
