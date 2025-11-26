@@ -544,13 +544,13 @@ const UserManagementLayout = () => {
                                                 >
                                                     <FiEdit className="w-4 h-4" />
                                                 </button>
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleEditPassword(user)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="Change Password"
                                                 >
                                                     <FiLock className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
                                                 <button
                                                     onClick={() => handleDelete(user._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"

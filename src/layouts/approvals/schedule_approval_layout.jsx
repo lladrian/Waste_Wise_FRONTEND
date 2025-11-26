@@ -101,7 +101,7 @@ const ScheduleApprovalLayout = () => {
                 schedule?.truck?.user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 schedule?.truck?.user?.middle_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 schedule?.truck?.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                `${schedule?.truck?.user?.first_name} ${schedule?.truck?.user?.middle_name} ${schedule?.truck?.user?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) 
+                `${schedule?.truck?.user?.first_name} ${schedule?.truck?.user?.middle_name} ${schedule?.truck?.user?.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -522,13 +522,15 @@ const ScheduleApprovalLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(schedule)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
+                                                {['admin'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleEdit(schedule)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
+                                                )}
 
                                                 <button
                                                     onClick={() => handleView(schedule)}

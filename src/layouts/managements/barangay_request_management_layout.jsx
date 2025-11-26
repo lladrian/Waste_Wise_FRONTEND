@@ -17,7 +17,7 @@ import {
     FiArchive
 } from 'react-icons/fi';
 
-import { createBarangayRequest, getAllBarangayRequest, getAllBarangayRequestSpecificBarangay } from "../../hooks/barangay_request_hook";
+import { createBarangayRequest, getAllBarangayRequest, getAllBarangayRequestSpecificBarangay, updateBarangayRequestStatus } from "../../hooks/barangay_request_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
@@ -35,6 +35,7 @@ const BarangayRequestManagementLayout = () => {
     const [userRoleFilter, setUserRoleFilter] = useState('');
     const [archiveFilter, setArchiveFilter] = useState(''); // Archive filter state
     const [showModal, setShowModal] = useState(false);
+    const [showModalApproval, setShowModalApproval] = useState(false);
     const [showModalData, setShowModalData] = useState(false);
     const [editingComplains, setEditingComplain] = useState(null);
     const [viewingComplains, setViewingComplain] = useState(null);
@@ -142,6 +143,12 @@ const BarangayRequestManagementLayout = () => {
         setFilteredComplains(filtered);
     };
 
+    const scheduleStatusOptions = [
+        'Pending',
+        'Scheduled',
+        'Cancelled',
+    ];
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -155,6 +162,7 @@ const BarangayRequestManagementLayout = () => {
 
         if (editingComplains) {
             try {
+                updateBarangayRequestStatus
                 const { data, success } = await updateComplain(editingComplains._id, input_data);
 
                 if (data && success === false) {
@@ -198,6 +206,34 @@ const BarangayRequestManagementLayout = () => {
         setShowModalData(false);
     };
 
+
+
+    const handleSubmitApproval = async (e) => {
+        e.preventDefault();
+
+        const input_data = {
+            status: formData.resolution_status
+        };
+
+        try {
+            const { data, success } = await updateBarangayRequestStatus(editingComplains._id, input_data);
+
+            if (success === true) {
+                toast.success(data.data);
+                fetchData();
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message || error.message || "Failed to update complain");
+            } else {
+                toast.error("Failed to update complain");
+            }
+        }
+
+        resetForm();
+        setShowModalApproval(false);
+    };
+
     const handleEdit = (complain) => {
         setEditingComplain(complain);
         setFormData({
@@ -211,6 +247,22 @@ const BarangayRequestManagementLayout = () => {
 
         setShowModal(true);
     };
+
+    const handleApproval = (complain) => {
+        setEditingComplain(complain);
+        setFormData({
+            barangay: complain?.barangay?._id,
+            archived: String(complain.archived),
+            user: complain.user._id,
+            complain_content: complain.complain_content,
+            complain_type: complain.complain_type,
+            resolution_status: complain.resolution_status || 'false'
+        });
+
+        setShowModalApproval(true);
+    };
+
+
 
     const handleView = (complain) => {
         setViewingComplain(complain);
@@ -378,7 +430,7 @@ const BarangayRequestManagementLayout = () => {
                             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                         >
                             <FiPlus className="w-4 h-4" />
-                            <span>Add New Complain</span>
+                            <span>Add New Request</span>
                         </button>
                     </div>
                 )}
@@ -591,7 +643,7 @@ const BarangayRequestManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['admin', 'enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {/* {['admin'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(complain)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -599,8 +651,16 @@ const BarangayRequestManagementLayout = () => {
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
+                                                )} */}
+                                                {['enro_staff_eswm_section_head', 'enro_staff_head'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleApproval(complain)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
                                                 )}
-
                                                 <button
                                                     onClick={() => handleView(complain)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -639,6 +699,76 @@ const BarangayRequestManagementLayout = () => {
                 </div>
             </div>
 
+
+            {/* Rest of your modal code remains the same */}
+            {showModalApproval && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[700px] max-w-[700px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    {editingComplains ? 'Edit Request' : 'Add New Request'}
+                                </h2>
+                                <button
+                                    onClick={() => {
+                                        setShowModalApproval(false);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleSubmitApproval} className="space-y-6">
+                                {/* 2-Column Grid for Form Fields */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Status
+                                        </label>
+                                        <select
+                                            name="resolution_status"
+                                            value={formData.resolution_status}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                        >
+                                            <option value="" disabled>Select Truck Status</option>
+                                            {scheduleStatusOptions.map((status) => (
+                                                <option key={status} value={status}>
+                                                    {status}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowModalApproval(false);
+                                            resetForm();
+                                        }}
+                                        className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        {editingComplains ? 'Update Complain' : 'Add Complain'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Rest of your modal code remains the same */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -646,7 +776,7 @@ const BarangayRequestManagementLayout = () => {
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {editingComplains ? 'Edit Complain' : 'Add New Complain'}
+                                    {editingComplains ? 'Edit Request' : 'Add New Request'}
                                 </h2>
                                 <button
                                     onClick={() => {

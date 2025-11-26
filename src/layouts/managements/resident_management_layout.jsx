@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     FiPlus,
     FiEdit,
@@ -14,11 +14,13 @@ import {
 } from 'react-icons/fi';
 
 //import { getAllResidentUser, updateResidentUserPasswordAdmin, deleteResidentUser, updateResidentUser, createResidentUser } from "../../hooks/resident_user_management_hook";
-import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident } from "../../hooks/user_management_hook";
+import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident, getAllUserSpecificBarangay } from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
+import { AuthContext } from '../../context/AuthContext';
 
 const ResidentManagementLayout = () => {
+    const { user } = useContext(AuthContext); 
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -50,12 +52,16 @@ const ResidentManagementLayout = () => {
 
     const fetchData = async () => {
         try {
-            const { data, data2, success } = await getAllUser();
+            if (user.role === 'barangay_official') {
+                var { data, success } = await getAllUserSpecificBarangay(user?.barangay?._id);
+
+            } else {
+                var { data, success } = await getAllUser();
+            }
 
             if (success === true) {
-                setUsers(data)
-                setFilteredUsers(data)
-                setRoutes(data2)
+                setUsers(data.data)
+                setFilteredUsers(data.data)
             }
 
         } catch (err) {
@@ -349,27 +355,29 @@ const ResidentManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(user)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
-                                                <button
+                                                {['admin'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleEdit(user)}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                {/* <button
                                                     onClick={() => handleEditPassword(user)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="Change Password"
                                                 >
                                                     <FiLock className="w-4 h-4" />
-                                                </button>
-                                                <button
+                                                </button> */}
+                                                {/* <button
                                                     onClick={() => handleDelete(user._id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Delete"
                                                 >
                                                     <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -427,6 +435,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.first_name}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter First Name"
                                         />
@@ -443,6 +452,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.middle_name}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Middle Name"
                                         />
@@ -459,6 +469,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.last_name}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Last Name"
                                         />
@@ -475,6 +486,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.contact_number}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Contact Number"
                                         />
@@ -491,6 +503,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                             placeholder="Enter Email Address"
                                         />
@@ -509,6 +522,7 @@ const ResidentManagementLayout = () => {
                                                 value={formData.password}
                                                 onChange={handleInputChange}
                                                 required={!editingUsers} // Only required for new users
+                                                disabled
                                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                                 placeholder="Enter Password"
                                             />
@@ -524,6 +538,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.gender}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Gender</option>
@@ -533,7 +548,7 @@ const ResidentManagementLayout = () => {
                                     </div>
 
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Role Action
                                         </label>
@@ -552,7 +567,7 @@ const ResidentManagementLayout = () => {
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
+                                    </div> */}
 
 
                                     <div className="md:col-span-2">
@@ -564,6 +579,7 @@ const ResidentManagementLayout = () => {
                                             value={formData.role}
                                             onChange={handleInputChange}
                                             required
+                                            disabled
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Role</option>

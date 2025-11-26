@@ -24,6 +24,18 @@ export const createComplain = async (data) => {
 };
 
 
+export const updateComplainStatus = async (id, data) => {
+  try {
+    const res = await API.updateComplainStatus(id, data);
+
+    return { data: res.data, success: true };
+  } catch (error) {
+    // console.error("Failed to register user:", error);
+    throw error;
+  }
+};
+
+
 
 export const getAllComplainBarangay = async (barangay_id) => {
   try {

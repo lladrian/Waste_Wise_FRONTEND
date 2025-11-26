@@ -367,7 +367,7 @@ const ScheduleManagementLayout = () => {
             <div className="space-y-6">
                 {/* Header Section */}
 
-                {['admin', 'enro_staff_scheduler'].includes(user.role) && (
+                {['enro_staff_scheduler'].includes(user.role) && (
                     <div className="flex justify-end">
                         <button
                             onClick={() => setShowModal(true)}
@@ -472,7 +472,7 @@ const ScheduleManagementLayout = () => {
                                         </td> */}
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['admin', 'enro_staff_scheduler'].includes(user.role) && (
+                                                {['enro_staff_scheduler'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(schedule)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -480,7 +480,7 @@ const ScheduleManagementLayout = () => {
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
-                                                )}
+                                                )}  
 
                                                 <button
                                                     onClick={() => handleView(schedule)}
@@ -490,7 +490,7 @@ const ScheduleManagementLayout = () => {
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
 
-                                                {['admin'].includes(user.role) && (
+                                                {['enro_staff_scheduler'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleDelete(schedule._id)}
                                                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"

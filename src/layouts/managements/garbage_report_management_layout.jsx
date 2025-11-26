@@ -18,13 +18,12 @@ import {
     FiArchive
 } from 'react-icons/fi';
 
-import { getAllGarbageReportSpecificBarangay, getAllGarbageReport } from "../../hooks/garbage_report_management_hook";
+import { getAllGarbageReportSpecificBarangay, getAllGarbageReport, updateGarbageReportStatus } from "../../hooks/garbage_report_management_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
 import MapLocationMarker from '../../components/MapLocationMarker';
-
 import MapLocationPicker from '../../components/MapLocationPicker';
 
 const ReportGarbageManagementLayout = () => {
@@ -42,6 +41,8 @@ const ReportGarbageManagementLayout = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [showMapModal, setShowMapModal] = useState(false);
+    const [selectedView, setSelectedView] = useState('user_info');
+
 
 
     const [formData, setFormData] = useState({
@@ -55,7 +56,6 @@ const ReportGarbageManagementLayout = () => {
     });
 
     const handleLocationSelect = (location) => {
-        console.log('Selected location:', location);
         setFormData(prev => ({
             ...prev,
             latitude: location.lat,
@@ -158,16 +158,12 @@ const ReportGarbageManagementLayout = () => {
         e.preventDefault();
 
         const input_data = {
-            resolution_status: formData.resolution_status
+            status: formData.resolution_status
         };
 
         if (editingReportGarbages) {
             try {
-                const { data, success } = await updateComplain(editingReportGarbages._id, input_data);
-
-                if (data && success === false) {
-                    toast.error(data.message || "Failed to update complain");
-                }
+                const { data, success } = await updateGarbageReportStatus(editingReportGarbages._id, input_data);
 
                 if (success === true) {
                     toast.success(data.data);
@@ -186,6 +182,9 @@ const ReportGarbageManagementLayout = () => {
         setShowModal(false);
         setShowModalData(false);
     };
+
+
+    
 
     const handleEdit = (complain) => {
         setEditingReportGarbage(complain);
@@ -313,6 +312,20 @@ const ReportGarbageManagementLayout = () => {
         return roleMap[role] || role; // Return formatted role or original if not found
     };
 
+     const scheduleStatusOptions = [
+        'Pending',
+        'Approved',
+        'Cancelled',
+    ];
+
+    const commonRemarks = [
+        'Pending',
+        'Approved',
+        'Delayed',
+        'Cancelled',
+    ];
+
+
     // Check if any filters are active
     const isAnyFilterActive = searchTerm || complainTypeFilter || userRoleFilter || archiveFilter;
 
@@ -320,7 +333,7 @@ const ReportGarbageManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                {/* <div className="flex justify-end">
+                <div className="flex justify-end">
                     <button
                         onClick={() => setShowModal(true)}
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -328,7 +341,7 @@ const ReportGarbageManagementLayout = () => {
                         <FiPlus className="w-4 h-4" />
                         <span>Add New Garbage Report</span>
                     </button>
-                </div> */}
+                </div> 
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-6">
@@ -528,7 +541,7 @@ const ReportGarbageManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['enro_staff_monitoring', 'enro_staff_head'].includes(user.role) && (
+                                                {['enro_staff_head', 'enro_staff_eswm_section_head', 'barangay_official'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(report)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -537,13 +550,13 @@ const ReportGarbageManagementLayout = () => {
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
                                                 )}
-                                                <button
+                                                {/* <button
                                                     onClick={() => handleViewMap(report)}
                                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                     title="View on Map"
                                                 >
                                                     <FiMapPin className="w-4 h-4" />
-                                                </button>
+                                                </button> */}
                                                 <button
                                                     onClick={() => handleView(report)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -624,6 +637,68 @@ const ReportGarbageManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                       {editingReportGarbages && (
+                                        <>
+                                            {/* Remark Field */}
+                                            {/* <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Remark
+                                                </label>
+                                                <select
+                                                    name="remark"
+                                                    value={formData.remark}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                >
+                                                    <option value="" disabled>Select Remark</option>
+                                                    {commonRemarks.map((remark) => (
+                                                        <option key={remark} value={remark}>
+                                                            {remark}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div> */}
+
+                                            {/* Status Field */}
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Status
+                                                </label>
+                                                <select
+                                                    name="resolution_status"
+                                                    value={formData.resolution_status}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                >
+                                                    <option value="" disabled>Select Truck Status</option>
+                                                    {scheduleStatusOptions.map((status) => (
+                                                        <option key={status} value={status}>
+                                                            {status}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            {/* <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Editable
+                                                </label>
+                                                <select
+                                                    name="is_editable"
+                                                    value={formData.is_editable}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                                >
+                                                    <option value="" disabled>Select Editable</option>
+                                                    <option value="true">True</option>
+                                                    <option value="false">False</option>
+                                                </select>
+                                            </div> */}
+                                        </>
+                                    )}
                                     {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             User
@@ -668,7 +743,7 @@ const ReportGarbageManagementLayout = () => {
                                         </select>
                                     </div> */}
 
-                                     <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Garbage Type
                                         </label>
@@ -680,21 +755,21 @@ const ReportGarbageManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Garbage Type</option>
-                                            {/* <option value="Breakdown">Breakdown</option>
+                                            <option value="Breakdown">Breakdown</option>
                                             <option value="Roadblock">Roadblock</option>
                                             <option value="Delay">Delay</option>
                                             <option value="Other">Other</option>
-                                            <option value="" disabled>Select Complain Type Resident</option> */}
+                                            <option value="" disabled>Select Complain Type Resident</option> 
                                             <option value="biodegradable">Biodegradable</option>
                                             <option value="non_biodegradable">Non Biodegradable</option>
                                             <option value="recyclable">Recyclable</option>
                                             <option value="other">Other</option>
                                         </select>
-                                    </div>
+                                    </div> */}
 
 
 
-                                    <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Report Type
                                         </label>
@@ -706,20 +781,20 @@ const ReportGarbageManagementLayout = () => {
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
                                         >
                                             <option value="" disabled>Select Complain Type</option>
-                                            {/* <option value="Breakdown">Breakdown</option>
+                                            <option value="Breakdown">Breakdown</option>
                                             <option value="Roadblock">Roadblock</option>
                                             <option value="Delay">Delay</option>
                                             <option value="Other">Other</option>
-                                            <option value="" disabled>Select Complain Type Resident</option> */}
+                                            <option value="" disabled>Select Complain Type Resident</option>
                                             <option value="missed_route">Missed Route</option>
                                             <option value="overflowing">Overflowing</option>
                                             <option value="uncollected">Uncollected</option>
                                             <option value="illegal_dumping">Illegal Dumping</option>
                                             <option value="Other">Other</option>
                                         </select>
-                                    </div>
+                                    </div> */}
 
-                                     <div className="md:col-span-2">
+                                    {/* <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Notes
                                         </label>
@@ -743,7 +818,7 @@ const ReportGarbageManagementLayout = () => {
                                             placeholder="Enter Complain Content"
                                             style={{ minHeight: '80px' }}
                                         />
-                                    </div>
+                                    </div> */}
 
                                     {/* Map Container */}
                                     {!editingReportGarbages && (
@@ -799,7 +874,7 @@ const ReportGarbageManagementLayout = () => {
                                                 />
                                             </div>
                                         */}
-                                        </> 
+                                        </>
                                     )}
 
                                     {/* <div className="md:col-span-2">
@@ -898,6 +973,7 @@ const ReportGarbageManagementLayout = () => {
                     </div>
                 </div>
             )}
+            
 
             {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -917,181 +993,189 @@ const ReportGarbageManagementLayout = () => {
                                 </button>
                             </div>
 
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Complete Name:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {viewingReportGarbages?.user?.first_name} {viewingReportGarbages?.user?.middle_name} {viewingReportGarbages?.user?.last_name}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Gender:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {viewingReportGarbages?.user?.gender}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Role:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {formatRole(viewingReportGarbages?.user?.role)}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Contact Number:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingReportGarbages?.user?.contact_number}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Email Address:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingReportGarbages?.user?.email}
-                                        </p>
-                                    </div>
-                                    {/* <div>
-                                        <span className="text-gray-500">Verification Status:</span>
-                                        <p className={`font-medium ${viewingReportGarbages?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
-                                            {viewingReportGarbages?.user?.is_verified ? 'Verified' : 'Unverified'}
-                                        </p>
-                                    </div> */}
-                                </div>
+                            {/* Dropdown for view selection */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Select View
+                                </label>
+                                <select
+                                    value={selectedView}
+                                    onChange={(e) => setSelectedView(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                                >
+                                    <option value="user_info">User Information</option>
+                                    <option value="location_map">Location Map</option>
+                                    {/* <option value="start_map">Start Location Map</option>
+                                    <option value="end_map">End Location Map</option> */}
+                                </select>
                             </div>
 
-                            {viewingReportGarbages?.verified_by && (
-                                <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                    <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
-                                    <div className="grid grid-cols-2 gap-3 text-sm">
-                                        <div>
-                                            <span className="text-gray-500">Complete Name:</span>
-                                            <p className="font-medium text-gray-800 capitalize">
-                                                {viewingReportGarbages?.verified_by?.first_name} {viewingReportGarbages?.verified_by?.middle_name} {viewingReportGarbages?.verified_by?.last_name}
-                                            </p>
+                            {selectedView === 'user_info' ? (
+                                <div>
+                                    <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                        <div className="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span className="text-gray-500">Complete Name:</span>
+                                                <p className="font-medium text-gray-800 capitalize">
+                                                    {viewingReportGarbages?.user?.first_name} {viewingReportGarbages?.user?.middle_name} {viewingReportGarbages?.user?.last_name}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Gender:</span>
+                                                <p className="font-medium text-gray-800 capitalize">
+                                                    {viewingReportGarbages?.user?.gender}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Role:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {formatRole(viewingReportGarbages?.user?.role)}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Contact Number:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingReportGarbages?.user?.contact_number}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Email Address:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingReportGarbages?.user?.email}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span className="text-gray-500">Gender:</span>
-                                            <p className="font-medium text-gray-800 capitalize">
-                                                {viewingReportGarbages?.verified_by?.gender}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Role:</span>
-                                            <p className="font-medium text-gray-800">
-                                                {formatRole(viewingReportGarbages?.verified_by?.role)}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Contact Number:</span>
-                                            <p className="font-medium text-gray-800">
-                                                {viewingReportGarbages?.verified_by?.contact_number}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Email Address:</span>
-                                            <p className="font-medium text-gray-800">
-                                                {viewingReportGarbages?.verified_by?.email}
-                                            </p>
-                                        </div>
-                                        {/* <div>
-                                        <span className="text-gray-500">Verification Status:</span>
-                                        <p className={`font-medium ${viewingReportGarbages?.verified_by?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
-                                            {viewingReportGarbages?.verified_by?.is_verified ? 'Verified' : 'Unverified'}
-                                        </p>
-                                    </div> */}
                                     </div>
+
+                                    {viewingReportGarbages?.verified_by && (
+                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div>
+                                                    <span className="text-gray-500">Complete Name:</span>
+                                                    <p className="font-medium text-gray-800 capitalize">
+                                                        {viewingReportGarbages?.verified_by?.first_name} {viewingReportGarbages?.verified_by?.middle_name} {viewingReportGarbages?.verified_by?.last_name}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Gender:</span>
+                                                    <p className="font-medium text-gray-800 capitalize">
+                                                        {viewingReportGarbages?.verified_by?.gender}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Role:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {formatRole(viewingReportGarbages?.verified_by?.role)}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Contact Number:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {viewingReportGarbages?.verified_by?.contact_number}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Email Address:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {viewingReportGarbages?.verified_by?.email}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Report Information</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span className="text-gray-500">Garbage Type:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingReportGarbages?.garbage_type}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Barangay:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingReportGarbages?.user?.barangay?.barangay_name || "None"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Position:</span>
+                                                <p>
+                                                    Latitude: <span className="font-medium text-gray-800">{viewingReportGarbages?.position.lat}</span>,
+                                                    Longitude: <span className="font-medium text-gray-800">{viewingReportGarbages?.position.lng}</span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Resolution Status:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingReportGarbages?.resolution_status}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <span className="text-gray-500">Date:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {formatDate(viewingReportGarbages?.created_at)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 text-sm">
+                                            <span className="text-gray-500">Report Content:</span>
+                                            <p className="font-medium text-gray-800 mt-1 break-words whitespace-pre-wrap overflow-hidden">
+                                                {viewingReportGarbages?.notes}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                                        {user.role === 'barangay_official' && (
+                                            <div className="flex gap-3">
+                                                {/* Verify Button - Show only when verified_by is null */}
+                                                {viewingReportGarbages?.verified_by === null && (
+                                                    <button
+                                                        onClick={() => handleComplainVerification(viewingReportGarbages?._id, 'Verified')}
+                                                        disabled={viewingReportGarbages?.resolution_status === 'Verified'}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingReportGarbages?.resolution_status === 'Verified'
+                                                            ? 'bg-green-100 text-green-600 cursor-not-allowed'
+                                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                                            }`}
+                                                    >
+                                                        <FiCheckCircle className="w-4 h-4" />
+                                                        Mark as Verified
+                                                    </button>
+                                                )}
+
+                                                {/* Unverify Button - Show only when verified_by is not null */}
+                                                {viewingReportGarbages?.verified_by !== null && (
+                                                    <button
+                                                        onClick={() => handleComplainVerification(viewingReportGarbages?._id, 'Unverified')}
+                                                        disabled={viewingReportGarbages?.resolution_status === 'Unverified'}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingReportGarbages?.resolution_status === 'Unverified'
+                                                            ? 'bg-red-100 text-red-600 cursor-not-allowed'
+                                                            : 'bg-red-600 text-white hover:bg-red-700'
+                                                            }`}
+                                                    >
+                                                        <FiXCircle className="w-4 h-4" />
+                                                        Mark as Unverified
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="w-full h-[500px]">
+                                    <MapLocationMarker
+                                        initialLocation={{
+                                            lat: viewingReportGarbages.position.lat,
+                                            lng: viewingReportGarbages.position.lng
+                                        }}
+                                    />
                                 </div>
                             )}
-
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Report Information</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Garbage Type:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingReportGarbages?.garbage_type}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Barangay:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingReportGarbages?.user?.barangay?.barangay_name || "None"}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Position:</span>
-                                        <p>
-                                            Latitude: <span className="font-medium text-gray-800">{viewingReportGarbages?.position.lat}</span>,
-                                            Longitude: <span className="font-medium text-gray-800">{viewingReportGarbages?.position.lng}</span>
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Resolution Status:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {viewingReportGarbages?.resolution_status}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500">Date:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {formatDate(viewingReportGarbages?.created_at)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="mt-4 text-sm">
-                                    <span className="text-gray-500">Report Content:</span>
-                                    <p className="font-medium text-gray-800 mt-1 break-words whitespace-pre-wrap overflow-hidden">
-                                        {viewingReportGarbages?.notes}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
-                                {user.role === 'barangay_official' && (
-                                    <div className="flex gap-3">
-                                        {/* Verify Button - Show only when verified_by is null */}
-                                        {viewingReportGarbages?.verified_by === null && (
-                                            <button
-                                                onClick={() => handleComplainVerification(viewingReportGarbages?._id, 'Verified')}
-                                                disabled={viewingReportGarbages?.resolution_status === 'Verified'}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingReportGarbages?.resolution_status === 'Verified'
-                                                    ? 'bg-green-100 text-green-600 cursor-not-allowed'
-                                                    : 'bg-green-600 text-white hover:bg-green-700'
-                                                    }`}
-                                            >
-                                                <FiCheckCircle className="w-4 h-4" />
-                                                Mark as Verified
-                                            </button>
-                                        )}
-
-                                        {/* Unverify Button - Show only when verified_by is not null */}
-                                        {viewingReportGarbages?.verified_by !== null && (
-                                            <button
-                                                onClick={() => handleComplainVerification(viewingReportGarbages?._id, 'Unverified')}
-                                                disabled={viewingReportGarbages?.resolution_status === 'Unverified'}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${viewingReportGarbages?.resolution_status === 'Unverified'
-                                                    ? 'bg-red-100 text-red-600 cursor-not-allowed'
-                                                    : 'bg-red-600 text-white hover:bg-red-700'
-                                                    }`}
-                                            >
-                                                <FiXCircle className="w-4 h-4" />
-                                                Mark as Unverified
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-                                <button
-                                    onClick={() => {
-                                        setShowModalData(false);
-                                        setViewingReportGarbage(null);
-                                        resetForm();
-                                    }}
-                                    className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
-                                >
-                                    Close
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

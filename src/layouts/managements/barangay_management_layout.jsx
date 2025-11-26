@@ -34,6 +34,7 @@ const BarangayManagementLayout = () => {
     const [showModalPassword, setShowModalPassword] = useState(false);
     const [editingBarangays, setEditingBarangay] = useState(null);
     const [showMapModal, setShowMapModal] = useState(false);
+    const [barangayStats, setBarangayStats] = useState({});
     const [formData, setFormData] = useState({
         barangay_name: ''
     });
@@ -41,6 +42,30 @@ const BarangayManagementLayout = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const fetchAllBarangayStats = async () => {
+            const stats = {};
+            for (const barangay of filteredBarangays) {
+                try {
+                    const { data, success } = await getAllGarbageSiteSpecifcBarangay(barangay._id);
+                    if (success && data?.data) {
+                        stats[barangay._id] = data.data.length;
+                    } else {
+                        stats[barangay._id] = 0;
+                    }
+                } catch (err) {
+                    console.error("Error fetching data for barangay:", barangay._id, err);
+                    stats[barangay._id] = 0;
+                }
+            }
+            setBarangayStats(stats);
+        };
+
+        if (filteredBarangays.length > 0) {
+            fetchAllBarangayStats();
+        }
+    }, [filteredBarangays]); // Only re-fetch when filteredBarangays changes
 
 
     const fetchData = async () => {
@@ -73,6 +98,8 @@ const BarangayManagementLayout = () => {
             toast.error("Failed to load registration data");
         }
     };
+
+
 
     useEffect(() => {
         filterBarangays();
@@ -188,9 +215,9 @@ const BarangayManagementLayout = () => {
         }));
     };
 
-  
-    const handleViewMap = (report) => {
-        fetchDataGarbageSites(report._id)
+
+    const handleViewMap = (barangay) => {
+        fetchDataGarbageSites(barangay._id)
         setShowMapModal(true)
     };
 
@@ -198,16 +225,17 @@ const BarangayManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New Barangay</span>
-                    </button>
-                </div>
-
+                {['enro_staff_scheduler'].includes(user.role) && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New Barangay</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -237,6 +265,9 @@ const BarangayManagementLayout = () => {
                                         Barangay Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Garbage Sites
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
                                 </tr>
@@ -244,32 +275,39 @@ const BarangayManagementLayout = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredBarangays.map((barangay) => (
                                     <tr key={barangay._id} className="hover:bg-gray-50 transition-colors">
-
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{barangay.barangay_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{barangayStats[barangay._id] ?? 'Loading...'} Garbage Sites</span>
+                                        </td>
+                                        <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(barangay)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
+                                                {['enro_staff_scheduler'].includes(user.role) && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleEdit(barangay)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit"
+                                                        >
+                                                            <FiEdit className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(barangay._id)}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <FiTrash2 className="w-4 h-4" />
+                                                        </button>
+
+                                                    </>
+                                                )}
                                                 <button
                                                     onClick={() => handleViewMap(barangay)}
                                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                     title="View on Map"
                                                 >
                                                     <FiMapPin className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(barangay._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>

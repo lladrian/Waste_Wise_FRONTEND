@@ -114,11 +114,13 @@ const AdminLayout = ({ children }) => {
         { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
         { path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" },
         { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
-        // { path: "/admin/management/routes", icon: FiUsers, label: "Route Management" },
-        // { path: "/admin/management/barangays", icon: FiUsers, label: "Barangay Management" },
-        // { path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" },
+        { path: "/admin/management/schedules", icon: FiUsers, label: "Schedule Management" },
         { path: "/admin/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
-        // { path: "/admin/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
+        { path: "/admin/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
+        { path: "/admin/management/routes", icon: FiUsers, label: "Route Management" },
+        { path: "/admin/management/barangays", icon: FiUsers, label: "Barangay Management" },
+        { path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" },
+        { path: "/admin/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
         { path: "/admin/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
         { path: "/admin/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
         { path: "/admin/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" },
@@ -273,7 +275,7 @@ const AdminLayout = ({ children }) => {
     'management/collector_reports': 'Collector Report Management',
     'management/collector_attendances': 'Collector Attendance Management',
     'management/garbage_sites': 'Garbage Site Management',
-
+    'management/barangay_requests': 'Barangay Request Management',
 
     // Approval section
     'approval': 'Approval Management',
