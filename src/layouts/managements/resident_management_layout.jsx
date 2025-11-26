@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fi';
 
 //import { getAllResidentUser, updateResidentUserPasswordAdmin, deleteResidentUser, updateResidentUser, createResidentUser } from "../../hooks/resident_user_management_hook";
-import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident, getAllUserSpecificBarangay } from "../../hooks/user_management_hook";
+import { getAllUser, deleteUser, updateUser, createUser, updateUserPasswordAdmin, updateUserResident, getAllUserSpecificBarangay, getAllUserResident } from "../../hooks/user_management_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
@@ -56,7 +56,7 @@ const ResidentManagementLayout = () => {
                 var { data, success } = await getAllUserSpecificBarangay(user?.barangay?._id);
 
             } else {
-                var { data, success } = await getAllUser();
+                var { data, success } = await getAllUserResident();
             }
 
             if (success === true) {
