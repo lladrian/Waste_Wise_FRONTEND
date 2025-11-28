@@ -8,14 +8,14 @@ export const getAllTruck = async (barangay_id, date) => {
 
   
     const trucksOnRoute = res?.data?.data .filter(
-      (record) => (record.truck?.status || "").toLowerCase() === "on route" && record.scheduled_collection == date
+      (record) => record.scheduled_collection == date
     );
 
     const trucksOnRouteSpecificBarangay = res2?.data?.data .filter(
-      (record) => (record.truck?.status || "").toLowerCase() === "on route" && record.scheduled_collection == date
+      (record) =>  record.scheduled_collection == date
     );
 
-    return { data: {trucks: trucksOnRoute, trucks2: trucksOnRouteSpecificBarangay} , success: true };
+    return { data: { trucks: trucksOnRoute, trucks2: trucksOnRouteSpecificBarangay } , success: true };
   } catch (error) {
     // console.error("Failed to register user:", error);
     throw error;

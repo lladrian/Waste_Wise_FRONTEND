@@ -333,7 +333,7 @@ const ReportGarbageManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                     <button
                         onClick={() => setShowModal(true)}
                         className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
@@ -341,7 +341,7 @@ const ReportGarbageManagementLayout = () => {
                         <FiPlus className="w-4 h-4" />
                         <span>Add New Garbage Report</span>
                     </button>
-                </div> 
+                </div>  */}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-6">
@@ -541,7 +541,7 @@ const ReportGarbageManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['enro_staff_head', 'enro_staff_eswm_section_head', 'barangay_official'].includes(user.role) && (
+                                                {/* {['enro_staff_head', 'enro_staff_eswm_section_head', 'barangay_official'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(report)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -549,7 +549,7 @@ const ReportGarbageManagementLayout = () => {
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
-                                                )}
+                                                )} */}
                                                 {/* <button
                                                     onClick={() => handleViewMap(report)}
                                                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -559,7 +559,8 @@ const ReportGarbageManagementLayout = () => {
                                                 </button> */}
                                                 <button
                                                     onClick={() => handleView(report)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    disabled={user?.role_action?.permission?.includes('garbage_report_management_full_view')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />
@@ -1131,9 +1132,8 @@ const ReportGarbageManagementLayout = () => {
 
                                     {/* Action Buttons */}
                                     <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
-                                        {user.role === 'barangay_official' && (
+                                        {/* {user.role === 'barangay_official' && (
                                             <div className="flex gap-3">
-                                                {/* Verify Button - Show only when verified_by is null */}
                                                 {viewingReportGarbages?.verified_by === null && (
                                                     <button
                                                         onClick={() => handleComplainVerification(viewingReportGarbages?._id, 'Verified')}
@@ -1148,7 +1148,6 @@ const ReportGarbageManagementLayout = () => {
                                                     </button>
                                                 )}
 
-                                                {/* Unverify Button - Show only when verified_by is not null */}
                                                 {viewingReportGarbages?.verified_by !== null && (
                                                     <button
                                                         onClick={() => handleComplainVerification(viewingReportGarbages?._id, 'Unverified')}
@@ -1163,7 +1162,7 @@ const ReportGarbageManagementLayout = () => {
                                                     </button>
                                                 )}
                                             </div>
-                                        )}
+                                        )} */}
                                     </div>
                                 </div>
                             ) : (
