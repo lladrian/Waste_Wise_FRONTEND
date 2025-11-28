@@ -150,7 +150,7 @@ const AdminLayout = ({ children }) => {
   const fetchData = async () => {
     try {
       const { data, success } = await getAllNotificationSpecificUser(user?._id);
-      
+
       if (success === true) {
         setNotifications(data.data);
       }
@@ -186,7 +186,7 @@ const AdminLayout = ({ children }) => {
 
       const { data, success } = await updateUserSelectedRole(user?._id, input_data);
 
-      if(success === true) {
+      if (success === true) {
         setRoleDropdownOpen(false);
         const role = data.data.role;
 
@@ -756,7 +756,10 @@ const AdminLayout = ({ children }) => {
         </header>
         <main
           className="flex-1 overflow-auto p-6"
-          onClick={() => setRoleDropdownOpen(false)}
+          onClick={() => {
+            setRoleDropdownOpen(false);
+            setNotificationDropdownOpen(false);
+          }}
         >
           <div className="max-w-7xl mx-auto">
             {children}

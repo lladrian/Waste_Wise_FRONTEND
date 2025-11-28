@@ -28,13 +28,13 @@ const RoleActionManagementLayout = () => {
     const [formData, setFormData] = useState({
         action_name: '',
         role: '',
-        permission: []
+        permission: [],
+        management: []
     });
 
     useEffect(() => {
         fetchData();
     }, []);
-
 
     const fetchData = async () => {
         try {
@@ -65,8 +65,6 @@ const RoleActionManagementLayout = () => {
         setFilteredUsers(filtered);
     };
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -74,13 +72,17 @@ const RoleActionManagementLayout = () => {
             typeof option === 'string' ? option : option.value
         ) : [];
 
+        const managgementValues = formData.management ? formData.management.map(option =>
+            typeof option === 'string' ? option : option.value
+        ) : [];
+
         const input_data = {
             role: formData.role,
             action_name: formData.action_name,
-            permission: permissionValues
+            permission: permissionValues,
+            management: managgementValues
         };
 
-        console.log(input_data)
         if (editingUsers) {
             try {
                 const { data, success } = await updateRoleAction(editingUsers._id, input_data);
@@ -131,12 +133,12 @@ const RoleActionManagementLayout = () => {
         setFormData({
             role: user.role,
             action_name: user.action_name,
-            permission: user.permission || []
+            permission: user.permission || [],
+            management: user.management || []
         });
 
         setShowModal(true);
     };
-
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
@@ -154,33 +156,61 @@ const RoleActionManagementLayout = () => {
         }
     };
 
-
     const resetForm = () => {
         setFormData({
             action_name: '',
             role: '',
-            permission: []
+            permission: [],
+            management: []
         });
 
         setEditingUser(null);
     };
 
+    const managementOptions = [
+        { value: 'barangay_complain_management', label: 'Barangay Complain Management' },
+        // { value: 'barangay_management', label: 'Barangay Management' },
+        { value: 'barangay_request_management', label: 'Barangay Request Management' },
+        // { value: 'collector_attendance_management', label: 'Collector Attendance Management' },
+        // { value: 'collector_report_management', label: 'Collector Report Management' },
+        { value: 'garbage_report_management', label: 'Garbage Report Management' },
+        { value: 'garbage_site_management', label: 'Garbage Site Management' },
+        // { value: 'log_management', label: 'Log Management' },
+        // { value: 'user_management', label: 'User Management' },
+        // { value: 'resident_management', label: 'Resident Management' },
+        // { value: 'role_action_management', label: 'Role Action Management' },
+        // { value: 'route_management', label: 'Route Management' },
+        { value: 'schedule_management', label: 'Schedule Management' },
+        // { value: 'truck_management', label: 'Truck Management' },
+    ];
 
     const permissionOptions = [
-        { value: 'create_user', label: 'Create User' },
-        { value: 'read_user', label: 'Read User' },
-        { value: 'update_user', label: 'Update User' },
-        { value: 'delete_user', label: 'Delete User' },
-        { value: 'create_post', label: 'Create Post' },
-        { value: 'read_post', label: 'Read Post' },
-        { value: 'update_post', label: 'Update Post' },
-        { value: 'delete_post', label: 'Delete Post' },
-        { value: 'manage_roles', label: 'Manage Roles' },
-        { value: 'view_analytics', label: 'View Analytics' },
-        { value: 'system_config', label: 'System Configuration' },
-        { value: 'backup_manage', label: 'Manage Backups' },
-        // Add more permissions as needed
+        { value: 'schedule_management_full_view', label: 'Schedule Full View', management: 'schedule_management' },
+        { value: 'barangay_complain_management_full_view', label: 'Barangay Complain Full View', management: 'barangay_complain_management' },
+        { value: 'barangay_complain_management_create_barangay_complain', label: 'Barangay Complain Create', management: 'barangay_complain_management' },
+        { value: 'garbage_site_management_create', label: 'Garbage Site Create', management: 'garbage_site_management' },
+        { value: 'garbage_site_management_delete', label: 'Garbage Site Delete', management: 'garbage_site_management' },
+        { value: 'garbage_site_management_edit', label: 'Garbage Site Edit', management: 'garbage_site_management' },
+        { value: 'garbage_report_management_full_view', label: 'Garbage Report Full View', management: 'garbage_report_management' },
+        { value: 'collector_report_management_full_view', label: 'Collector Report Full View', management: 'collector_report_management' },
+        { value: 'barangay_request_management_full_view', label: 'Barangay Request Full View', management: 'barangay_request_management' },
+        { value: 'barangay_request_management_create', label: 'Barangay Request Create', management: 'barangay_request_management' },
     ];
+
+    // Get filtered permission options based on selected management modules
+    const getFilteredPermissionOptions = () => {
+        if (!formData.management || formData.management.length === 0) {
+            return [];
+        }
+        
+        const selectedManagementValues = formData.management.map(management => 
+            typeof management === 'string' ? management : management.value
+        );
+        
+        return permissionOptions.filter(permission => 
+            selectedManagementValues.includes(permission.management)
+        );
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -191,7 +221,7 @@ const RoleActionManagementLayout = () => {
     };
 
     // Handle select change - convert option objects back to values
-    const handleSelectChange = (selectedOptions) => {
+    const handleSelectChangePermission = (selectedOptions) => {
         // Extract just the values from the selected option objects
         const permissionValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
 
@@ -201,7 +231,25 @@ const RoleActionManagementLayout = () => {
         }));
     };
 
-    const getSelectedOptions = (permissionValues) => {
+  const handleSelectChangeManagement = (selectedOptions) => {
+    // Extract just the values from the selected option objects
+    const managementValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+    
+    // Filter permissions to keep only those that belong to the newly selected management modules
+    const filteredPermissions = formData.permission.filter(permission => {
+        const permissionValue = typeof permission === 'string' ? permission : permission.value;
+        const permissionOption = permissionOptions.find(opt => opt.value === permissionValue);
+        return permissionOption && managementValues.includes(permissionOption.management);
+    });
+
+    setFormData(prev => ({
+        ...prev,
+        management: managementValues,
+        permission: filteredPermissions
+    }));
+};
+
+    const getSelectedOptionsPermission = (permissionValues) => {
         return permissionValues.map(value => {
             // Find the option object for this value
             const option = permissionOptions.find(opt => opt.value === value);
@@ -210,6 +258,14 @@ const RoleActionManagementLayout = () => {
         });
     };
 
+    const getSelectedOptionsManagement = (managementValues) => {
+        return managementValues.map(value => {
+            // Find the option object for this value
+            const option = managementOptions.find(opt => opt.value === value);
+            // If found, return the option object, otherwise create a fallback
+            return option || { value: value, label: value };
+        });
+    };
 
     const formatRole = (role) => {
         const roleMap = {
@@ -227,7 +283,6 @@ const RoleActionManagementLayout = () => {
         return roleMap[role] || role; // Return formatted role or original if not found
     };
 
-
     return (
         <>
             <div className="space-y-6">
@@ -241,7 +296,6 @@ const RoleActionManagementLayout = () => {
                         <span>Add New User</span>
                     </button>
                 </div>
-
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -257,8 +311,6 @@ const RoleActionManagementLayout = () => {
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
-
-
                     </div>
                 </div>
 
@@ -285,7 +337,6 @@ const RoleActionManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{user.action_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            {console.log(user)}
                                             <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -369,10 +420,8 @@ const RoleActionManagementLayout = () => {
                                             <option value="enro_staff_eswm_section_head">ENRO Staff ESWM Section Head</option>
                                             <option value="barangay_official">Barangay Official</option>
                                             <option value="garbage_collector">Garbage Collector</option>
-                                            {/* {editingUsers && <option value="resident">Resident</option>} */}
                                         </select>
                                     </div>
-
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -388,19 +437,19 @@ const RoleActionManagementLayout = () => {
                                             placeholder="Enter Role Action Name"
                                         />
                                     </div>
-
+                                    
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Select Permission
+                                            Select Management
                                         </label>
                                         <Select
-                                            id="permission-select"
-                                            name="permission"
+                                            id="management-select"
+                                            name="management"
                                             isMulti
-                                            options={permissionOptions}
-                                            value={getSelectedOptions(formData.permission)} // Convert values to option objects
-                                            onChange={handleSelectChange}
-                                            placeholder="Choose permissions..."
+                                            options={managementOptions}
+                                            value={getSelectedOptionsManagement(formData.management)}
+                                            onChange={handleSelectChangeManagement}
+                                            placeholder="Choose managements..."
                                             isSearchable
                                             closeMenuOnSelect={false}
                                             styles={{
@@ -417,8 +466,43 @@ const RoleActionManagementLayout = () => {
                                         />
                                     </div>
 
-
-
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Select Permission
+                                        </label>
+                                        <Select
+                                            id="permission-select"
+                                            name="permission"
+                                            isMulti
+                                            options={getFilteredPermissionOptions()}
+                                            value={getSelectedOptionsPermission(formData.permission)}
+                                            onChange={handleSelectChangePermission}
+                                            placeholder={
+                                                formData.management.length === 0 
+                                                    ? "Please select management first" 
+                                                    : "Choose permissions..."
+                                            }
+                                            isSearchable
+                                            closeMenuOnSelect={false}
+                                            isDisabled={formData.management.length === 0}
+                                            styles={{
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                }),
+                                                menuPortal: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                })
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
+                                        {formData.management.length === 0 && (
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                Please select at least one management module to see available permissions
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Action Buttons */}
@@ -438,83 +522,6 @@ const RoleActionManagementLayout = () => {
                                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
                                     >
                                         {editingUsers ? 'Update Role Action' : 'Add Role Action'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-
-            {showModalPassword && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto">
-                        <div className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">
-                                    Change Password
-                                </h2>
-                                <button
-                                    onClick={() => {
-                                        setShowModalPassword(false);
-                                        resetForm();
-                                    }}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                >
-                                    <FiXCircle className="w-6 h-6" />
-                                </button>
-                            </div>
-
-                            {/* User Information Section */}
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Role Action Information</h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Role Action Name:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {formData?.action_name}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* Password Fields */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            New Password
-                                        </label>
-                                        <input
-                                            type="password"
-                                            name="update_password"
-                                            value={formData.update_password || ''}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                            placeholder="Enter New Password"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowModalPassword(false);
-                                            resetForm();
-                                        }}
-                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
-                                    >
-                                        Update Password
                                     </button>
                                 </div>
                             </form>

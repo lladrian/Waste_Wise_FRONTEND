@@ -416,8 +416,9 @@ const ComplainManagementLayout = () => {
                 {user?.role === 'barangay_official' && (
                     <div className="flex justify-end">
                         <button
+                            disabled={user?.role_action?.permission?.includes('barangay_complain_management_create_barangay_complain')}                                        
                             onClick={() => setShowModalCreate(true)}
-                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FiPlus className="w-4 h-4" />
                             <span>Add New Complain</span>
@@ -638,7 +639,7 @@ const ComplainManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['enro_staff_eswm_section_head', 'enro_staff_head', 'barangay_official'].includes(user.role) && (
+                                                {['enro_staff_eswm_section_head', 'enro_staff_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(complain)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -649,7 +650,8 @@ const ComplainManagementLayout = () => {
                                                 )}
                                                 <button
                                                     onClick={() => handleView(complain)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    disabled={user?.role_action?.permission?.includes('barangay_complain_management_full_view')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />
@@ -697,6 +699,7 @@ const ComplainManagementLayout = () => {
                                     {editingComplains ? 'Edit Complain' : 'Add New Complain'}
                                 </h2>
                                 <button
+                                
                                     onClick={() => {
                                         setShowModalCreate(false);
                                         resetForm();
@@ -1142,9 +1145,8 @@ const ComplainManagementLayout = () => {
 
                             {/* Action Buttons */}
                             <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
-                                {user.role === 'barangay_official' && (
+                                {/* {user.role === 'barangay_official' && (
                                     <div className="flex gap-3">
-                                        {/* Verify Button - Show only when verified_by is null */}
                                         {viewingComplains?.verified_by === null && (
                                             <button
                                                 onClick={() => handleComplainVerification(viewingComplains?._id, 'Verified')}
@@ -1159,7 +1161,6 @@ const ComplainManagementLayout = () => {
                                             </button>
                                         )}
 
-                                        {/* Unverify Button - Show only when verified_by is not null */}
                                         {viewingComplains?.verified_by !== null && (
                                             <button
                                                 onClick={() => handleComplainVerification(viewingComplains?._id, 'Unverified')}
@@ -1174,7 +1175,7 @@ const ComplainManagementLayout = () => {
                                             </button>
                                         )}
                                     </div>
-                                )}
+                                )} */}
 
 
                                 <button

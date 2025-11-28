@@ -275,8 +275,10 @@ const BarangayManagementLayout = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredBarangays.map((barangay) => (
                                     <tr key={barangay._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{barangay.barangay_name}</span>
+                                        <td className="px-6 py-4 max-w-[200px]">
+                                            <span className="text-sm text-gray-900 truncate block">
+                                                {barangay.barangay_name}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">
@@ -284,7 +286,7 @@ const BarangayManagementLayout = () => {
                                                     ? `${barangayStats[barangay._id]} Garbage Sites`
                                                     : "Loading..."}
                                             </span>
-                                        </td>   
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 {['enro_staff_scheduler'].includes(user.role) && (

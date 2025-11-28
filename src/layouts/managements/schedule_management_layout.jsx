@@ -480,15 +480,17 @@ const ScheduleManagementLayout = () => {
                                                     >
                                                         <FiEdit className="w-4 h-4" />
                                                     </button>
-                                                )}  
+                                                )}
 
                                                 <button
+                                                    disabled={user?.role_action?.permission?.includes('schedule_management_full_view')}
                                                     onClick={() => handleView(schedule)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />
                                                 </button>
+
 
                                                 {['enro_staff_scheduler'].includes(user.role) && (
                                                     <button
@@ -917,7 +919,7 @@ const ScheduleManagementLayout = () => {
                                                                                 {orderNumber}
                                                                             </span>
                                                                         </td>
-                                                                         <td className="px-4 py-2 font-medium text-gray-700">
+                                                                        <td className="px-4 py-2 font-medium text-gray-700">
                                                                             {barangay.status}
                                                                         </td>
                                                                         <td className="px-4 py-2 font-medium text-gray-700">

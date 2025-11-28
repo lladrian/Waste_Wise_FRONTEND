@@ -534,7 +534,8 @@ const ReportGarbageManagementLayout = () => {
                                                 </button> */}
                                                 <button
                                                     onClick={() => handleView(report)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    disabled={user?.role_action?.permission?.includes('collector_report_management_full_view')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />

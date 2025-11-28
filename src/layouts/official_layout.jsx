@@ -740,7 +740,10 @@ const customTitles = {
         </header>
         <main
           className="flex-1 overflow-auto p-6"
-          onClick={() => setRoleDropdownOpen(false)}
+          onClick={() => {
+            setRoleDropdownOpen(false);
+            setNotificationDropdownOpen(false);
+          }}
         >
           <div className="max-w-7xl mx-auto">
             {children}
