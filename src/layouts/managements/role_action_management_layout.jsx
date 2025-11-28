@@ -172,7 +172,7 @@ const RoleActionManagementLayout = () => {
         // { value: 'barangay_management', label: 'Barangay Management' },
         { value: 'barangay_request_management', label: 'Barangay Request Management' },
         // { value: 'collector_attendance_management', label: 'Collector Attendance Management' },
-        // { value: 'collector_report_management', label: 'Collector Report Management' },
+        { value: 'collector_report_management', label: 'Collector Report Management' },
         { value: 'garbage_report_management', label: 'Garbage Report Management' },
         { value: 'garbage_site_management', label: 'Garbage Site Management' },
         // { value: 'log_management', label: 'Log Management' },
@@ -195,6 +195,7 @@ const RoleActionManagementLayout = () => {
         { value: 'collector_report_management_full_view', label: 'Collector Report Full View', management: 'collector_report_management' },
         { value: 'barangay_request_management_full_view', label: 'Barangay Request Full View', management: 'barangay_request_management' },
         { value: 'barangay_request_management_create', label: 'Barangay Request Create', management: 'barangay_request_management' },
+
     ];
 
     // Get filtered permission options based on selected management modules

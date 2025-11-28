@@ -223,7 +223,7 @@ const GarbageSiteManagementLayout = () => {
                 {['enro_staff_scheduler', 'barangay_official'].includes(user.role) && (
                     <div className="flex justify-end">
                         <button
-                            disabled={user?.role_action?.permission?.includes('garbage_site_management_create')}
+                            disabled={!user?.role_action?.permission?.includes('garbage_site_management_create')}
                             onClick={() => setShowModal(true)}
                             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -295,7 +295,7 @@ const GarbageSiteManagementLayout = () => {
                                                     <>
                                                         <button
                                                             onClick={() => handleEdit(site)}
-                                                            disabled={user?.role_action?.permission?.includes('garbage_site_management_edit')}
+                                                            disabled={!user?.role_action?.permission?.includes('garbage_site_management_edit')}
                                                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Edit"
                                                         >
@@ -303,7 +303,7 @@ const GarbageSiteManagementLayout = () => {
                                                         </button>
                                                 
                                                         <button
-                                                            disabled={user?.role_action?.permission?.includes('garbage_site_management_delete')}
+                                                            disabled={!user?.role_action?.permission?.includes('garbage_site_management_delete')}
                                                             onClick={() => handleDelete(site._id)}
                                                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Delete"

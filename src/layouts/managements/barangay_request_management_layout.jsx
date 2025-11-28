@@ -426,7 +426,7 @@ const BarangayRequestManagementLayout = () => {
                 {user?.role === 'barangay_official' && (
                     <div className="flex justify-end">
                         <button
-                            disabled={user?.role_action?.permission?.includes('barangay_request_management_create')}
+                            disabled={!user?.role_action?.permission?.includes('barangay_request_management_create')}
                             onClick={() => setShowModal(true)}
                             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -664,7 +664,7 @@ const BarangayRequestManagementLayout = () => {
                                                 )}
                                                 <button
                                                     onClick={() => handleView(complain)}
-                                                    disabled={user?.role_action?.permission?.includes('barangay_request_management_full_view')}
+                                                    disabled={!user?.role_action?.permission?.includes('barangay_request_management_full_view')}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >

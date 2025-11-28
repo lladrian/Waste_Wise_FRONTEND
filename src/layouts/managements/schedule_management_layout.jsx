@@ -483,7 +483,7 @@ const ScheduleManagementLayout = () => {
                                                 )}
 
                                                 <button
-                                                    disabled={user?.role_action?.permission?.includes('schedule_management_full_view')}
+                                                    disabled={!user?.role_action?.permission?.includes('schedule_management_full_view')}
                                                     onClick={() => handleView(schedule)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
