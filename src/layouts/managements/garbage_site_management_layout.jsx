@@ -8,6 +8,7 @@ import {
     FiFilter,
     FiBook,
     FiMapPin,
+    FiInfo,
     FiLock,
     FiUser,
     FiClock,
@@ -225,7 +226,7 @@ const GarbageSiteManagementLayout = () => {
                         <button
                             disabled={!user?.role_action?.permission?.includes('garbage_site_management_create')}
                             onClick={() => setShowModal(true)}
-                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2   rounded-lg hover:bg-indigo-700 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FiPlus className="w-4 h-4" />
                             <span>Add New Garbage Site</span>
@@ -301,24 +302,25 @@ const GarbageSiteManagementLayout = () => {
                                                         >
                                                             <FiEdit className="w-4 h-4" />
                                                         </button>
-                                                
+
                                                         <button
                                                             disabled={!user?.role_action?.permission?.includes('garbage_site_management_delete')}
                                                             onClick={() => handleDelete(site._id)}
-                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Delete"
                                                         >
                                                             <FiTrash2 className="w-4 h-4" />
                                                         </button>
                                                     </>
                                                 )}
-                                                        {/* <button
-                                                            onClick={() => handleViewMap(site)}
-                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            title="View on Map"
-                                                        >
-                                                            <FiMapPin className="w-4 h-4" />
-                                                        </button> */}
+                                                <button
+                                                    disabled={!user?.role_action?.permission?.includes('garbage_site_management_full_view')}
+                                                    onClick={() => handleViewMap(site)}
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title="View on Map"
+                                                >
+                                                    <FiInfo className="w-4 h-4" />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -342,32 +344,42 @@ const GarbageSiteManagementLayout = () => {
                     )}
                 </div>
             </div>
+            {showMapModal && viewingReportGarbages && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden">
 
-              {showMapModal && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden">
-                                    <div className="flex justify-between items-center p-4 border-b">
-                                        <h2 className="text-lg font-semibold text-gray-800">Location Map</h2>
-                                        <button
-                                            onClick={() => setShowMapModal(false)}
-                                            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-            
-                                    {/* Map Section */}
-                                    <div className="w-full h-[500px]">
-                                        <MapLocationMarker
-                                            initialLocation={{
-                                                lat: viewingReportGarbages.position.lat,
-                                                lng: viewingReportGarbages.position.lng
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {/* Header */}
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h2 className="text-lg font-semibold text-gray-800">Location Map</h2>
+                            <button
+                                onClick={() => setShowMapModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Display Info Based on viewingReportGarbages */}
+                        <div className="p-4 space-y-2 border-b">
+                            <p><strong>Site:</strong> {viewingReportGarbages.garbage_site_name}</p>
+                            <p><strong>Barangay:</strong> {viewingReportGarbages.barangay.barangay_name}</p>
+                            <p><strong>Latitude:</strong> {viewingReportGarbages.position.lat}</p>
+                            <p><strong>Longitude:</strong> {viewingReportGarbages.position.lng}</p>
+                        </div>
+
+                        {/* Map Section */}
+                        <div className="w-full h-[500px]">
+                            <MapLocationMarker
+                                initialLocation={{
+                                    lat: viewingReportGarbages.position.lat,
+                                    lng: viewingReportGarbages.position.lng
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

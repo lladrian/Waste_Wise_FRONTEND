@@ -309,8 +309,9 @@ const TruckManagementLayout = () => {
                 {['enro_staff_scheduler'].includes(user.role) && (
                     <div className="flex justify-end">
                         <button
+                            disabled={!user?.role_action?.permission?.includes('truck_management_create')}
                             onClick={() => setShowModal(true)}
-                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-indigo-700 transition-colors"
                         >
                             <FiPlus className="w-4 h-4" />
                             <span>Add New Truck</span>
@@ -395,15 +396,17 @@ const TruckManagementLayout = () => {
                                                 {['enro_staff_scheduler'].includes(user.role) && (
                                                     <>
                                                         <button
+                                                            disabled={!user?.role_action?.permission?.includes('truck_management_edit')}
                                                             onClick={() => handleEdit(truck)}
-                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Edit"
                                                         >
                                                             <FiEdit className="w-4 h-4" />
                                                         </button>
                                                         <button
+                                                            disabled={!user?.role_action?.permission?.includes('truck_management_delete')}
                                                             onClick={() => handleDelete(truck._id)}
-                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Delete"
                                                         >
                                                             <FiTrash2 className="w-4 h-4" />
@@ -411,8 +414,9 @@ const TruckManagementLayout = () => {
                                                     </>
                                                 )}
                                                 <button
+                                                    disabled={!user?.role_action?.permission?.includes('truck_management_full_view')}
                                                     onClick={() => handleView(truck)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />

@@ -9,6 +9,7 @@ import {
     FiBook,
     FiLock,
     FiMapPin,
+    FiInfo,
     FiUser,
     FiClock,
     FiCheckCircle,
@@ -219,6 +220,7 @@ const BarangayManagementLayout = () => {
     const handleViewMap = (barangay) => {
         fetchDataGarbageSites(barangay._id)
         setShowMapModal(true)
+        setEditingBarangay(barangay);
     };
 
     return (
@@ -228,8 +230,9 @@ const BarangayManagementLayout = () => {
                 {['enro_staff_scheduler'].includes(user.role) && (
                     <div className="flex justify-end">
                         <button
+                            disabled={!user?.role_action?.permission?.includes('barangay_management_create')}
                             onClick={() => setShowModal(true)}
-                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-indigo-700 transition-colors"
                         >
                             <FiPlus className="w-4 h-4" />
                             <span>Add New Barangay</span>
@@ -292,15 +295,17 @@ const BarangayManagementLayout = () => {
                                                 {['enro_staff_scheduler'].includes(user.role) && (
                                                     <>
                                                         <button
+                                                            disabled={!user?.role_action?.permission?.includes('barangay_management_edit')}
                                                             onClick={() => handleEdit(barangay)}
-                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Edit"
                                                         >
                                                             <FiEdit className="w-4 h-4" />
                                                         </button>
                                                         <button
+                                                            disabled={!user?.role_action?.permission?.includes('barangay_management_delete')}
                                                             onClick={() => handleDelete(barangay._id)}
-                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                             title="Delete"
                                                         >
                                                             <FiTrash2 className="w-4 h-4" />
@@ -309,11 +314,12 @@ const BarangayManagementLayout = () => {
                                                     </>
                                                 )}
                                                 <button
+                                                    disabled={!user?.role_action?.permission?.includes('barangay_management_full_view')}
                                                     onClick={() => handleViewMap(barangay)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View on Map"
                                                 >
-                                                    <FiMapPin className="w-4 h-4" />
+                                                    <FiInfo className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -343,7 +349,16 @@ const BarangayManagementLayout = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[90vw] max-h-[90vh] overflow-hidden">
                         <div className="flex justify-between items-center p-4 border-b">
-                            <h2 className="text-lg font-semibold text-gray-800">Total Garbage Sites: ({garbageSites.length})</h2>
+                            <div className="flex flex-col items-start justify-center text-center space-y-2">
+                                <label className="text-xl font-medium text-gray-700">
+                                    Total Garbage Sites: ({garbageSites.length})
+                                </label>
+                                <div className="flex items-center justify-center h-full ">
+                                    <label className="text-xl font-medium text-gray-700 flex items-baseline">
+                                        Barangay Name: <span className="inline-block max-w-[550px] truncate ml-1">{editingBarangays.barangay_name}</span>
+                                    </label>
+                                </div>
+                            </div>
                             <button
                                 onClick={() => setShowMapModal(false)}
                                 className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -414,82 +429,6 @@ const BarangayManagementLayout = () => {
                                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
                                     >
                                         {editingBarangays ? 'Update Barangay' : 'Add Barangay'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-
-            {showModalPassword && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-[500px] max-h-[90vh] overflow-y-auto">
-                        <div className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-800">
-                                    Change Password
-                                </h2>
-                                <button
-                                    onClick={() => {
-                                        setShowModalPassword(false);
-                                        resetForm();
-                                    }}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                >
-                                    <FiXCircle className="w-6 h-6" />
-                                </button>
-                            </div>
-
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Barangay Information</h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div>
-                                        <span className="text-gray-500">Barangay Name:</span>
-                                        <p className="font-medium text-gray-800 capitalize">
-                                            {formData?.action_name}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* Password Fields */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            New Password
-                                        </label>
-                                        <input
-                                            type="password"
-                                            name="update_password"
-                                            value={formData.update_password || ''}
-                                            onChange={handleInputChange}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                                            placeholder="Enter New Password"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowModalPassword(false);
-                                            resetForm();
-                                        }}
-                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
-                                    >
-                                        Update Password
                                     </button>
                                 </div>
                             </form>

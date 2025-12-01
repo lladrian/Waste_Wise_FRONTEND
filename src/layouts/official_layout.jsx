@@ -98,7 +98,7 @@ const OfficialLayout = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   // Optimized navigation with grouped items for WasteWise
- const navItems = [
+  const navItems = [
     { path: "/official/dashboard", icon: FiHome, label: "Dashboard" },
 
     // Grouped Waste Management
@@ -107,17 +107,38 @@ const OfficialLayout = ({ children }) => {
       icon: FiFolder,
       label: "Management",
       subItems: [
-         { path: "/official/management/residents", icon: FiUsers, label: "Resident Management" },
-         { path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" },
-         { path: "/official/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
-         { path: "/official/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
-         { path: "/official/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
-         { path: "/official/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
-         { path: "/official/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
+        ...(user?.role_action?.route?.includes("/official/management/residents")
+          ? [{ path: "/official/management/residents", icon: FiUsers, label: "Resident Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/official/management/schedules")
+          ? [{ path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/official/management/complains")
+          ? [{ path: "/official/management/complains", icon: FiUsers, label: "Barangay Complain Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/official/management/garbage_sites")
+          ? [{ path: "/official/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/official/management/garbage_reports")
+          ? [{ path: "/official/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/official/management/collector_reports")
+          ? [{ path: "/official/management/collector_reports", icon: FiUsers, label: "Collector Report Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/official/management/barangay_requests")
+          ? [{ path: "/official/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" }]
+          : []
+        ),
       ]
     },
 
-     // Analytics & Settings
+    // Analytics & Settings
     { path: "/official/login_history", icon: FiBarChart2, label: "Login History" },
     { path: "/official/truck_map", icon: FiBarChart2, label: "Truck Map" },
     { path: "/official/update_profile", icon: FiBarChart2, label: "Update Profile" },
@@ -135,7 +156,7 @@ const OfficialLayout = ({ children }) => {
   const fetchData = async () => {
     try {
       const { data, success } = await getAllNotificationSpecificUser(user?._id);
-      
+
       if (success === true) {
         setNotifications(data.data);
       }
@@ -167,7 +188,7 @@ const OfficialLayout = ({ children }) => {
 
       const { data, success } = await updateUserSelectedRole(user?._id, input_data);
 
-      if(success === true) {
+      if (success === true) {
         setRoleDropdownOpen(false);
         const role = data.data.role;
 
@@ -237,7 +258,7 @@ const OfficialLayout = ({ children }) => {
   // Get unread notifications count
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
-const customTitles = {
+  const customTitles = {
     // Dashboard
     'dashboard': 'Waste Wise Dashboard',
 
@@ -260,7 +281,7 @@ const customTitles = {
     // Approval section
     'approval': 'Approval Management',
     'approval/schedules': 'Schedule Approval',
-    
+
     // Other pages
     'garbage_sites': 'Garbage Site',
     'login_history': 'Login History',

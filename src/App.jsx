@@ -91,8 +91,9 @@ function App() {
         <Route path="/verification/:id" element={<AccountVerificationPage />} />
         <Route path="/disabled/:id" element={<AccountDisabledPage />} />
         <Route path="/account_recovery" element={<AccountRecoveryPage />} />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="/account_request" element={<AccountRequestPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
 
 
         {/* Admin Routes */}
@@ -142,7 +143,7 @@ function App() {
         <Route
           path="/admin/management/garbage_reports"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['admin']}       routePath="/admin/notifications">
               <AdminGarbageReportManagementPage />
             </ProtectedRoute>
           }
@@ -470,6 +471,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
         <Route
           path="/official/management/residents"
           element={

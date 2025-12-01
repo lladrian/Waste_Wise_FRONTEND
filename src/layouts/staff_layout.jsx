@@ -107,17 +107,50 @@ const StaffLayout = ({ children }) => {
       icon: FiFolder,
       label: "Management",
       subItems: [
-        { path: "/staff/management/logs", icon: FiUsers, label: "Log Management" },
-        { path: "/staff/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
-        { path: "/staff/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
-        { path: "/staff/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
-        { path: "/staff/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" },
-        { path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" },
-        { path: "/staff/management/routes", icon: FiUsers, label: "Route Management" },
-        { path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" },
-        { path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" },
-        { path: "/staff/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
-        { path: "/staff/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
+        ...(user?.role_action?.route?.includes("/staff/management/logs")
+          ? [{ path: "/staff/management/logs", icon: FiUsers, label: "Log Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/garbage_reports")
+          ? [{ path: "/staff/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/garbage_sites")
+          ? [{ path: "/staff/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/collector_reports")
+          ? [{ path: "/staff/management/collector_reports", icon: FiUsers, label: "Collector Report Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/collector_attendances")
+          ? [{ path: "/staff/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/schedules")
+          ? [{ path: "/staff/management/schedules", icon: FiUsers, label: "Schedule Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/routes")
+          ? [{ path: "/staff/management/routes", icon: FiUsers, label: "Route Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/trucks")
+          ? [{ path: "/staff/management/trucks", icon: FiUsers, label: "Truck Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/barangays")
+          ? [{ path: "/staff/management/barangays", icon: FiUsers, label: "Barangay Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/complains")
+          ? [{ path: "/staff/management/complains", icon: FiUsers, label: "Barangay Complain Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/staff/management/barangay_requests")
+          ? [{ path: "/staff/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" }]
+          : []
+        ),
       ]
     },
 
@@ -149,7 +182,7 @@ const StaffLayout = ({ children }) => {
   const fetchData = async () => {
     try {
       const { data, success } = await getAllNotificationSpecificUser(user?._id);
-      
+
       if (success === true) {
         setNotifications(data.data);
       }
@@ -181,7 +214,7 @@ const StaffLayout = ({ children }) => {
 
       const { data, success } = await updateUserSelectedRole(user?._id, input_data);
 
-      if(success === true) {
+      if (success === true) {
         setRoleDropdownOpen(false);
         const role = data.data.role;
 
@@ -251,7 +284,7 @@ const StaffLayout = ({ children }) => {
   // Get unread notifications count
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
- const customTitles = {
+  const customTitles = {
     // Dashboard
     'dashboard': 'Waste Wise Dashboard',
 
@@ -534,13 +567,13 @@ const StaffLayout = ({ children }) => {
                   <p className="text-xs font-semibold text-gray-800 truncate">
                     {adminFirstName} {adminLastName}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">    
+                  <p className="text-xs text-gray-500 truncate">
                     {
-                        user?.role === 'enro_staff_head' ? 'Staff Head' :
+                      user?.role === 'enro_staff_head' ? 'Staff Head' :
                         user?.role === 'enro_staff_monitoring' ? 'Monitoring' :
-                        user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
-                        user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
-                        'Staff'
+                          user?.role === 'enro_staff_scheduler' ? 'Scheduler' :
+                            user?.role === 'enro_staff_eswm_section_head' ? 'ESWM Section Head' :
+                              'Staff'
                     }
                   </p>
                 </div>
