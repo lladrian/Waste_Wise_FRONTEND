@@ -204,7 +204,7 @@ const RoleActionManagementLayout = () => {
         { value: 'garbage_report_management', label: 'Garbage Report Management', route: '/admin/management/garbage_reports', role: 'admin' },
         { value: 'collector_report_management', label: 'Collector Report Management', route: '/admin/management/collector_reports', role: 'admin' },
         { value: 'collector_attendance_management', label: 'Collector Attendance Management', route: '/admin/management/collector_attendances', role: 'admin' },
-    
+
         { value: 'log_management', label: 'Log Management', route: '/staff/management/logs', role: 'enro_staff_monitoring' },
         { value: 'garbage_report_management', label: 'Garbage Report Management', route: '/staff/management/garbage_reports', role: 'enro_staff_monitoring' },
         { value: 'garbage_site_management', label: 'Garbage Site Management', route: '/staff/management/garbage_sites', role: 'enro_staff_monitoring' },
@@ -240,7 +240,7 @@ const RoleActionManagementLayout = () => {
         { value: 'barangay_management', label: 'Barangay Management', route: '/staff/management/barangays', role: 'enro_staff_scheduler' },
         { value: 'barangay_complain_management', label: 'Barangay Complain Management', route: '/staff/management/complains', role: 'enro_staff_scheduler' },
         { value: 'barangay_request_management', label: 'Barangay Request Management', route: '/staff/management/barangay_requests', role: 'enro_staff_scheduler' },
-    
+
         { value: 'log_management', label: 'Log Management', route: '/staff/management/logs', role: 'enro_staff_eswm_section_head' },
         { value: 'garbage_report_management', label: 'Garbage Report Management', route: '/staff/management/garbage_reports', role: 'enro_staff_eswm_section_head' },
         { value: 'garbage_site_management', label: 'Garbage Site Management', route: '/staff/management/garbage_sites', role: 'enro_staff_eswm_section_head' },
@@ -254,48 +254,49 @@ const RoleActionManagementLayout = () => {
         { value: 'barangay_request_management', label: 'Barangay Request Management', route: '/staff/management/barangay_requests', role: 'enro_staff_eswm_section_head' },
     ];
 
-    const permissionOptions = [
-        { value: 'schedule_management_full_view', label: 'Schedule Full View', management: 'schedule_management' },
-        { value: 'schedule_management_create', label: 'Schedule Create', management: 'schedule_management' },
-        { value: 'schedule_management_edit', label: 'Schedule Edit', management: 'schedule_management' },
-        { value: 'schedule_management_delete', label: 'Schedule Delete', management: 'schedule_management' },
-        { value: 'barangay_complain_management_full_view', label: 'Barangay Complain Full View', management: 'barangay_complain_management' },
-        { value: 'barangay_complain_management_create', label: 'Barangay Complain Create', management: 'barangay_complain_management' },
-        { value: 'barangay_complain_management_approval', label: 'Barangay Complain Approval', management: 'barangay_complain_management' },
-        { value: 'garbage_site_management_create', label: 'Garbage Site Create', management: 'garbage_site_management' },
-        { value: 'garbage_site_management_delete', label: 'Garbage Site Delete', management: 'garbage_site_management' },
-        { value: 'garbage_site_management_edit', label: 'Garbage Site Edit', management: 'garbage_site_management' },
-        { value: 'garbage_site_management_full_view', label: 'Garbage Site Full View', management: 'garbage_site_management' },
-        { value: 'garbage_report_management_full_view', label: 'Garbage Report Full View', management: 'garbage_report_management' },
-        { value: 'collector_report_management_full_view', label: 'Collector Report Full View', management: 'collector_report_management' },
-        { value: 'collector_report_management_approval', label: 'Collector Report Approval', management: 'collector_report_management' },
-        { value: 'barangay_request_management_full_view', label: 'Barangay Request Full View', management: 'barangay_request_management' },
-        { value: 'barangay_request_management_create', label: 'Barangay Request Create', management: 'barangay_request_management' },
-        { value: 'barangay_request_management_approval', label: 'Barangay Request Approval', management: 'barangay_request_management' },
-        { value: 'resident_management_full_view', label: 'Resident Full View', management: 'resident_management' },
-        { value: 'resident_management_edit', label: 'Resident Edit', management: 'resident_management' },
-        { value: 'user_management_full_view', label: 'User Full View', management: 'user_management' },
-        { value: 'user_management_create', label: 'User Create', management: 'user_management' },
-        { value: 'user_management_delete', label: 'User Delete', management: 'user_management' },
-        { value: 'user_management_edit', label: 'User Edit', management: 'user_management' },
-        { value: 'role_action_management_edit', label: 'Role Action Edit', management: 'role_action_management' },
-        { value: 'role_action_management_delete', label: 'Role Action Delete', management: 'role_action_management' },
-        { value: 'role_action_management_create', label: 'Role Action Create', management: 'role_action_management' },
-        { value: 'log_management_full_view', label: 'Log Full View', management: 'log_management' },
-        { value: 'route_management_full_view', label: 'Route Full View', management: 'route_management' },
-        { value: 'route_management_create', label: 'Route Create', management: 'route_management' },
-        { value: 'route_management_edit', label: 'Route Edit', management: 'route_management' },
-        { value: 'route_management_delete', label: 'Route Delete', management: 'route_management' },
-        { value: 'barangay_management_full_view', label: 'Barangay Full View', management: 'barangay_management' },
-        { value: 'barangay_management_create', label: 'Barangay Create', management: 'barangay_management' },
-        { value: 'barangay_management_edit', label: 'Barangay Edit', management: 'barangay_management' },
-        { value: 'barangay_management_delete', label: 'Barangay Delete', management: 'barangay_management' },
-        { value: 'truck_management_full_view', label: 'Truck Full View', management: 'truck_management' },
-        { value: 'truck_management_create', label: 'Truck Create', management: 'truck_management' },
-        { value: 'truck_management_edit', label: 'Truck Edit', management: 'truck_management' },
-        { value: 'truck_management_delete', label: 'Truck Delete', management: 'truck_management' },
-        { value: 'collector_attendance_management_full_view', label: 'Collector Attendance Full View', management: 'collector_attendance_management' },
+   const permissionOptions = [
+        { value: 'schedule_management_full_view', label: 'Schedule Full View', management: 'schedule_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official']},
+        { value: 'schedule_management_create', label: 'Schedule Create', management: 'schedule_management', role: ['enro_staff_scheduler']},
+        { value: 'schedule_management_edit', label: 'Schedule Edit', management: 'schedule_management', role: ['enro_staff_scheduler'] },
+        { value: 'schedule_management_delete', label: 'Schedule Delete', management: 'schedule_management', role: ['enro_staff_scheduler'] },
+        { value: 'barangay_complain_management_full_view', label: 'Barangay Complain Full View', management: 'barangay_complain_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official']},
+        { value: 'barangay_complain_management_create', label: 'Barangay Complain Create', management: 'barangay_complain_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'barangay_complain_management_approval', label: 'Barangay Complain Approval', management: 'barangay_complain_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official']},
+        { value: 'garbage_site_management_create', label: 'Garbage Site Create', management: 'garbage_site_management', role: ['enro_staff_scheduler', 'barangay_official']},
+        { value: 'garbage_site_management_delete', label: 'Garbage Site Delete', management: 'garbage_site_management', role: ['enro_staff_scheduler', 'barangay_official'] },
+        { value: 'garbage_site_management_edit', label: 'Garbage Site Edit', management: 'garbage_site_management', role: ['enro_staff_scheduler', 'barangay_official'] },
+        { value: 'garbage_site_management_full_view', label: 'Garbage Site Full View', management: 'garbage_site_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'garbage_report_management_full_view', label: 'Garbage Report Full View', management: 'garbage_report_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'collector_report_management_full_view', label: 'Collector Report Full View', management: 'collector_report_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'collector_report_management_approval', label: 'Collector Report Approval', management: 'collector_report_management', role: ['enro_staff_head', 'enro_staff_eswm_section_head']},
+        { value: 'barangay_request_management_full_view', label: 'Barangay Request Full View', management: 'barangay_request_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'barangay_request_management_create', label: 'Barangay Request Create', management: 'barangay_request_management', role: ['barangay_official']},
+        { value: 'barangay_request_management_approval', label: 'Barangay Request Approval', management: 'barangay_request_management', role: ['enro_staff_eswm_section_head', 'enro_staff_head']},
+        { value: 'resident_management_full_view', label: 'Resident Full View', management: 'resident_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'resident_management_edit', label: 'Resident Edit', management: 'resident_management', role: ['admin']},
+        { value: 'user_management_full_view', label: 'User Full View', management: 'user_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'user_management_create', label: 'User Create', management: 'user_management', role: ['admin']},
+        { value: 'user_management_delete', label: 'User Delete', management: 'user_management', role: ['admin']},
+        { value: 'user_management_edit', label: 'User Edit', management: 'user_management', role: ['admin']},
+        { value: 'role_action_management_edit', label: 'Role Action Edit', management: 'role_action_management', role: ['admin']},
+        { value: 'role_action_management_delete', label: 'Role Action Delete', management: 'role_action_management', role: ['admin']},
+        { value: 'role_action_management_create', label: 'Role Action Create', management: 'role_action_management', role: ['admin'] },
+        { value: 'log_management_full_view', label: 'Log Full View', management: 'log_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'route_management_full_view', label: 'Route Full View', management: 'route_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'route_management_create', label: 'Route Create', management: 'route_management', role: ['enro_staff_scheduler']},
+        { value: 'route_management_edit', label: 'Route Edit', management: 'route_management', role: ['enro_staff_scheduler']},
+        { value: 'route_management_delete', label: 'Route Delete', management: 'route_management', role: ['enro_staff_scheduler']},
+        { value: 'barangay_management_full_view', label: 'Barangay Full View', management: 'barangay_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
+        { value: 'barangay_management_create', label: 'Barangay Create', management: 'barangay_management', role: ['enro_staff_scheduler']},
+        { value: 'barangay_management_edit', label: 'Barangay Edit', management: 'barangay_management', role: ['enro_staff_scheduler']},
+        { value: 'barangay_management_delete', label: 'Barangay Delete', management: 'barangay_management', role: ['enro_staff_scheduler'] },
+        { value: 'truck_management_full_view', label: 'Truck Full View', management: 'truck_management', role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official']},
+        { value: 'truck_management_create', label: 'Truck Create', management: 'truck_management', role: ['enro_staff_scheduler']},
+        { value: 'truck_management_edit', label: 'Truck Edit', management: 'truck_management', role: ['enro_staff_scheduler']},
+        { value: 'truck_management_delete', label: 'Truck Delete', management: 'truck_management', role: ['enro_staff_scheduler']},
+        { value: 'collector_attendance_management_full_view', label: 'Collector Attendance Full View', management: 'collector_attendance_management',  role: ['admin', 'enro_staff_monitoring', 'enro_staff_head', 'enro_staff_scheduler', 'enro_staff_eswm_section_head', 'barangay_official'] },
     ];
+
 
     // Get filtered permission options based on selected management modules
     const getFilteredPermissionOptions = () => {
@@ -308,7 +309,8 @@ const RoleActionManagementLayout = () => {
         );
 
         return permissionOptions.filter(permission =>
-            selectedManagementValues.includes(permission.management)
+            selectedManagementValues.includes(permission.management) &&
+            permission.role.includes(formData.role)  // ← filter by role
         );
     };
 
@@ -398,16 +400,18 @@ const RoleActionManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
-                    <button
-                        disabled={!user?.role_action?.permission?.includes('role_action_management_create')}
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New User</span>
-                    </button>
-                </div>
+                {['admin'].includes(user.role) && (
+                    <div className="flex justify-end">
+                        <button
+                            disabled={!user?.role_action?.permission?.includes('role_action_management_create')}
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New User</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -453,22 +457,27 @@ const RoleActionManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(role)}
-                                                    disabled={!user?.role_action?.permission?.includes('role_action_management_edit')}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(role._id)}
-                                                    disabled={!user?.role_action?.permission?.includes('role_action_management_delete')}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                {['admin'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleEdit(role)}
+                                                        disabled={!user?.role_action?.permission?.includes('role_action_management_edit')}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                {['admin'].includes(user.role) && (
+
+                                                    <button
+                                                        onClick={() => handleDelete(role._id)}
+                                                        disabled={!user?.role_action?.permission?.includes('role_action_management_delete')}
+                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        title="Delete"
+                                                    >
+                                                        <FiTrash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
