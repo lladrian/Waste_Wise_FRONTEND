@@ -575,15 +575,10 @@ const OfficialLayout = ({ children }) => {
 
             <div className="flex items-center space-x-4 flex-shrink-0">
               {/* Current Role Badge */}
-              {/* <div className="hidden sm:flex items-center space-x-2 bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-200/60">
+              <div className="hidden sm:flex items-center space-x-2 bg-blue-50/80 px-3 py-1.5 rounded-full border border-blue-200/60">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-sm font-medium text-blue-700">{getCurrentRoleLabel()}</span>
-                {hasMultipleRoles && (
-                  <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full">
-                    {roleOptions.length}
-                  </span>
-                )}
-              </div> */}
+                <span className="text-sm font-medium text-blue-700">{user?.role_action?.action_name}</span>
+              </div>
 
               {/* Notifications */}
               <div className="relative">
