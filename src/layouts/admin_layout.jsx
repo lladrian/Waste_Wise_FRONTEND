@@ -100,7 +100,7 @@ const AdminLayout = ({ children }) => {
   // Notification state
   const [notifications, setNotifications] = useState([]);
 
-  // Optimized navigation with grouped items for WasteWise
+
   const navItems = [
     { path: "/admin/dashboard", icon: FiHome, label: "Dashboard" },
 
@@ -110,20 +110,62 @@ const AdminLayout = ({ children }) => {
       icon: FiFolder,
       label: " Management",
       subItems: [
-        { path: "/admin/management/users", icon: FiUsers, label: "User Management" },
-        { path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" },
-        { path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" },
-        { path: "/admin/management/logs", icon: FiUsers, label: "Log Management" },
-        { path: "/admin/management/schedules", icon: FiUsers, label: "Schedule Management" },
-        { path: "/admin/management/complains", icon: FiUsers, label: "Barangay Complain Management" },
-        { path: "/admin/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" },
-        { path: "/admin/management/routes", icon: FiUsers, label: "Route Management" },
-        { path: "/admin/management/barangays", icon: FiUsers, label: "Barangay Management" },
-        { path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" },
-        { path: "/admin/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" },
-        { path: "/admin/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" },
-        { path: "/admin/management/collector_reports", icon: FiUsers, label: "Collector Report Management" },
-        { path: "/admin/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" },
+        ...(user?.role_action?.route?.includes("/admin/management/users")
+          ? [{ path: "/admin/management/users", icon: FiUsers, label: "User Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/residents")
+          ? [{ path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/role_actions")
+          ? [{ path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/logs")
+          ? [{ path: "/admin/management/logs", icon: FiUsers, label: "Log Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/schedules")
+          ? [{ path: "/admin/management/schedules", icon: FiUsers, label: "Schedule Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/complains")
+          ? [{ path: "/admin/management/complains", icon: FiUsers, label: "Barangay Complain Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/barangay_requests")
+          ? [{ path: "/admin/management/barangay_requests", icon: FiUsers, label: "Barangay Request Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/routes")
+          ? [{ path: "/admin/management/routes", icon: FiUsers, label: "Route Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/barangays")
+          ? [{ path: "/admin/management/barangays", icon: FiUsers, label: "Barangay Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/trucks")
+          ? [{ path: "/admin/management/trucks", icon: FiUsers, label: "Truck Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/garbage_sites")
+          ? [{ path: "/admin/management/garbage_sites", icon: FiUsers, label: "Garbage Site Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/garbage_reports")
+          ? [{ path: "/admin/management/garbage_reports", icon: FiUsers, label: "Garbage Report Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/collector_reports")
+          ? [{ path: "/admin/management/collector_reports", icon: FiUsers, label: "Collector Report Management" }]
+          : []
+        ),
+        ...(user?.role_action?.route?.includes("/admin/management/collector_attendances")
+          ? [{ path: "/admin/management/collector_attendances", icon: FiUsers, label: "Collector Attendance Management" }]
+          : []
+        ),
       ]
     },
     {

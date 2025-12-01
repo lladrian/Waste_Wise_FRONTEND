@@ -518,8 +518,9 @@ const ReportGarbageManagementLayout = () => {
                                             <div className="flex items-center space-x-2">
                                                 {['enro_staff_head', 'enro_staff_eswm_section_head'].includes(user.role) && (
                                                     <button
+                                                        disabled={!user?.role_action?.permission?.includes('collector_report_management_approval')}
                                                         onClick={() => handleEdit(report)}
-                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Edit"
                                                     >
                                                         <FiEdit className="w-4 h-4" />

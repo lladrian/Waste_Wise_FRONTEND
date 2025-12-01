@@ -1,44 +1,20 @@
 // src/components/ProtectedRoute.jsx
 import React, { useState, useEffect, useContext } from 'react';
-import { Navigate } from "react-router-dom";
 import { getSpecificUser } from "./../hooks/user_management_hook";
-import { toast } from "react-toastify";
 
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useLocation, useNavigate } from "react-router-dom";
 
-const decryptData = (encryptedData, key) => {
-  try {
-    const decoded = atob(encryptedData);
-    let decrypted = '';
 
-    for (let i = 0; i < decoded.length; i++) {
-      const keyChar = key.charCodeAt(i % key.length);
-      const dataChar = decoded.charCodeAt(i);
-      decrypted += String.fromCharCode(dataChar ^ keyChar);
-    }
-
-    // Extract IV (first 16 bytes) and actual data
-    const bytes = new Uint8Array(decrypted.split('').map(c => c.charCodeAt(0)));
-    const dataBytes = bytes.slice(16);
-    const originalData = new TextDecoder().decode(dataBytes);
-
-    return JSON.parse(originalData);
-  } catch (error) {
-    console.error('Decryption failed:', error);
-    return null;
-  }
-};
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { user, login, logout } = useContext(AuthContext);
   const userRole = user?.role; // Or get from context/store
   const userID = user?._id; // Or get from context/store
   const [users, setUsers] = useState(null);
-  //   const userRole = decryptData(localStorage.getItem('user_role'), 'test'); // Or get from context/store
-  // const userID = decryptData(localStorage.getItem('user_id'), 'test'); // Or get from context/store
-
 
 
   useEffect(() => {
@@ -74,15 +50,28 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Check if user has permission
 
-  if (users) {
+  if (users && user) {
+
+    const routePermission  = () => {
+      const currentPath = location.pathname;
+      const allowedRoutes = user?.role_action?.route || [];
+
+      const isManagementRoute = currentPath.includes('/management/');
+
+      // if(isManagementRoute) {
+      //   return allowedRoutes.includes(currentPath);
+      // }
+
+      return true;
+    };
+
     // const hasPermission = allowedRoles.includes(userRole) && (users && userRole === users.role);
     const hasPermission = allowedRoles.includes(userRole);
+    const hasRoutePermission = routePermission();
 
-    if (!hasPermission) {
-      console.log("1:"+userRole)
-      console.log("2:"+users.role)
+    if (!hasPermission || !hasRoutePermission) {
       localStorage.clear();
-      navigate(`/unauthorized`);
+      navigate('/unauthorized', { replace: true });
       return;
     }
   }

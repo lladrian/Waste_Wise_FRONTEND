@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import {
     FiPlus,
     FiEdit,
@@ -16,10 +16,11 @@ import {
 import { generateReportLoginLog, getAllLoginLog } from "../../hooks/log_management_hook";
 
 import { toast } from "react-toastify";
-
+import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
 
 const LogManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -146,8 +147,6 @@ const LogManagementLayout = () => {
     // Get unique roles and remarks for filter dropdowns
     const getUniqueRoles = () => {
         const roles = users.map(user => user?.user?.role).filter(Boolean);
-        // console.log(users)
-        console.log(roles)
         return [...new Set(roles)];
     };
 
@@ -399,39 +398,38 @@ const LogManagementLayout = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredUsers.map((user) => (
-                                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                                {filteredUsers.map((log) => (
+                                    <tr key={log._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user?.user?.first_name} {user?.user?.middle_name} {user?.user?.last_name}</span>
-                                            <span className="text-sm text-gray-900">{user?.resident_user?.first_name} {user?.resident_user?.middle_name} {user?.resident_user?.last_name}</span>
+                                            <span className="text-sm text-gray-900">{log?.user?.first_name} {log?.user?.middle_name} {log?.user?.last_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatRole(user?.user?.role)}</span>
-                                            <span className="text-sm text-gray-900">{formatRole(user?.resident_user?.role)}</span>
+                                            <span className="text-sm text-gray-900">{formatRole(log?.user?.role)}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatDate(user.created_at)}</span>
+                                            <span className="text-sm text-gray-900">{formatDate(log.created_at)}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.device}</span>
+                                            <span className="text-sm text-gray-900">{log.device}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.platform}</span>
+                                            <span className="text-sm text-gray-900">{log.platform}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.os}</span>
+                                            <span className="text-sm text-gray-900">{log.os}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.remark}</span>
+                                            <span className="text-sm text-gray-900">{log.remark}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.status}</span>
+                                            <span className="text-sm text-gray-900">{log.status}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => handleEdit(user?.user || user?.resident_user, user)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    onClick={() => handleEdit(log?.user, log)}
+                                                    disabled={!user?.role_action?.permission?.includes('log_management_full_view')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />

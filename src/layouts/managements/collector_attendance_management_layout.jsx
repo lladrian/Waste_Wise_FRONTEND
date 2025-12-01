@@ -605,8 +605,9 @@ const AttendanceManagementLayout = () => {
                                                     <FiMapPin className="w-4 h-4" />
                                                 </button> */}
                                                 <button
+                                                    disabled={!user?.role_action?.permission?.includes('collector_attendance_management_full_view')}
                                                     onClick={() => handleView(attendance)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="View Data"
                                                 >
                                                     <FiInfo className="w-4 h-4" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     FiPlus,
     FiEdit,
@@ -8,17 +8,19 @@ import {
     FiBook,
     FiLock,
     FiUser,
+    FiInfo,
     FiClock,
     FiCheckCircle,
     FiXCircle,
     FiAlertCircle
 } from 'react-icons/fi';
 import Select from 'react-select';
-
+import { AuthContext } from '../../context/AuthContext';
 import { getAllUserNoResident, deleteUser, updateUser, createUserByAdmin, updateUserPasswordAdmin } from "../../hooks/user_management_hook";
 import { toast } from "react-toastify";
 
 const UserManagementLayout = () => {
+    const { user } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const [barangays, setBarangays] = useState([]);
     const [roleActions, setRoleActions] = useState([]);
@@ -29,6 +31,8 @@ const UserManagementLayout = () => {
     const [editingUsers, setEditingUser] = useState(null);
     const [editingUserPassword, setEditingUserPassword] = useState(null);
     const [roleActionsMap, setRoleActionsMap] = useState({});
+    const [viewingComplains, setViewingComplain] = useState(null);
+    const [showModalData, setShowModalData] = useState(false);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -311,6 +315,11 @@ const UserManagementLayout = () => {
         setShowModalPassword(false);
     };
 
+    const handleView = (user) => {
+        setViewingComplain(user);
+        setShowModalData(true);
+    };
+
     const handleEdit = (user) => {
         setEditingUser(user);
 
@@ -458,7 +467,8 @@ const UserManagementLayout = () => {
                 <div className="flex justify-end">
                     <button
                         onClick={() => setShowModal(true)}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                        disabled={!user?.role_action?.permission?.includes('garbage_site_management_create')}
+                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <FiPlus className="w-4 h-4" />
                         <span>Add New User</span>
@@ -510,36 +520,37 @@ const UserManagementLayout = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredUsers.map((user) => (
-                                    <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                                {filteredUsers.map((user_orig) => (
+                                    <tr key={user_orig._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.first_name} {user.middle_name} {user.last_name}</span>
+                                            <span className="text-sm text-gray-900">{user_orig.first_name} {user_orig.middle_name} {user_orig.last_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-wrap gap-1">
-                                                <span className="text-sm text-gray-900">{formatRole(user.role)}</span>
-                                                {user.multiple_role && user.multiple_role.length > 1 && (
-                                                    <span className="text-xs text-gray-500">(+{user.multiple_role.length - 1})</span>
+                                                <span className="text-sm text-gray-900">{formatRole(user_orig.role)}</span>
+                                                {user_orig.multiple_role && user_orig.multiple_role.length > 1 && (
+                                                    <span className="text-xs text-gray-500">(+{user_orig.multiple_role.length - 1})</span>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user?.role_action?.action_name || "None"}</span>
+                                            <span className="text-sm text-gray-900">{user_orig?.role_action?.action_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1).toLowerCase() : ''}</span>
+                                            <span className="text-sm text-gray-900">{user_orig.gender ? user_orig.gender.charAt(0).toUpperCase() + user_orig.gender.slice(1).toLowerCase() : ''}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.contact_number}</span>
+                                            <span className="text-sm text-gray-900">{user_orig.contact_number}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{user.email}</span>
+                                            <span className="text-sm text-gray-900">{user_orig.email}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
                                                 <button
-                                                    onClick={() => handleEdit(user)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    onClick={() => handleEdit(user_orig)}
+                                                    disabled={!user?.role_action?.permission?.includes('user_management_edit')}
+                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="Edit"
                                                 >
                                                     <FiEdit className="w-4 h-4" />
@@ -552,11 +563,20 @@ const UserManagementLayout = () => {
                                                     <FiLock className="w-4 h-4" />
                                                 </button> */}
                                                 <button
-                                                    onClick={() => handleDelete(user._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    disabled={!user?.role_action?.permission?.includes('user_management_delete')}
+                                                    onClick={() => handleDelete(user_orig._id)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     title="Delete"
                                                 >
                                                     <FiTrash2 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleView(user_orig)}
+                                                    disabled={!user?.role_action?.permission?.includes('user_management_full_view')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title="View Data"
+                                                >
+                                                    <FiInfo className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -865,12 +885,12 @@ const UserManagementLayout = () => {
                                             </div>
 
                                             <div className={`mt-3 p-3 rounded-lg ${allActionsFilled
-                                                    ? 'bg-green-50 border border-green-200'
-                                                    : 'bg-red-50 border border-red-200'
+                                                ? 'bg-green-50 border border-green-200'
+                                                : 'bg-red-50 border border-red-200'
                                                 }`}>
                                                 <p className={`text-xs ${allActionsFilled
-                                                        ? 'text-green-700'
-                                                        : 'text-red-700'
+                                                    ? 'text-green-700'
+                                                    : 'text-red-700'
                                                     }`}>
                                                     {allActionsFilled
                                                         ? `✓ All ${availableRoles.length} role actions configured`
@@ -918,8 +938,8 @@ const UserManagementLayout = () => {
                                         type="submit"
                                         disabled={isSubmitDisabled}
                                         className={`px-6 py-2 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md ${isSubmitDisabled
-                                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                                            : 'bg-indigo-600 text-white hover:bg-indigo-700'
                                             }`}
                                     >
                                         {editingUsers ? 'Update User' : 'Add User'}
@@ -1088,6 +1108,85 @@ const UserManagementLayout = () => {
                     </div>
                 </div>
             )}
+
+            
+                        {showModalData && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
+                                    <div className="p-6">
+                                        <div className="flex justify-end items-center mb-6">
+                                            {/* <h2 className="text-xl font-bold text-gray-800">Complain Details</h2> */}
+                                            <button
+                                                onClick={() => {
+                                                    setShowModalData(false);
+                                                    setViewingComplain(null);
+                                                    resetForm();
+                                                }}
+                                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                            >
+                                                <FiXCircle className="w-6 h-6" />
+                                            </button>
+                                        </div>
+            
+                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                                <div>
+                                                    <span className="text-gray-500">Complete Name:</span>
+                                                    <p className="font-medium text-gray-800 capitalize">
+                                                        {viewingComplains?.first_name} {viewingComplains?.middle_name} {viewingComplains?.last_name}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Gender:</span>
+                                                    <p className="font-medium text-gray-800 capitalize">
+                                                        {viewingComplains?.gender}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Role:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {formatRole(viewingComplains?.role)}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Contact Number:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {viewingComplains?.contact_number}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-500">Email Address:</span>
+                                                    <p className="font-medium text-gray-800">
+                                                        {viewingComplains?.email}
+                                                    </p>
+                                                </div>
+                                                {/* <div>
+                                                    <span className="text-gray-500">Verification Status:</span>
+                                                    <p className={`font-medium ${viewingComplains?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                                                        {viewingComplains?.user?.is_verified ? 'Verified' : 'Unverified'}
+                                                    </p>
+                                                </div> */}
+                                            </div>
+                                        </div>
+            
+                                        {/* Action Buttons */}
+                                        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                                            <button
+                                                onClick={() => {
+                                                    setShowModalData(false);
+                                                    setViewingComplain(null);
+                                                    resetForm();
+                                                }}
+                                                className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
         </>
     );
 };

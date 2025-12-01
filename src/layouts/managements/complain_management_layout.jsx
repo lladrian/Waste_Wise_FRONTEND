@@ -416,7 +416,7 @@ const ComplainManagementLayout = () => {
                 {user?.role === 'barangay_official' && (
                     <div className="flex justify-end">
                         <button
-                            disabled={!user?.role_action?.permission?.includes('barangay_complain_management_create_barangay_complain')}                                        
+                            disabled={!user?.role_action?.permission?.includes('barangay_complain_management_create')}                                        
                             onClick={() => setShowModalCreate(true)}
                             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -642,7 +642,8 @@ const ComplainManagementLayout = () => {
                                                 {['enro_staff_eswm_section_head', 'enro_staff_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(complain)}
-                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        disabled={!user?.role_action?.permission?.includes('barangay_complain_management_approval')}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Edit"
                                                     >
                                                         <FiEdit className="w-4 h-4" />

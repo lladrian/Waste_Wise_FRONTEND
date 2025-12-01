@@ -56,12 +56,12 @@ const UnauthorizedPage = () => {
             <Home className="w-5 h-5" />
             Go Home
           </button>
-          <button
+          {/* <button
             onClick={() => window.history.back()}
             className="flex-1 border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105"
           >
             Go Back
-          </button>
+          </button> */}
         </div>
 
         {/* Support Text */}
@@ -74,25 +74,6 @@ const UnauthorizedPage = () => {
           </p>
         </div> */}
       </div>
-
-      {/* Custom animations */}
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
     </div>
   );
 };
