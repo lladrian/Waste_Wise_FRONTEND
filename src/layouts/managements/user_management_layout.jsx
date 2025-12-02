@@ -464,16 +464,18 @@ const UserManagementLayout = () => {
         <>
             <div className="space-y-6">
                 {/* Header Section */}
-                <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowModal(true)}
-                        disabled={!user?.role_action?.permission?.includes('garbage_site_management_create')}
-                        className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <FiPlus className="w-4 h-4" />
-                        <span>Add New User</span>
-                    </button>
-                </div>
+                {['admin'].includes(user.role) && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => setShowModal(true)}
+                            disabled={!user?.role_action?.permission?.includes('garbage_site_management_create')}
+                            className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FiPlus className="w-4 h-4" />
+                            <span>Add New User</span>
+                        </button>
+                    </div>
+                )}
 
                 {/* Filters and Search */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -547,14 +549,16 @@ const UserManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(user_orig)}
-                                                    disabled={!user?.role_action?.permission?.includes('user_management_edit')}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    title="Edit"
-                                                >
-                                                    <FiEdit className="w-4 h-4" />
-                                                </button>
+                                                {['admin'].includes(user.role) && (
+                                                    <button
+                                                        onClick={() => handleEdit(user_orig)}
+                                                        disabled={!user?.role_action?.permission?.includes('user_management_edit')}
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                                 {/* <button
                                                     onClick={() => handleEditPassword(user)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -562,14 +566,16 @@ const UserManagementLayout = () => {
                                                 >
                                                     <FiLock className="w-4 h-4" />
                                                 </button> */}
-                                                <button
-                                                    disabled={!user?.role_action?.permission?.includes('user_management_delete')}
-                                                    onClick={() => handleDelete(user_orig._id)}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    title="Delete"
-                                                >
-                                                    <FiTrash2 className="w-4 h-4" />
-                                                </button>
+                                                {['admin'].includes(user.role) && (
+                                                    <button
+                                                        disabled={!user?.role_action?.permission?.includes('user_management_delete')}
+                                                        onClick={() => handleDelete(user_orig._id)}
+                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        title="Delete"
+                                                    >
+                                                        <FiTrash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleView(user_orig)}
                                                     disabled={!user?.role_action?.permission?.includes('user_management_full_view')}
@@ -1109,84 +1115,84 @@ const UserManagementLayout = () => {
                 </div>
             )}
 
-            
-                        {showModalData && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                                <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
-                                    <div className="p-6">
-                                        <div className="flex justify-end items-center mb-6">
-                                            {/* <h2 className="text-xl font-bold text-gray-800">Complain Details</h2> */}
-                                            <button
-                                                onClick={() => {
-                                                    setShowModalData(false);
-                                                    setViewingComplain(null);
-                                                    resetForm();
-                                                }}
-                                                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                                            >
-                                                <FiXCircle className="w-6 h-6" />
-                                            </button>
-                                        </div>
-            
-                                        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                            <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
-                                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                                <div>
-                                                    <span className="text-gray-500">Complete Name:</span>
-                                                    <p className="font-medium text-gray-800 capitalize">
-                                                        {viewingComplains?.first_name} {viewingComplains?.middle_name} {viewingComplains?.last_name}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Gender:</span>
-                                                    <p className="font-medium text-gray-800 capitalize">
-                                                        {viewingComplains?.gender}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Role:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {formatRole(viewingComplains?.role)}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Contact Number:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingComplains?.contact_number}
-                                                    </p>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-500">Email Address:</span>
-                                                    <p className="font-medium text-gray-800">
-                                                        {viewingComplains?.email}
-                                                    </p>
-                                                </div>
-                                                {/* <div>
+
+            {showModalData && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex justify-end items-center mb-6">
+                                {/* <h2 className="text-xl font-bold text-gray-800">Complain Details</h2> */}
+                                <button
+                                    onClick={() => {
+                                        setShowModalData(false);
+                                        setViewingComplain(null);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                >
+                                    <FiXCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Complete Name:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {viewingComplains?.first_name} {viewingComplains?.middle_name} {viewingComplains?.last_name}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Gender:</span>
+                                        <p className="font-medium text-gray-800 capitalize">
+                                            {viewingComplains?.gender}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Role:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {formatRole(viewingComplains?.role)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Contact Number:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingComplains?.contact_number}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Email Address:</span>
+                                        <p className="font-medium text-gray-800">
+                                            {viewingComplains?.email}
+                                        </p>
+                                    </div>
+                                    {/* <div>
                                                     <span className="text-gray-500">Verification Status:</span>
                                                     <p className={`font-medium ${viewingComplains?.user?.is_verified ? 'text-green-600' : 'text-yellow-600'}`}>
                                                         {viewingComplains?.user?.is_verified ? 'Verified' : 'Unverified'}
                                                     </p>
                                                 </div> */}
-                                            </div>
-                                        </div>
-            
-                                        {/* Action Buttons */}
-                                        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
-                                            <button
-                                                onClick={() => {
-                                                    setShowModalData(false);
-                                                    setViewingComplain(null);
-                                                    resetForm();
-                                                }}
-                                                className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
-                                            >
-                                                Close
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                        )}
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-6">
+                                <button
+                                    onClick={() => {
+                                        setShowModalData(false);
+                                        setViewingComplain(null);
+                                        resetForm();
+                                    }}
+                                    className="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200 font-medium"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
