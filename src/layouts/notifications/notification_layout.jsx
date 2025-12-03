@@ -44,7 +44,7 @@ const NotificationsPage = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data, success } = await getAllNotificationSpecificUser(user?._id);
+      const { data, success } = await getAllNotificationSpecificUser(user?._id, user?.role);
       if (success === true) {
         setNotifications(data.data);
       }

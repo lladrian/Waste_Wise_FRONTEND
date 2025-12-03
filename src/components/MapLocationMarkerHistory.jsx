@@ -47,7 +47,7 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
   return (
     <div className="w-full relative space-y-4">
       <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={16}>
-        
+
         {/* Draw Polyline */}
         {routeHistory.length > 0 && (
           <Polyline
@@ -64,7 +64,10 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
         {routeHistory.length > 0 && (
           <Marker
             position={routeHistory[currentIndex]}
-            label="●"
+            // label="●"
+            icon={{
+              url: "https://img.icons8.com/color/48/truck.png",
+            }}
           />
         )}
 
@@ -72,7 +75,7 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
         {routeHistory.length > 0 && (
           <Marker
             position={routeHistory[0]}
-            label="S"
+            label="START"
             icon={{
               url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
             }}
@@ -83,7 +86,7 @@ const MapLocationMarkerHistory = ({ initialLocation, attendance_id }) => {
         {routeHistory.length > 1 && (
           <Marker
             position={routeHistory[routeHistory.length - 1]}
-            label="E"
+            label="END"
             icon={{
               url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
             }}

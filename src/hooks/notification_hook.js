@@ -1,8 +1,8 @@
 import * as API from '../services/api_service'; // or axios if used directly
 
-export const getAllNotificationSpecificUser = async (user_id) => {
+export const getAllNotificationSpecificUser = async (user_id, role) => {
   try {
-    const res = await API.getAllNotificationSpecificUser(user_id);
+    const res = await API.getAllNotificationSpecificUser(user_id, role);
 
     return { data: res.data, success: true };
   } catch (error) {

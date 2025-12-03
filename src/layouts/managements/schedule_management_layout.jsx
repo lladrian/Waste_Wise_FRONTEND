@@ -922,8 +922,10 @@ const ScheduleManagementLayout = () => {
                                                                         <td className="px-4 py-2 font-medium text-gray-700">
                                                                             {barangay.status}
                                                                         </td>
-                                                                        <td className="px-4 py-2 font-medium text-gray-700">
-                                                                            {barangayName}
+                                                                        <td className="px-6 py-4 max-w-[200px]">
+                                                                            <span className="text-sm text-gray-900 truncate block">
+                                                                                {barangayName}
+                                                                            </span>
                                                                         </td>
                                                                     </tr>
                                                                 );

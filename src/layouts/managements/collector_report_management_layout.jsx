@@ -23,7 +23,7 @@ import { getAllCollectorReport } from "../../hooks/collector_report_management_h
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 import DateRangeFilter from '../../components/DateRangeFilter';
-import MapLocationMarker from '../../components/MapLocationMarker';
+import MapLocationMarker from '../../components/MapLocationMarkerCollector';
 
 
 const ReportGarbageManagementLayout = () => {
