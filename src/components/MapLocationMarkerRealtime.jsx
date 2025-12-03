@@ -234,10 +234,14 @@ const MapLocationMarkerRealtime = ({ truck_id = null, display_type = "all" }) =>
         const s = (status || "").toLowerCase();
         let iconUrl;
         if (s === "active" || s === "on route")
-            iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+            // iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+            iconUrl = "https://img.icons8.com/color/48/truck.png";  // Active truck
         else if (s === "inactive" || s === "under maintenance" || s === "unavailable")
-            iconUrl = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-        else iconUrl = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+            // iconUrl = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+            iconUrl = "https://img.icons8.com/color/48/truck.png";  // Active truck
+        // else iconUrl = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+        else iconUrl = "https://img.icons8.com/color/48/truck.png";  // Active truck
+
 
         const img = document.createElement("img");
         img.src = iconUrl;

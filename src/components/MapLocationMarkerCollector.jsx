@@ -25,7 +25,12 @@ const MapLocationMarker = ({ initialLocation }) => {
         center={center}
         zoom={13}
       >
-        {selectedLocation && <Marker position={selectedLocation}  />}
+        {selectedLocation &&
+          <Marker
+            position={selectedLocation}
+            icon={{
+              url: "https://img.icons8.com/color/48/truck.png",
+            }} />}
       </GoogleMap>
     </div>
   );

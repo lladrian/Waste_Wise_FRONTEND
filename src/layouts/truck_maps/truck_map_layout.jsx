@@ -311,12 +311,17 @@ const TruckMap = () => {
   const createStatusIcon = (status) => {
     const s = (status || "").toLowerCase();
     let iconUrl;
-    if (s === "active" || s === "on route")
-      iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
-    else if (s === "inactive" || s === "under maintenance" || s === "unavailable")
-      iconUrl = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-    else
-      iconUrl = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+
+    // Example truck icons – replace these with your actual image URLs
+    if (s === "active" || s === "on route") {
+      iconUrl = "https://img.icons8.com/color/48/truck.png";  // Active truck
+    } else if (s === "inactive" || s === "under maintenance" || s === "unavailable") {
+      // iconUrl = "https://img.icons8.com/fluency/48/service-truck.png";  // Maintenance/inactive truck
+      iconUrl = "https://img.icons8.com/color/48/truck.png";  // Active truck
+    } else {
+      // iconUrl = "https://img.icons8.com/office/48/delivery.png";  // Default truck
+      iconUrl = "https://img.icons8.com/color/48/truck.png";  // Active truck
+    }
 
     const img = document.createElement("img");
     img.src = iconUrl;
@@ -324,6 +329,7 @@ const TruckMap = () => {
     img.style.height = "45px";
     return img;
   };
+
 
   const getDriverName = (driver) => {
     if (!driver) return "No driver assigned";

@@ -366,7 +366,7 @@ const ResidentManagementLayout = () => {
                                                 {['admin'].includes(user.role) && (
                                                     <button
                                                         disabled={!user?.role_action?.permission?.includes('resident_management_edit')}
-                                                        onClick={() => handleEdit(user)}
+                                                        onClick={() => handleEdit(resident)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Edit"
                                                     >
@@ -374,7 +374,7 @@ const ResidentManagementLayout = () => {
                                                     </button>
                                                 )}
                                                 <button
-                                                    onClick={() => handleView(user)}
+                                                    onClick={() => handleView(resident)}
                                                     disabled={!user?.role_action?.permission?.includes('resident_management_full_view')}
                                                     // disabled={!user?.role_action?.permission?.includes('resident_management_full_view') && !['admin'].includes(user.role)}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
