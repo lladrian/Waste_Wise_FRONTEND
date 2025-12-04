@@ -52,15 +52,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (users && user) {
 
-    const routePermission  = () => {
+    const routePermission = () => {
       const currentPath = location.pathname;
       const allowedRoutes = user?.role_action?.route || [];
 
       const isManagementRoute = currentPath.includes('/management/');
 
-      // if(isManagementRoute) {
-      //   return allowedRoutes.includes(currentPath);
-      // }
+      if (isManagementRoute) {
+        return allowedRoutes.includes(currentPath);
+      }
 
       return true;
     };

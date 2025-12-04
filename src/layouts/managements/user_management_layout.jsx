@@ -468,7 +468,7 @@ const UserManagementLayout = () => {
                     <div className="flex justify-end">
                         <button
                             onClick={() => setShowModal(true)}
-                            disabled={!user?.role_action?.permission?.includes('garbage_site_management_create')}
+                            disabled={!user?.role_action?.permission?.includes('user_management_create')}
                             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <FiPlus className="w-4 h-4" />
