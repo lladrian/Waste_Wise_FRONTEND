@@ -110,7 +110,7 @@ const AdminLayout = ({ children }) => {
       icon: FiFolder,
       label: " Management",
       subItems: [
-        ...(user?.role_action?.route?.includes("/admin/management/users")
+        ...(user?.role_action?.route?.includes("/admin/management/users") 
           ? [{ path: "/admin/management/users", icon: FiUsers, label: "User Management" }]
           : []
         ),
@@ -118,7 +118,7 @@ const AdminLayout = ({ children }) => {
           ? [{ path: "/admin/management/residents", icon: FiUsers, label: "Resident Management" }]
           : []
         ),
-        ...(user?.role_action?.route?.includes("/admin/management/role_actions")
+        ...(user?.role_action?.route?.includes("/admin/management/role_actions") 
           ? [{ path: "/admin/management/role_actions", icon: FiUsers, label: "Role Action Management" }]
           : []
         ),
