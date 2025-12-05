@@ -360,13 +360,13 @@ const NotificationsPage = () => {
           { key: 'all', label: 'All', count: categoryCounts.all },
           { key: 'unread', label: 'Unread', count: categoryCounts.unread },
           { key: 'read', label: 'Read', count: categoryCounts.read },
-          { key: 'collection', label: 'Collection', count: categoryCounts.collection },
-          { key: 'approval', label: 'Approval', count: categoryCounts.approval },
-          { key: 'user', label: 'User', count: categoryCounts.user },
-          { key: 'complaint', label: 'Complaint', count: categoryCounts.complaint },
-          { key: 'system', label: 'System', count: categoryCounts.system },
-          { key: 'inventory', label: 'Inventory', count: categoryCounts.inventory },
-          { key: 'maintenance', label: 'Maintenance', count: categoryCounts.maintenance }
+          // { key: 'collection', label: 'Collection', count: categoryCounts.collection },
+          // { key: 'approval', label: 'Approval', count: categoryCounts.approval },
+          // { key: 'user', label: 'User', count: categoryCounts.user },
+          // { key: 'complaint', label: 'Complaint', count: categoryCounts.complaint },
+          // { key: 'system', label: 'System', count: categoryCounts.system },
+          // { key: 'inventory', label: 'Inventory', count: categoryCounts.inventory },
+          // { key: 'maintenance', label: 'Maintenance', count: categoryCounts.maintenance }
         ].map((stat) => (
           <button
             key={stat.key}
@@ -407,11 +407,11 @@ const NotificationsPage = () => {
               <option value="all">All Notifications</option>
               {!showArchived && <option value="unread">Unread Only</option>}
               <option value="read">Read Only</option>
-              <option value="collection">Collection</option>
+              {/* <option value="collection">Collection</option>
               <option value="approval">Approval</option>
               <option value="user">User</option>
               <option value="complaint">Complaint</option>
-              <option value="system">System</option>
+              <option value="system">System</option> */}
             </select>
           </div>
         </div>
