@@ -805,7 +805,7 @@ const ScheduleManagementLayout = () => {
                             </div>
 
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Driver Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Garbage Collector Information</h3>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>
@@ -843,6 +843,26 @@ const ScheduleManagementLayout = () => {
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    {viewingSchedules?.approved_by && (
+                                        <>
+                                            <div>
+                                                <span className="text-gray-500">Approved By: </span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingSchedules?.approved_by?.first_name} {viewingSchedules?.approved_by?.middle_name} {viewingSchedules?.approved_by?.last_name} - {formatRole(viewingSchedules?.approved_by_role)}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
+                                    {viewingSchedules?.cancelled_by && (
+                                        <>
+                                            <div>
+                                                <span className="text-gray-500">Cancelled By: </span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingSchedules?.cancelled_by?.first_name} {viewingSchedules?.cancelled_by?.middle_name} {viewingSchedules?.cancelled_by?.last_name} - {formatRole(viewingSchedules?.cancelled_by_role)}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
                                     <div>
                                         <span className="text-gray-500">Garbage Type:</span>
                                         <p className="font-medium text-gray-800">
