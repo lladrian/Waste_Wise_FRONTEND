@@ -154,7 +154,7 @@ const StaffLayout = ({ children }) => {
       ]
     },
 
-    ...(user?.role === 'enro_staff_head' || user?.role === 'enro_staff_scheduler' ? [
+    ...(user?.role === 'enro_staff_head' || user?.role === 'enro_staff_scheduler'  || user?.role === 'enro_staff_eswm_section_head' ? [
       {
         path: "/staff/approval",
         icon: FiFolder,
