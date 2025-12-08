@@ -418,7 +418,7 @@ function App() {
         <Route
           path="/staff/approval/schedules"
           element={
-            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head']}>
+            <ProtectedRoute allowedRoles={['enro_staff_scheduler', 'enro_staff_head', 'enro_staff_eswm_section_head']}>
               <StaffScheduleApprovalPage />
             </ProtectedRoute>
           }
