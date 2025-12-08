@@ -279,16 +279,16 @@ const GarbageSiteManagementLayout = () => {
                                 {filteredGarbageSites.map((site) => (
                                     <tr key={site._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{site.garbage_site_name}</span>
+                                            <span className="text-sm text-gray-900">{site?.garbage_site_name}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{site.barangay.barangay_name}</span>
+                                            <span className="text-sm text-gray-900">{site?.barangay?.barangay_name || "NONE"}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{site.position.lat}</span>
+                                            <span className="text-sm text-gray-900">{site?.position?.lat}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{site.position.lng}</span>
+                                            <span className="text-sm text-gray-900">{site?.position?.lng}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
@@ -362,7 +362,7 @@ const GarbageSiteManagementLayout = () => {
                         {/* Display Info Based on viewingReportGarbages */}
                         <div className="p-4 space-y-2 border-b">
                             <p><strong>Site:</strong> {viewingReportGarbages.garbage_site_name}</p>
-                            <p><strong>Barangay:</strong> {viewingReportGarbages.barangay.barangay_name}</p>
+                            <p><strong>Barangay:</strong> {viewingReportGarbages?.barangay?.barangay_name || "NONE"}</p>
                             <p><strong>Latitude:</strong> {viewingReportGarbages.position.lat}</p>
                             <p><strong>Longitude:</strong> {viewingReportGarbages.position.lng}</p>
                         </div>

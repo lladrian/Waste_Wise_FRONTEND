@@ -131,6 +131,9 @@ const TruckMap = () => {
 
       if (success) {
         const list = user.role !== "barangay_official" ? data.trucks : data.trucks2 || [];
+
+        await initMap(list[0]?.truck?.position?.lat, list[0]?.truck?.position?.lng);
+
         setRecords(list);
         setFilteredRecords(list);
 
@@ -161,34 +164,31 @@ const TruckMap = () => {
     }
   }, [selectedStatus, records]);
 
-  // Initialize map only once
-  useEffect(() => {
-    const initMap = async () => {
-      if (!window.google) {
-        console.error("Google Maps not loaded");
-        return;
-      }
 
-      try {
-        const { AdvancedMarkerElement } = await window.google.maps.importLibrary("marker");
+  const initMap = async (latitude, longitude) => {
+    if (!window.google) {
+      console.error("Google Maps not loaded");
+      return;
+    }
 
-        const center = { lat: 11.0064, lng: 124.6075 };
-        const map = new window.google.maps.Map(document.getElementById("map"), {
-          center,
-          zoom: 12,
-          mapId: "DEMO_MAP_ID",
-        });
+    try {
+      const { AdvancedMarkerElement } = await window.google.maps.importLibrary("marker");
 
-        mapRef.current = { map, AdvancedMarkerElement };
-        setMapLoaded(true);
-        console.log("Map initialized successfully");
-      } catch (error) {
-        console.error("Error initializing map:", error);
-      }
-    };
+      const center = { lat: latitude || 11.0064, lng: longitude || 124.6075 };
 
-    initMap();
-  }, []);
+      const map = new window.google.maps.Map(document.getElementById("map"), {
+        center,
+        zoom: 12,
+        mapId: "DEMO_MAP_ID",
+      });
+
+      mapRef.current = { map, AdvancedMarkerElement };
+      setMapLoaded(true);
+      console.log("Map initialized successfully");
+    } catch (error) {
+      console.error("Error initializing map:", error);
+    }
+  };
 
   // Update markers when filteredRecords change
   useEffect(() => {

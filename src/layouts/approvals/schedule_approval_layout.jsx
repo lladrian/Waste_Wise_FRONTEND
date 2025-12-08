@@ -133,6 +133,7 @@ const ScheduleApprovalLayout = () => {
             truck: formData?.truck,
             garbage_type: formData?.garbage_type,
             status: formData?.status,
+            role: user?.role,
             remark: formData?.remark,
             is_editable: formData?.is_editable,
             scheduled_collection: formData?.scheduled_collection,
@@ -342,6 +343,8 @@ const ScheduleApprovalLayout = () => {
         { value: 'all', label: 'All Schedules' }
     ];
 
+
+
     return (
         <>
             <div className="space-y-6">
@@ -522,7 +525,7 @@ const ScheduleApprovalLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['admin'].includes(user.role) && (
+                                                {['enro_staff_head', 'enro_staff_eswm_section_head'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(schedule)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -704,7 +707,7 @@ const ScheduleApprovalLayout = () => {
                             </div>
 
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-3">Garbage Collector Information</h3>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <span className="text-gray-500">Complete Name:</span>
@@ -742,6 +745,26 @@ const ScheduleApprovalLayout = () => {
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    {viewingSchedules?.approved_by && (
+                                        <>
+                                            <div>
+                                                <span className="text-gray-500">Approved By: </span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingSchedules?.approved_by?.first_name} {viewingSchedules?.approved_by?.middle_name} {viewingSchedules?.approved_by?.last_name} - {formatRole(viewingSchedules?.approved_by_role)}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
+                                    {viewingSchedules?.cancelled_by && (
+                                        <>
+                                            <div>
+                                                <span className="text-gray-500">Cancelled By: </span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingSchedules?.cancelled_by?.first_name} {viewingSchedules?.cancelled_by?.middle_name} {viewingSchedules?.cancelled_by?.last_name} - {formatRole(viewingSchedules?.cancelled_by_role)}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
                                     <div>
                                         <span className="text-gray-500">Garbage Type:</span>
                                         <p className="font-medium text-gray-800">
@@ -811,7 +834,7 @@ const ScheduleApprovalLayout = () => {
                                                                 const orderNumber = barangay.order_index + 1;
 
                                                                 return (
-                                                                    <tr key={barangayId}>
+                                                                    <tr key={barangay._id}>
                                                                         <td className="px-4 py-2">
                                                                             <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-xs">
                                                                                 {orderNumber}
