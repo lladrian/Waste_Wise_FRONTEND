@@ -18,8 +18,6 @@ import {
 import { getSpecificSchedule, createSchedule, getAllSchedule, deleteSchedule, updateSchedule } from "../../hooks/schedule_hook";
 import { getSpecificRoute } from "../../hooks/route_hook";
 
-
-import BeautifulCalendar from "../../components/BeautifulCalendar";
 import { toast } from "react-toastify";
 
 import DateRangeFilter from '../../components/DateRangeFilter';
@@ -51,7 +49,7 @@ const ScheduleManagementLayout = () => {
         barangays: [],
         remark: '',
         garbage_type: '',
-        scheduled_collection: ''
+        recurring_day: ''
     });
 
     useEffect(() => {
@@ -111,10 +109,10 @@ const ScheduleManagementLayout = () => {
             const startDateStr = `${startDate}`;
             const endDateStr = `${endDate}`;
 
-            filtered = filtered.filter(schedule => {
-                const createdAt = schedule.scheduled_collection || ''; // try both places
-                return createdAt >= startDateStr && createdAt <= endDateStr;
-            });
+            // filtered = filtered.filter(schedule => {
+            //     const createdAt = schedule.scheduled_collection || ''; // try both places
+            //     return createdAt >= startDateStr && createdAt <= endDateStr;
+            // });
         }
 
         setFilteredSchedules(filtered);
@@ -134,7 +132,7 @@ const ScheduleManagementLayout = () => {
             garbage_type: formData?.garbage_type,
             status: formData?.status,
             remark: formData?.remark,
-            scheduled_collection: formData?.scheduled_collection,
+            recurring_day: formData?.recurring_day,
             task: response?.data?.data?.merge_barangay.map(barangay => ({
                 barangay_id: barangay.barangay_id,
                 status: 'Pending',
@@ -204,7 +202,7 @@ const ScheduleManagementLayout = () => {
             status: schedule.status,
             remark: schedule.remark,
             garbage_type: schedule.garbage_type,
-            scheduled_collection: schedule.scheduled_collection
+            recurring_day: schedule.recurring_day
         });
 
         setShowModal(true);
@@ -250,7 +248,7 @@ const ScheduleManagementLayout = () => {
             status: '',
             remark: '',
             garbage_type: '',
-            scheduled_collection: ''
+            recurring_day: ''
         });
 
         setEditingSchedule(null);
@@ -425,7 +423,7 @@ const ScheduleManagementLayout = () => {
                                         Route Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Collection Date
+                                        Collection Day
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Garbage Type
@@ -457,7 +455,9 @@ const ScheduleManagementLayout = () => {
                                             <span className="text-sm text-gray-900">{schedule?.route?.route_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatDate(schedule.scheduled_collection)}</span>
+                                            <span className="text-sm text-gray-900">
+                                                {schedule.recurring_day?.charAt(0).toUpperCase() + schedule.recurring_day?.slice(1)}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.garbage_type}</span>
@@ -722,39 +722,48 @@ const ScheduleManagementLayout = () => {
 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Collection Date
+                                            Collection Day
                                         </label>
 
-                                        {/* Display selected date or placeholder */}
-                                        <div
-                                            onClick={() => setShowCalendarModal(true)}
-                                            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 cursor-pointer bg-white hover:border-gray-400 flex items-center justify-between"
-                                        >
-                                            <span className={formData.scheduled_collection ? "text-gray-700" : "text-gray-400"}>
-                                                {formData.scheduled_collection
-                                                    ? new Date(formData.scheduled_collection).toLocaleDateString('en-US', {
-                                                        weekday: 'long',
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    })
-                                                    : 'Select a collection date'
-                                                }
-                                            </span>
-                                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                name="recurring_day"
+                                                value={formData.recurring_day}
+                                                onChange={handleInputChange}
+                                                className="
+                                                    block w-full appearance-none rounded-lg border
+                                                    border-gray-300 bg-white px-4 py-2.5 pr-10
+                                                    text-gray-700 shadow-sm transition-all
+                                                    focus:border-indigo-500 focus:outline-none
+                                                    focus:ring-2 focus:ring-indigo-200
+                                                    hover:border-gray-400 cursor-pointer
+                                                "
+                                            >
+                                                <option value="none" className="text-gray-400">
+                                                    — No Recurring Day —
+                                                </option>
+                                                <option value="monday">Monday</option>
+                                                <option value="tuesday">Tuesday</option>
+                                                <option value="wednesday">Wednesday</option>
+                                                <option value="thursday">Thursday</option>
+                                                <option value="friday">Friday</option>
+                                                <option value="saturday">Saturday</option>
+                                                <option value="sunday">Sunday</option>
+                                            </select>
 
-                                        {/* Beautiful Calendar Modal */}
-                                        <BeautifulCalendar
-                                            name="scheduled_collection"
-                                            value={formData.scheduled_collection}
-                                            onChange={handleInputChange}
-                                            minDate={new Date().toISOString().split('T')[0]}
-                                            isOpen={showCalendarModal}
-                                            onClose={() => setShowCalendarModal(false)}
-                                        />
+                                            {/* Dropdown Icon */}
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <svg
+                                                    className="h-5 w-5 text-gray-400"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
