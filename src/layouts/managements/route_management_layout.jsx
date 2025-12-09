@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import Select from 'react-select';
 import {
     FiPlus,
@@ -29,7 +29,6 @@ const RouteManagementLayout = () => {
     const [filteredRoutes, setFilteredRoutes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [showModalPassword, setShowModalPassword] = useState(false);
     const [showModalData, setShowModalData] = useState(false);
     const [viewingSchedules, setViewingSchedule] = useState(null);
     const [editingRouteId, setEditingRouteId] = useState(null);
@@ -37,15 +36,22 @@ const RouteManagementLayout = () => {
 
     const [formData, setFormData] = useState({
         route_name: '',
-        barangays: [], 
-        selected_barangay: '', 
+        barangays: [],
+        selected_barangay: '',
+        polyline_color: '',
         route_points: []
     });
 
 
+
     const handleRouteChange = (updatedPoints) => {
         setRoutePoints(updatedPoints);
+        // setFormData((prev) => ({
+        //     ...prev,
+        //     route_points: updatedPoints,
+        // }));
     };
+
 
     useEffect(() => {
         fetchData();
@@ -165,13 +171,13 @@ const RouteManagementLayout = () => {
         // Prepare the data according to your schema
         const input_data = {
             route_points: routePoints,
+            polyline_color: formData.polyline_color,
             route_name: formData.route_name,
             merge_barangay: formData.barangays.map(barangay => ({
                 barangay_id: barangay._id,
                 order_index: barangay.order_index
             }))
         };
-
 
         try {
             if (editingRouteId) {
@@ -215,8 +221,6 @@ const RouteManagementLayout = () => {
     };
 
     const handleEdit = (route) => {
-        console.log('Editing route:', route); // Debug log
-
         setEditingRouteId(route._id);
 
         // Transform the route data to match form structure
@@ -249,6 +253,7 @@ const RouteManagementLayout = () => {
         }
 
         setFormData({
+            polyline_color: route.polyline_color,
             route_points: route.route_points || [],
             route_name: route.route_name || '',
             barangays: barangaysArray,
@@ -278,7 +283,8 @@ const RouteManagementLayout = () => {
         setFormData({
             route_name: '',
             barangays: [],
-            selected_barangay: ''
+            selected_barangay: '',
+            polyline_color: ''
         });
         setEditingRouteId(null);
     };
@@ -625,7 +631,19 @@ const RouteManagementLayout = () => {
                                         </p>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <MapLocationMarkerDraw routeData={formData.route_points} initialLocation={{ lat: 11.0062, lng: 124.6075 }} onRouteChange={handleRouteChange} />
+                                        <MapLocationMarkerDraw
+                                            onColorChange={(color) => {
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    polyline_color: color,   // <-- Save color in formData
+                                                }));
+                                            }}
+                    
+                                            routeData={formData.route_points}
+                                            initialLocation={{ lat: 11.0062, lng: 124.6075 }}
+                                            initialPolylineColor={formData.polyline_color}
+                                            onRouteChange={handleRouteChange}
+                                        />
                                     </div>
                                 </div>
 

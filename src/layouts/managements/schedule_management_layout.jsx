@@ -903,10 +903,12 @@ const ScheduleManagementLayout = () => {
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Date:</span>
-                                        <p className="font-medium text-gray-800">
-                                            {formatDate(viewingSchedules?.created_at)}
-                                        </p>
+                                        <div>
+                                            <span className="text-gray-500">Collection Day:</span>
+                                            <p className="font-medium text-gray-800">
+                                                {viewingSchedules.recurring_day?.charAt(0).toUpperCase() + viewingSchedules.recurring_day?.slice(1)}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
