@@ -87,9 +87,22 @@ const MapLocationMarkerRealtime = ({ truck_id = null, display_type = "all" }) =>
         return `${year}-${month}-${day}`;
     };
 
+    function getTodayDayName() {
+        const now = new Date();
+        // Convert to Philippines time (UTC+8)
+        const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+        const philippinesTime = new Date(utc + 8 * 3600000);
+
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const dayName = days[philippinesTime.getDay()];
+
+        return dayName.toLowerCase();
+    }
+
+
     const fetchData = async () => {
         try {
-            const { data, success } = await getAllTruck(user?.barangay, getTodayFormatted());
+            const { data, success } = await getAllTruck(user?.barangay, getTodayDayName());
 
             if (success) {
                 const filteredSchedulesCollector = data.trucks.filter((schedule) => {
@@ -209,7 +222,7 @@ const MapLocationMarkerRealtime = ({ truck_id = null, display_type = "all" }) =>
                         status: truck.status || "N/A",
                         route_name: record.route?.route_name || "No route assigned",
                         garbage_type: record.garbage_type || "N/A",
-                        scheduled_collection: record.scheduled_collection || "N/A",
+                        recurring_day: record.recurring_day || "N/A",
                         driver: truck.user || {},
                         remark: record.remark || "None",
                     });
@@ -283,7 +296,9 @@ const MapLocationMarkerRealtime = ({ truck_id = null, display_type = "all" }) =>
                             <p><strong>Status:</strong> {selectedTruck.status}</p>
                             <p><strong>Route:</strong> {selectedTruck.route_name}</p>
                             <p><strong>Garbage Type:</strong> {selectedTruck.garbage_type}</p>
-                            <p><strong>Scheduled:</strong> {selectedTruck.scheduled_collection}</p>
+                            <p>
+                                <strong>Scheduled Day:</strong> {selectedTruck.recurring_day.charAt(0).toUpperCase() + selectedTruck.recurring_day.slice(1)}
+                            </p>
                             <hr className="my-2" />
                             <p>
                                 <strong>Driver:</strong>{" "}
