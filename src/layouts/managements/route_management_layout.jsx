@@ -20,6 +20,7 @@ import { getSpecificRoute, createRoute, getAllRoute, deleteRoute, updateRoute } 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 
+import MapLocationMarkerDraw from "../../components/MapLocationMarkerDraw";
 
 const RouteManagementLayout = () => {
     const { user } = useContext(AuthContext);
@@ -32,11 +33,19 @@ const RouteManagementLayout = () => {
     const [showModalData, setShowModalData] = useState(false);
     const [viewingSchedules, setViewingSchedule] = useState(null);
     const [editingRouteId, setEditingRouteId] = useState(null);
+    const [routePoints, setRoutePoints] = useState([]);
+
     const [formData, setFormData] = useState({
         route_name: '',
-        barangays: [], // Array of barangay objects with _id and order_index
-        selected_barangay: '' // Temporary selection for adding
+        barangays: [], 
+        selected_barangay: '', 
+        route_points: []
     });
+
+
+    const handleRouteChange = (updatedPoints) => {
+        setRoutePoints(updatedPoints);
+    };
 
     useEffect(() => {
         fetchData();
@@ -155,6 +164,7 @@ const RouteManagementLayout = () => {
 
         // Prepare the data according to your schema
         const input_data = {
+            route_points: routePoints,
             route_name: formData.route_name,
             merge_barangay: formData.barangays.map(barangay => ({
                 barangay_id: barangay._id,
@@ -238,8 +248,8 @@ const RouteManagementLayout = () => {
             });
         }
 
-
         setFormData({
+            route_points: route.route_points || [],
             route_name: route.route_name || '',
             barangays: barangaysArray,
             selected_barangay: ''
@@ -613,6 +623,9 @@ const RouteManagementLayout = () => {
                                         <p className="text-xs text-gray-500 mt-2">
                                             {formData.barangays?.length || 0} barangay(s) selected. Use arrows to reorder.
                                         </p>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <MapLocationMarkerDraw routeData={formData.route_points} initialLocation={{ lat: 11.0062, lng: 124.6075 }} onRouteChange={handleRouteChange} />
                                     </div>
                                 </div>
 
