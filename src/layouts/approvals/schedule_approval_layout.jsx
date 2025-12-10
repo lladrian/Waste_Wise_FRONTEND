@@ -49,7 +49,7 @@ const ScheduleApprovalLayout = () => {
         remark: '',
         garbage_type: '',
         is_editable: '',
-        scheduled_collection: ''
+        recurring_day: ''
     });
 
     useEffect(() => {
@@ -109,10 +109,10 @@ const ScheduleApprovalLayout = () => {
             const startDateStr = `${startDate}`;
             const endDateStr = `${endDate}`;
 
-            filtered = filtered.filter(schedule => {
-                const createdAt = schedule.scheduled_collection || '';
-                return createdAt >= startDateStr && createdAt <= endDateStr;
-            });
+            // filtered = filtered.filter(schedule => {
+            //     const createdAt = schedule.scheduled_collection || '';
+            //     return createdAt >= startDateStr && createdAt <= endDateStr;
+            // });
         }
 
         setFilteredSchedules(filtered);
@@ -136,7 +136,7 @@ const ScheduleApprovalLayout = () => {
             role: user?.role,
             remark: formData?.remark,
             is_editable: formData?.is_editable,
-            scheduled_collection: formData?.scheduled_collection,
+            recurring_day: formData?.recurring_day,
         };
 
         if (editingSchedules) {
@@ -200,7 +200,7 @@ const ScheduleApprovalLayout = () => {
             remark: schedule.remark,
             is_editable: String(schedule.is_editable),
             garbage_type: schedule.garbage_type,
-            scheduled_collection: schedule.scheduled_collection
+            recurring_day: schedule.recurring_day
         });
 
         setShowModal(true);
@@ -242,7 +242,7 @@ const ScheduleApprovalLayout = () => {
             remark: '',
             garbage_type: '',
             is_editable: '',
-            scheduled_collection: ''
+            recurring_day: ''
         });
 
         setEditingSchedule(null);
@@ -465,7 +465,7 @@ const ScheduleApprovalLayout = () => {
                                         Route Name
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Collection Date
+                                        Collection Day
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Garbage Type
@@ -497,7 +497,9 @@ const ScheduleApprovalLayout = () => {
                                             <span className="text-sm text-gray-900">{schedule?.route?.route_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{formatDate(schedule.scheduled_collection)}</span>
+                                            <span className="text-sm text-gray-900">
+                                                {schedule.recurring_day?.charAt(0).toUpperCase() + schedule.recurring_day?.slice(1)}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{schedule.garbage_type}</span>
@@ -525,7 +527,7 @@ const ScheduleApprovalLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-2">
-                                                {['enro_staff_head', 'enro_staff_eswm_section_head'].includes(user.role) && (
+                                                {['enro_staff_head', 'enro_staff_eswm_section_head', 'enro_staff_scheduler'].includes(user.role) && (
                                                     <button
                                                         onClick={() => handleEdit(schedule)}
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -796,9 +798,9 @@ const ScheduleApprovalLayout = () => {
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Date:</span>
+                                        <span className="text-gray-500">Collection Day:</span>
                                         <p className="font-medium text-gray-800">
-                                            {formatDate(viewingSchedules?.created_at)}
+                                         {viewingSchedules.recurring_day?.charAt(0).toUpperCase() + viewingSchedules.recurring_day?.slice(1)}
                                         </p>
                                     </div>
                                 </div>
