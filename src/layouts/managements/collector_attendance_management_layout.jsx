@@ -994,9 +994,9 @@ const AttendanceManagementLayout = () => {
                                                 </p>
                                             </div> */}
                                             <div>
-                                                <span className="text-gray-500">Collection Date:</span>
+                                                <span className="text-gray-500">Collection Day:</span>
                                                 <p className="font-medium text-gray-800">
-                                                    {formatDateString(viewingCollectorAttendances?.schedule.scheduled_collection)}
+                                                    {viewingCollectorAttendances?.schedule.recurring_day}
                                                     {/* {formatDate(viewingCollectorAttendances?.created_at)} */}
                                                 </p>
                                             </div>

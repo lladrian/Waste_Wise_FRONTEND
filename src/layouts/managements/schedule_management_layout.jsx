@@ -97,24 +97,6 @@ const ScheduleManagementLayout = () => {
             );
         }
 
-        if (startDate && endDate) {
-            //  const startDateStr = `${startDate} 00:00:00`;
-            // const endDateStr = `${endDate} 23:59:59`;
-
-            // filtered = filtered.filter(schedule => {
-            //     const createdAt = schedule.created_at || ''; // try both places
-            //     return createdAt >= startDateStr && createdAt <= endDateStr;
-            // });
-
-            const startDateStr = `${startDate}`;
-            const endDateStr = `${endDate}`;
-
-            // filtered = filtered.filter(schedule => {
-            //     const createdAt = schedule.scheduled_collection || ''; // try both places
-            //     return createdAt >= startDateStr && createdAt <= endDateStr;
-            // });
-        }
-
         setFilteredSchedules(filtered);
     };
 

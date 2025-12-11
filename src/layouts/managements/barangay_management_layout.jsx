@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
 
 import MapLocationMarkerMultiple from '../../components/MapLocationMarkerMultiple';
+import MapLocationPicker from '../../components/MapLocationPicker';
 
 
 const BarangayManagementLayout = () => {
@@ -37,8 +38,18 @@ const BarangayManagementLayout = () => {
     const [showMapModal, setShowMapModal] = useState(false);
     const [barangayStats, setBarangayStats] = useState({});
     const [formData, setFormData] = useState({
-        barangay_name: ''
+        barangay_name: '',
+        latitude: '',
+        longitude: ''
     });
+
+    const handleLocationSelect = (location) => {
+        setFormData(prev => ({
+            ...prev,
+            latitude: location.lat,
+            longitude: location.lng
+        }));
+    };
 
     useEffect(() => {
         fetchData();
@@ -124,7 +135,9 @@ const BarangayManagementLayout = () => {
         e.preventDefault();
 
         const input_data = {
-            barangay_name: formData.barangay_name
+            barangay_name: formData.barangay_name,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
         };
 
         if (editingBarangays) {
@@ -175,9 +188,10 @@ const BarangayManagementLayout = () => {
     const handleEdit = (barangay) => {
         setEditingBarangay(barangay);
         setFormData({
-            barangay_name: barangay.barangay_name
+            barangay_name: barangay?.barangay_name,
+            latitude: barangay?.position?.lat,
+            longitude: barangay?.position?.lng
         });
-
         setShowModal(true);
     };
 
@@ -368,7 +382,7 @@ const BarangayManagementLayout = () => {
                         </div>
                         {/* Map Section */}
                         <div className="w-full h-[500px]">
-                            <MapLocationMarkerMultiple locations={garbageSitePositions} />
+                            <MapLocationMarkerMultiple barangay_position={editingBarangays.position} locations={garbageSitePositions} />
                         </div>
                     </div>
                 </div>
@@ -410,7 +424,32 @@ const BarangayManagementLayout = () => {
                                             placeholder="Enter Barangay Name"
                                         />
                                     </div>
+
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Select Location on Map
+                                        </label>
+                                        <div className="border border-gray-300 rounded-lg bg-gray-100 relative overflow-hidden">
+                                            <div className="w-full h-full relative">
+                                                {editingBarangays ? (
+                                                    <MapLocationPicker
+                                                        initialLocation={{
+                                                            lat: formData.latitude,
+                                                            lng: formData.longitude
+                                                        }}
+                                                        onLocationSelect={handleLocationSelect}
+                                                    />
+                                                ) : (
+                                                    <MapLocationPicker onLocationSelect={handleLocationSelect} />
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            Click anywhere on the map to set the garbage site location
+                                        </p>
+                                    </div>
                                 </div>
+
 
                                 {/* Action Buttons */}
                                 <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">

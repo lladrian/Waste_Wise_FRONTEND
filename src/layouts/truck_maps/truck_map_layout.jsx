@@ -105,7 +105,6 @@ const TruckMap = () => {
                 schedule_status: updatedSelectedTruck.status || "N/A",
                 remark: updatedSelectedTruck.remark || "None",
                 garbage_type: updatedSelectedTruck.garbage_type || "N/A",
-                scheduled_collection: updatedSelectedTruck.scheduled_collection || "N/A",
                 recurring_day: updatedSelectedTruck.recurring_day || "N/A",
                 route_name: updatedSelectedTruck.route?.route_name || "No route assigned",
                 driver: updatedSelectedTruck.truck?.user || null,
@@ -295,40 +294,7 @@ const TruckMap = () => {
       );
     }
 
-    if (filterState.dateRange !== "all") {
-      const today = new Date();
-      filtered = filtered.filter(record => {
-        if (!record.scheduled_collection) return false;
-        const scheduledDate = new Date(record.scheduled_collection);
-
-        switch (filterState.dateRange) {
-          case "today":
-            return scheduledDate.toDateString() === today.toDateString();
-          case "tomorrow":
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            return scheduledDate.toDateString() === tomorrow.toDateString();
-          case "thisWeek":
-            const weekStart = new Date(today);
-            weekStart.setDate(today.getDate() - today.getDay());
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekStart.getDate() + 6);
-            return scheduledDate >= weekStart && scheduledDate <= weekEnd;
-          case "nextWeek":
-            const nextWeekStart = new Date(today);
-            nextWeekStart.setDate(today.getDate() + (7 - today.getDay()));
-            const nextWeekEnd = new Date(nextWeekStart);
-            nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
-            return scheduledDate >= nextWeekStart && scheduledDate <= nextWeekEnd;
-          case "thisMonth":
-            return scheduledDate.getMonth() === today.getMonth() &&
-              scheduledDate.getFullYear() === today.getFullYear();
-          default:
-            return true;
-        }
-      });
-    }
-
+ 
     setFilteredRecords(filtered);
   };
 
@@ -538,7 +504,6 @@ const TruckMap = () => {
             schedule_status: record.status || "N/A",
             remark: record.remark || "None",
             garbage_type: record.garbage_type || "N/A",
-            scheduled_collection: record.scheduled_collection || "N/A",
             recurring_day: record.recurring_day || "N/A",
             route_name: record.route?.route_name || "No route assigned",
             driver: truck.user || null,
@@ -996,7 +961,6 @@ const TruckMap = () => {
                     schedule_status: record.status || "N/A",
                     remark: record.remark || "None",
                     garbage_type: record.garbage_type || "N/A",
-                    scheduled_collection: record.scheduled_collection || "N/A",
                     recurring_day: record.recurring_day || "N/A",
                     route_name: record.route?.route_name || "No route assigned",
                     driver: record.truck?.user || null,

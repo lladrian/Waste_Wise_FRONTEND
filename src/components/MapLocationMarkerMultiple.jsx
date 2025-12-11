@@ -1,12 +1,17 @@
 import React from 'react';
 import { GoogleMap, Marker } from '@react-google-maps/api';
 
-const MapLocationMarkerMultiple = ({ locations = [], height = '400px' }) => {
+const MapLocationMarkerMultiple = ({ barangay_position, locations = [], height = '400px' }) => {
   // Default center (Ormoc City) if no locations are passed
   const defaultCenter = {
-    lat: 11.0062,
-    lng: 124.6075,
+    lat: barangay_position?.lat || 11.0062,
+    lng: barangay_position?.lng || 124.6075,
   };
+
+  //   const defaultCenter = {
+  //   lat: 11.0062,
+  //   lng: 124.6075,
+  // };
 
   const mapContainerStyle = {
     width: '100%',
