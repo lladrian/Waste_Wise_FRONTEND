@@ -105,15 +105,6 @@ const ScheduleApprovalLayout = () => {
             );
         }
 
-        if (startDate && endDate) {
-            const startDateStr = `${startDate}`;
-            const endDateStr = `${endDate}`;
-
-            // filtered = filtered.filter(schedule => {
-            //     const createdAt = schedule.scheduled_collection || '';
-            //     return createdAt >= startDateStr && createdAt <= endDateStr;
-            // });
-        }
 
         setFilteredSchedules(filtered);
     };

@@ -93,23 +93,24 @@ const DashboardLayout = () => {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                <StatCard
+               <StatCard
                     icon={FiUsers}
                     title="Total Resident Users"
-                    value={users.filter(user => user.role === "resident" && user.barangay._id === "68f30ca559da83fb2adf7d19").length}
+                    value={users.filter(user_orig => user_orig.role === "resident" && user_orig.barangay._id === user.barangay._id).length}
                     // change={2}
                     color="bg-indigo-500"
                     // link="/staff/management/barangays"
                 />
+                
                 <StatCard
                     icon={FiAlertCircle}
                     title="Total Complaints"
-                    value={complains.filter(complain => complain.barangay._id === "68f30ca559da83fb2adf7d19").length}
+                     value={complains.filter(complain => complain?.barangay?._id === user?.barangay?._id).length}
                     // value={complains.length}
                     // change={1}
                     color="bg-red-500"
                     // link="/staff/management/complains"
-                />
+                /> 
                   <StatCard
                     icon={FiAlertCircle}
                     title="Total Schedules"

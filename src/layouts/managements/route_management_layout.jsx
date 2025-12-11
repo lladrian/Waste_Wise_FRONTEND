@@ -12,10 +12,12 @@ import {
     FiUser,
     FiClock,
     FiCheckCircle,
-    FiXCircle
+    FiXCircle,
+    FiMapPin
 } from 'react-icons/fi';
 
 import { getSpecificRoute, createRoute, getAllRoute, deleteRoute, updateRoute } from "../../hooks/route_hook";
+import { getSpecificBarangay } from "../../hooks/barangay_hook";
 
 import { toast } from "react-toastify";
 import { AuthContext } from '../../context/AuthContext';
@@ -33,25 +35,20 @@ const RouteManagementLayout = () => {
     const [viewingSchedules, setViewingSchedule] = useState(null);
     const [editingRouteId, setEditingRouteId] = useState(null);
     const [routePoints, setRoutePoints] = useState([]);
+    const [firstBarangayPosition, setFirstBarangayPosition] = useState(null);
+    const [loadingBarangay, setLoadingBarangay] = useState(false);
 
     const [formData, setFormData] = useState({
         route_name: '',
         barangays: [],
         selected_barangay: '',
-        polyline_color: '',
+        polyline_color: '#009900',
         route_points: []
     });
 
-
-
     const handleRouteChange = (updatedPoints) => {
         setRoutePoints(updatedPoints);
-        // setFormData((prev) => ({
-        //     ...prev,
-        //     route_points: updatedPoints,
-        // }));
     };
-
 
     useEffect(() => {
         fetchData();
@@ -61,6 +58,70 @@ const RouteManagementLayout = () => {
         setViewingSchedule(schedule);
         setShowModalData(true);
     };
+
+    // Function to fetch barangay position based on ID
+    const fetchBarangayPosition = async (barangayId) => {
+        if (!barangayId) {
+            setFirstBarangayPosition(null);
+            return;
+        }
+
+        try {
+            setLoadingBarangay(true);
+            const { data, success } = await getSpecificBarangay(barangayId);
+            // const { data, success } = await getSpecificBarangay(barangayId._id);
+
+
+            if (success === true && data.data) {
+                const barangayData = data.data;
+
+                // Check if barangay has position data according to your schema
+                if (barangayData.position) {
+                    setFirstBarangayPosition({
+                        lat: barangayData.position.lat || 11.0064,
+                        lng: barangayData.position.lng || 124.6075
+                    });
+                } else {
+                    // If no position, use default center
+                    setFirstBarangayPosition({
+                        lat: 11.0064,
+                        lng: 124.6075
+                    });
+                    console.warn(`Barangay ${barangayData.barangay_name} has no position data, using default`);
+                }
+            } else {
+                setFirstBarangayPosition({
+                    lat: 11.0064,
+                    lng: 124.6075
+                });
+            }
+        } catch (err) {
+            console.error("Failed to load barangay position:", err);
+            setFirstBarangayPosition({
+                lat: 11.0064,
+                lng: 124.6075
+            });
+        } finally {
+            setLoadingBarangay(false);
+        }
+    };
+
+    // When formData.barangays changes, fetch position of first barangay
+    useEffect(() => {
+        if (formData.barangays && formData.barangays.length > 0) {
+            // Get the first barangay in order
+            const sortedBarangays = [...formData.barangays].sort((a, b) => a.order_index - b.order_index);
+            const firstBarangay = sortedBarangays[0];
+
+            if (firstBarangay && firstBarangay._id) {
+                fetchBarangayPosition(firstBarangay._id._id || firstBarangay._id);
+            } else {
+                setFirstBarangayPosition(null);
+            }
+        } else {
+            setFirstBarangayPosition(null);
+        }
+    }, [formData.barangays]);
 
     const fetchData = async () => {
         try {
@@ -216,11 +277,22 @@ const RouteManagementLayout = () => {
     };
 
     const getBarangayName = (barangayId) => {
-        const barangay = barangays.find(b => b._id === barangayId);
+        const barangay = barangays.find(b => b._id === barangayId._id || b._id === barangayId);
         return barangay?.barangay_name || 'Unknown Barangay';
     };
 
-    const handleEdit = (route) => {
+    const getBarangayPositionFromList = (barangayId) => {
+        const barangay = barangays.find(b => b._id === barangayId);
+        if (barangay && barangay.position) {
+            return {
+                lat: barangay.position.lat || 11.0064,
+                lng: barangay.position.lng || 124.6075
+            };
+        }
+        return null;
+    };
+
+    const handleEdit = async (route) => {
         setEditingRouteId(route._id);
 
         // Transform the route data to match form structure
@@ -250,6 +322,17 @@ const RouteManagementLayout = () => {
                     order_index: index
                 };
             });
+
+            // Try to get first barangay position from already loaded barangays first
+            const firstBarangay = barangaysArray.sort((a, b) => a.order_index - b.order_index)[0];
+            if (firstBarangay && firstBarangay._id) {
+                const cachedPosition = getBarangayPositionFromList(firstBarangay._id);
+                if (cachedPosition) {
+                    setFirstBarangayPosition(cachedPosition);
+                } else {
+                    await fetchBarangayPosition(firstBarangay._id._id);
+                }
+            }
         }
 
         setFormData({
@@ -286,6 +369,7 @@ const RouteManagementLayout = () => {
             selected_barangay: '',
             polyline_color: ''
         });
+        setFirstBarangayPosition(null);
         setEditingRouteId(null);
     };
 
@@ -295,6 +379,35 @@ const RouteManagementLayout = () => {
             ...prev,
             [name]: value
         }));
+    };
+
+    // Get initial location for the map
+    const getInitialLocation = () => {
+        // Priority 1: First barangay's position
+        if (firstBarangayPosition) {
+            return firstBarangayPosition;
+        }
+
+        // Priority 2: First route point if available
+        if (formData.route_points && formData.route_points.length > 0) {
+            return {
+                lat: formData.route_points[0].lat,
+                lng: formData.route_points[0].lng
+            };
+        }
+
+        // Priority 3: Default location
+        return { lat: 11.0064, lng: 124.6075 };
+    };
+
+    // Get the name of the first barangay for display
+    const getFirstBarangayName = () => {
+        if (formData.barangays && formData.barangays.length > 0) {
+            const sortedBarangays = [...formData.barangays].sort((a, b) => a.order_index - b.order_index);
+            const firstBarangay = sortedBarangays[0];
+            return getBarangayName(firstBarangay._id);
+        }
+        return null;
     };
 
     return (
@@ -421,7 +534,6 @@ const RouteManagementLayout = () => {
                 </div>
             </div>
 
-
             {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-xl shadow-lg w-[800px] max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -437,7 +549,6 @@ const RouteManagementLayout = () => {
                                     <FiXCircle className="w-6 h-6" />
                                 </button>
                             </div>
-
 
                             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                 <h3 className="font-semibold text-gray-700 mb-3">Route Information</h3>
@@ -456,7 +567,6 @@ const RouteManagementLayout = () => {
                                                 <thead className="bg-gray-50">
                                                     <tr>
                                                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Order</th>
-                                                        {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th> */}
                                                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Barangay Name</th>
                                                     </tr>
                                                 </thead>
@@ -469,8 +579,6 @@ const RouteManagementLayout = () => {
                                                                 const barangayName = barangayId?.barangay_name;
                                                                 const orderNumber = barangay.order_index + 1;
 
-
-
                                                                 return (
                                                                     <tr key={barangayId._id}>
                                                                         <td className="px-4 py-2">
@@ -478,9 +586,6 @@ const RouteManagementLayout = () => {
                                                                                 {orderNumber}
                                                                             </span>
                                                                         </td>
-                                                                        {/* <td className="px-4 py-2 font-medium text-gray-700">
-                                                                            {barangay.status}
-                                                                        </td> */}
                                                                         <td className="px-6 py-4 max-w-[200px]">
                                                                             <span className="text-sm text-gray-900 truncate block">
                                                                                 {barangayName}
@@ -557,7 +662,8 @@ const RouteManagementLayout = () => {
                                                     {formData.barangays
                                                         .sort((a, b) => a.order_index - b.order_index)
                                                         .map((barangay, index) => (
-                                                            <div key={barangay._id} className="flex items-center justify-between bg-white p-3 rounded border">
+
+                                                            <div key={barangay._id._id} className="flex items-center justify-between bg-white p-3 rounded border">
                                                                 <div className="flex items-center space-x-3">
                                                                     <span className="flex items-center justify-center w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full text-xs font-medium">
                                                                         {barangay.order_index + 1}
@@ -629,21 +735,43 @@ const RouteManagementLayout = () => {
                                         <p className="text-xs text-gray-500 mt-2">
                                             {formData.barangays?.length || 0} barangay(s) selected. Use arrows to reorder.
                                         </p>
+
+                                        {/* First Barangay Position Info */}
+                                        {/* {firstBarangayPosition && getFirstBarangayName() && (
+                                            <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                                                <div className="flex items-center space-x-2">
+                                                    <FiMapPin className="w-4 h-4 text-blue-500" />
+                                                    <p className="text-xs text-blue-700">
+                                                        <strong>Map Centered:</strong> First barangay ({getFirstBarangayName()}) position 
+                                                        at {firstBarangayPosition.lat.toFixed(4)}, {firstBarangayPosition.lng.toFixed(4)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )} */}
                                     </div>
                                     <div className="md:col-span-2">
-                                        <MapLocationMarkerDraw
-                                            onColorChange={(color) => {
-                                                setFormData((prev) => ({
-                                                    ...prev,
-                                                    polyline_color: color,   // <-- Save color in formData
-                                                }));
-                                            }}
-                    
-                                            routeData={formData.route_points}
-                                            initialLocation={{ lat: 11.0062, lng: 124.6075 }}
-                                            initialPolylineColor={formData.polyline_color}
-                                            onRouteChange={handleRouteChange}
-                                        />
+                                        <div className="relative">
+                                            {loadingBarangay && (
+                                                <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 rounded-lg">
+                                                    <div className="text-center">
+                                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                                                        <p className="text-sm text-gray-600 mt-2">Loading barangay position...</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <MapLocationMarkerDraw
+                                                onColorChange={(color) => {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        polyline_color: color,
+                                                    }));
+                                                }}
+                                                routeData={formData.route_points}
+                                                initialLocation={getInitialLocation()}
+                                                initialPolylineColor={formData.polyline_color}
+                                                onRouteChange={handleRouteChange}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

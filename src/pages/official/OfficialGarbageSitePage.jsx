@@ -41,7 +41,8 @@ const OfficialGarbageSitePage = () => {
                 <h2 className="text-lg font-semibold text-gray-800">Total Garbage Sites: ({garbageSites.length})</h2>
             </div>
             <div className="w-full h-[700px]">
-                <MapLocationMarkerMultiple locations={garbageSitePositions} height={"600px"} />
+                {console.log(garbageSites)}
+                <MapLocationMarkerMultiple barangay_position={garbageSites?.position} locations={garbageSitePositions} height={"600px"} />
             </div>
         </OfficialLayout >
     );
