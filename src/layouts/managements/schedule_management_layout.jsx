@@ -49,13 +49,41 @@ const ScheduleManagementLayout = () => {
         barangays: [],
         remark: '',
         garbage_type: '',
-        recurring_day: ''
+        recurring_day: []
     });
 
     useEffect(() => {
         fetchData();
     }, []);
 
+
+
+
+
+    const recurringDayOptions = [
+        { value: "monday", label: "Monday" },
+        { value: "tuesday", label: "Tuesday" },
+        { value: "wednesday", label: "Wednesday" },
+        { value: "thursday", label: "Thursday" },
+        { value: "friday", label: "Friday" },
+        { value: "saturday", label: "Saturday" },
+        { value: "sunday", label: "Sunday" },
+    ];
+
+    const getSelectedRecurringDays = (selectedDays) => {
+        return recurringDayOptions.filter(option =>
+            selectedDays.includes(option.value)
+        );
+    };
+
+    const handleSelectChangeRecurringDay = (selectedOptions) => {
+        setFormData(prev => ({
+            ...prev,
+            recurring_day: selectedOptions
+                ? selectedOptions.map(option => option.value)
+                : []
+        }));
+    };
 
     const fetchData = async () => {
         try {
@@ -438,7 +466,11 @@ const ScheduleManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">
-                                                {schedule.recurring_day?.charAt(0).toUpperCase() + schedule.recurring_day?.slice(1)}
+                                                {Array.isArray(schedule.recurring_day) && schedule.recurring_day.length > 0
+                                                    ? schedule.recurring_day
+                                                        .map(day => day.charAt(0).toUpperCase() + day.slice(1))
+                                                        .join(", ")
+                                                    : "—"}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -707,45 +739,27 @@ const ScheduleManagementLayout = () => {
                                             Collection Day
                                         </label>
 
-                                        <div className="relative">
-                                            <select
-                                                name="recurring_day"
-                                                value={formData.recurring_day}
-                                                onChange={handleInputChange}
-                                                className="
-                                                    block w-full appearance-none rounded-lg border
-                                                    border-gray-300 bg-white px-4 py-2.5 pr-10
-                                                    text-gray-700 shadow-sm transition-all
-                                                    focus:border-indigo-500 focus:outline-none
-                                                    focus:ring-2 focus:ring-indigo-200
-                                                    hover:border-gray-400 cursor-pointer
-                                                "
-                                            >
-                                                <option value="none" className="text-gray-400">
-                                                    — No Recurring Day —
-                                                </option>
-                                                <option value="monday">Monday</option>
-                                                <option value="tuesday">Tuesday</option>
-                                                <option value="wednesday">Wednesday</option>
-                                                <option value="thursday">Thursday</option>
-                                                <option value="friday">Friday</option>
-                                                <option value="saturday">Saturday</option>
-                                                <option value="sunday">Sunday</option>
-                                            </select>
-
-                                            {/* Dropdown Icon */}
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                <svg
-                                                    className="h-5 w-5 text-gray-400"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
+                                        <Select
+                                            name="recurring_day"
+                                            isMulti
+                                            options={recurringDayOptions}
+                                            value={getSelectedRecurringDays(formData.recurring_day)}
+                                            onChange={handleSelectChangeRecurringDay}
+                                            placeholder="Select collection days..."
+                                            closeMenuOnSelect={false}
+                                            isSearchable
+                                            styles={{
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                }),
+                                                menuPortal: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                })
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
                                     </div>
                                 </div>
 
@@ -888,7 +902,12 @@ const ScheduleManagementLayout = () => {
                                         <div>
                                             <span className="text-gray-500">Collection Day:</span>
                                             <p className="font-medium text-gray-800">
-                                                {viewingSchedules.recurring_day?.charAt(0).toUpperCase() + viewingSchedules.recurring_day?.slice(1)}
+                                                {Array.isArray(viewingSchedules.recurring_day) &&
+                                                    viewingSchedules.recurring_day.length > 0
+                                                    ? viewingSchedules.recurring_day
+                                                        .map(day => day.charAt(0).toUpperCase() + day.slice(1))
+                                                        .join(", ")
+                                                    : "—"}
                                             </p>
                                         </div>
                                     </div>
