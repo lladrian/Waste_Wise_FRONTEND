@@ -65,7 +65,7 @@ export const deleteRequest = (id) => axios.delete(`/requests/delete_request/${id
 export const updateRequest = (id, data) => axios.put(`/requests/update_request/${id}`, data);
 export const updateRequestApproval = (id, data) => axios.put(`/requests/update_request_approval/${id}`, data);
 export const getAllNotificationSpecificUser = (id, role) => axios.get(`/notifications/get_all_notification_specific_user/${id}/${role}`);
-export const updateReadAllNotificationSpecificUser = (user_id) => axios.put(`/notifications/update_read_all_notification_specific_user/${user_id}`);
+export const updateReadAllNotificationSpecificUser = (user_id) => axios.get(`/notifications/update_read_all_notification_specific_user/${user_id}`);
 export const updateReadMultipleNotification = (data) => axios.post(`/notifications/update_read_multiple_notification`,data);
 export const updateArchiveMultipleNotification = (data) => axios.post(`/notifications/update_archive_multiple_notification`,data);
 export const createGarbageSite = (data) => axios.post(`/garbage_sites/add_garbage_site`,data);

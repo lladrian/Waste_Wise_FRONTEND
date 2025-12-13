@@ -174,7 +174,7 @@ const TruckMap = () => {
 
     return dayName.toLowerCase();
   }
- 
+
 
   // Update available filters from data
   const updateAvailableFilters = (data) => {
@@ -294,7 +294,7 @@ const TruckMap = () => {
       );
     }
 
- 
+
     setFilteredRecords(filtered);
   };
 
@@ -620,7 +620,7 @@ const TruckMap = () => {
         <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-gray-500">
           <div className="flex items-center space-x-2 mb-2">
             <FiTruck className="w-5 h-5 text-gray-500" />
-            <div className="text-sm font-medium text-gray-600">Total Trucks</div>
+            <div className="text-sm font-medium text-gray-600">Trucks</div>
           </div>
           <div className="text-2xl font-bold text-gray-800">{records.length}</div>
         </div>

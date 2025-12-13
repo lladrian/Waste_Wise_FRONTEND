@@ -489,7 +489,11 @@ const ScheduleApprovalLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">
-                                                {schedule.recurring_day?.charAt(0).toUpperCase() + schedule.recurring_day?.slice(1)}
+                                                {Array.isArray(schedule.recurring_day) && schedule.recurring_day.length > 0
+                                                    ? schedule.recurring_day
+                                                        .map(day => day.charAt(0).toUpperCase() + day.slice(1))
+                                                        .join(", ")
+                                                    : "—"}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -791,7 +795,11 @@ const ScheduleApprovalLayout = () => {
                                     <div>
                                         <span className="text-gray-500">Collection Day:</span>
                                         <p className="font-medium text-gray-800">
-                                         {viewingSchedules.recurring_day?.charAt(0).toUpperCase() + viewingSchedules.recurring_day?.slice(1)}
+                                            {Array.isArray(viewingSchedules.recurring_day) && viewingSchedules.recurring_day.length > 0
+                                                ? viewingSchedules.recurring_day
+                                                    .map(day => day.charAt(0).toUpperCase() + day.slice(1))
+                                                    .join(", ")
+                                                : "—"}
                                         </p>
                                     </div>
                                 </div>
