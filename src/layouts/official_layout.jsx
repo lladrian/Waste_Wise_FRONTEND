@@ -107,10 +107,10 @@ const OfficialLayout = ({ children }) => {
       icon: FiFolder,
       label: "Management",
       subItems: [
-        ...(user?.role_action?.route?.includes("/official/management/residents")
-          ? [{ path: "/official/management/residents", icon: FiUsers, label: "Resident Management" }]
-          : []
-        ),
+        // ...(user?.role_action?.route?.includes("/official/management/residents")
+        //   ? [{ path: "/official/management/residents", icon: FiUsers, label: "Resident Management" }]
+        //   : []
+        // ),
         ...(user?.role_action?.route?.includes("/official/management/schedules")
           ? [{ path: "/official/management/schedules", icon: FiUsers, label: "Schedule Management" }]
           : []

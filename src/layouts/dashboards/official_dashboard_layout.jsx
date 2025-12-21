@@ -93,14 +93,14 @@ const DashboardLayout = () => {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-               <StatCard
+               {/* <StatCard
                     icon={FiUsers}
                     title="Total Resident Users"
                     value={users.filter(user_orig => user_orig.role === "resident" && user_orig.barangay._id === user.barangay._id).length}
                     // change={2}
                     color="bg-indigo-500"
                     // link="/staff/management/barangays"
-                />
+                /> */}
                 
                 <StatCard
                     icon={FiAlertCircle}

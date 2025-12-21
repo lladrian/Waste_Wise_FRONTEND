@@ -184,7 +184,7 @@ const ReportGarbageManagementLayout = () => {
     };
 
 
-    
+
 
     const handleEdit = (complain) => {
         setEditingReportGarbage(complain);
@@ -312,7 +312,7 @@ const ReportGarbageManagementLayout = () => {
         return roleMap[role] || role; // Return formatted role or original if not found
     };
 
-     const scheduleStatusOptions = [
+    const scheduleStatusOptions = [
         'Pending',
         'Approved',
         'Cancelled',
@@ -506,6 +506,9 @@ const ReportGarbageManagementLayout = () => {
                                         Garbage Type
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Report Type
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -519,11 +522,22 @@ const ReportGarbageManagementLayout = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredReportGarbages.map((report) => (
                                     <tr key={report._id} className={`hover:bg-gray-50 transition-colors bg-gray-50`}>
+                                        {(report?.user?.first_name ||
+                                            report?.user?.middle_name ||
+                                            report?.user?.last_name) && (
+                                                <td className="px-6 py-4">
+                                                    <span className="text-sm text-gray-900">{report?.user?.first_name} {report?.user?.middle_name} {report?.user?.last_name}</span>
+                                                </td>
+                                        )}
+                                        {(!report?.user?.first_name &&
+                                            !report?.user?.middle_name &&
+                                            !report?.user?.last_name) && (
+                                                <td className="px-6 py-4">
+                                                    <span className="text-sm text-gray-900">Guest</span>
+                                                </td>
+                                        )}
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report?.user?.first_name} {report?.user?.middle_name} {report?.user?.last_name}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-900">{report?.user?.barangay?.barangay_name || "None"}</span>
+                                            <span className="text-sm text-gray-900">{report?.barangay?.barangay_name || "None"}</span>
                                         </td>
                                         <td className="px-6 py-4 max-w-[200px]">
                                             <span className="text-sm text-gray-900 truncate block">
@@ -532,6 +546,9 @@ const ReportGarbageManagementLayout = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{report.garbage_type}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-gray-900">{report.report_type}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="text-sm text-gray-900">{report.resolution_status}</span>
@@ -638,7 +655,7 @@ const ReportGarbageManagementLayout = () => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 2-Column Grid for Form Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                       {editingReportGarbages && (
+                                    {editingReportGarbages && (
                                         <>
                                             {/* Remark Field */}
                                             {/* <div className="md:col-span-2">
@@ -974,7 +991,7 @@ const ReportGarbageManagementLayout = () => {
                     </div>
                 </div>
             )}
-            
+
 
             {showModalData && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -1013,6 +1030,7 @@ const ReportGarbageManagementLayout = () => {
 
                             {selectedView === 'user_info' ? (
                                 <div>
+                                    {(viewingReportGarbages?.user) && (
                                     <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                         <h3 className="text-sm font-semibold text-gray-700 mb-3">User Information</h3>
                                         <div className="grid grid-cols-2 gap-3 text-sm">
@@ -1048,7 +1066,8 @@ const ReportGarbageManagementLayout = () => {
                                             </div>
                                         </div>
                                     </div>
-
+                                    )}
+                                    
                                     {viewingReportGarbages?.verified_by && (
                                         <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
                                             <h3 className="text-sm font-semibold text-gray-700 mb-3">User Verification Information</h3>
@@ -1094,6 +1113,12 @@ const ReportGarbageManagementLayout = () => {
                                                 <span className="text-gray-500">Garbage Type:</span>
                                                 <p className="font-medium text-gray-800">
                                                     {viewingReportGarbages?.garbage_type}
+                                                </p>
+                                            </div>
+                                              <div>
+                                                <span className="text-gray-500">Report Type:</span>
+                                                <p className="font-medium text-gray-800">
+                                                    {viewingReportGarbages?.report_type}
                                                 </p>
                                             </div>
                                             <div>
