@@ -411,12 +411,13 @@ const TruckMap = () => {
       iconContainer.style.height = "45px";
       
       const iconImg = document.createElement("img");
-      iconImg.src = TruckIcon;
+      // iconImg.src = TruckIcon;
+      iconImg.src = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
       iconImg.style.width = "100%";
       iconImg.style.height = "100%";
-      iconImg.style.transform = `rotate(${heading}deg)`;
-      iconImg.style.transformOrigin = "center";
-      iconImg.style.transition = "transform 0.3s ease";
+      // iconImg.style.transform = `rotate(${heading}deg)`;
+      // iconImg.style.transformOrigin = "center";
+      // iconImg.style.transition = "transform 0.3s ease";
       
       iconImg.onerror = () => {
         console.error("Failed to load truck icon");
@@ -540,9 +541,9 @@ const TruckMap = () => {
         const heading = truck.heading || 0;
         
         const iconImg = marker.content.querySelector('img');
-        if (iconImg) {
-          iconImg.style.transform = `rotate(${heading}deg)`;
-        }
+        // if (iconImg) {
+        //   iconImg.style.transform = `rotate(${heading}deg)`;
+        // }
         
         marker.title = `Truck ID: ${truck.truck_id}\nStatus: ${truck.status}\nPosition: ${truck.position?.lat}, ${truck.position?.lng}\nHeading: ${heading}°`;
       }

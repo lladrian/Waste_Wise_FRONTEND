@@ -194,16 +194,17 @@ const MapLocationMarkerRealtime = ({ truck_id = null, display_type = "all" }) =>
         iconContainer.style.height = "45px";
         
         const iconImg = document.createElement("img");
-        iconImg.src = TruckIcon;
+        // iconImg.src = TruckIcon;
+        iconImg.src = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
         iconImg.onerror = () => {
             console.error("Failed to load truck icon");
             iconImg.src = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
         };
         iconImg.style.width = "100%";
         iconImg.style.height = "100%";
-        iconImg.style.transform = `rotate(${heading}deg)`;
-        iconImg.style.transformOrigin = "center";
-        iconImg.style.transition = "transform 0.3s ease";
+        // iconImg.style.transform = `rotate(${heading}deg)`;
+        // iconImg.style.transformOrigin = "center";
+        // iconImg.style.transition = "transform 0.3s ease";
         
         iconContainer.appendChild(iconImg);
         markerDiv.appendChild(label);
@@ -263,9 +264,9 @@ const MapLocationMarkerRealtime = ({ truck_id = null, display_type = "all" }) =>
                 
                 // Update heading rotation
                 const iconImg = existingMarker.content.querySelector('img');
-                if (iconImg) {
-                    iconImg.style.transform = `rotate(${heading}deg)`;
-                }
+                // if (iconImg) {
+                //     iconImg.style.transform = `rotate(${heading}deg)`;
+                // }
                 
                 // Update title with heading
                 existingMarker.title = `Truck ID: ${truck.truck_id}\nStatus: ${truck.status}\nPosition: ${lat}, ${lng}\nHeading: ${heading}°`;
